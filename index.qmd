@@ -13,6 +13,8 @@ First Break AI is a free, community-driven cohort for anyone who wants their fir
 
 Self-learners (B.E. / M.Tech / MBA or any background) looking for a first break or employment in AI. Learning is self- and community-driven; no formal enrollment — just follow the path and build in the open.
 
+**Join the community:** [Discord (Bubblspace)](https://discord.gg/QZuBvfcj) — follow and chat with the cohort and get help as you go.
+
 ## Get started
 
 | Section | Description |
