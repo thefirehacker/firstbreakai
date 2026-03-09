@@ -4,7 +4,7 @@ subtitle: "Your journey to a first break in AI"
 css: styles/roadmap.css
 ---
 
-Your learning path — one journey, step by step. Use your AI-based IDE and the community to complete each step. This roadmap is in progress; new steps get added as the cohort grows.
+Your learning path — one journey, step by step. The cohort runs **8 March 2026 — 7 June 2026 (3 months)**. Use your AI-based IDE and the community to complete each step. This roadmap is in progress; new steps get added as the cohort grows.
 
 ::: {.view-toggle}
 <button class="active" onclick="toggleView('visual')">Visual</button>
@@ -53,13 +53,21 @@ Run a model locally using a basic inference setup (e.g. **llama.cpp** or another
 :::
 :::
 
-::: {.timeline-step .coming-soon data-step="3"}
+::: {.timeline-step data-step="3"}
 ::: {.step-card}
-[Step 3 — coming soon]{.step-label}
+[Step 3]{.step-label}
 
-### Training fundamentals
+### Inference deep dive
 
-Fine-tuning, LoRA, and training pipelines. Details to be added.
+Go beyond running a model — understand how inference works under the hood and how to serve models.
+
+**You will learn:**
+
+- Inference engines and runtimes (vLLM, TGI, llama.cpp server)
+- Batching, continuous batching, and throughput vs. latency
+- Quantization (GGUF, GPTQ, AWQ) and when to use each
+- Structured output, function calling, and tool use
+- Serving and API design for inference endpoints
 :::
 :::
 
@@ -67,9 +75,35 @@ Fine-tuning, LoRA, and training pipelines. Details to be added.
 ::: {.step-card}
 [Step 4 — coming soon]{.step-label}
 
+### Training fundamentals
+
+Build the foundations to train and fine-tune models from scratch.
+
+**You will learn:**
+
+- PyTorch fundamentals: tensors, autograd, training loops
+- Modelling: architectures (transformers, attention, MLP), building blocks
+- Data pipelines: datasets, dataloaders, preprocessing
+- Fine-tuning: LoRA, QLoRA, full fine-tune, adapters
+- Distributed training: DDP, FSDP, multi-GPU and multi-node setups
+- Experiment tracking and evaluation
+:::
+:::
+
+::: {.timeline-step .coming-soon data-step="5"}
+::: {.step-card}
+[Step 5 — coming soon]{.step-label}
+
 ### Build an AI product
 
-Ship an AI-powered product end to end. Details to be added.
+Ship an AI-powered product end to end.
+
+**You will learn:**
+
+- Product thinking: problem → solution → users
+- Building with APIs, RAG, agents, and tool use
+- Frontend/backend integration for AI features
+- Deployment, monitoring, and iteration
 :::
 :::
 
@@ -101,15 +135,27 @@ Ship an AI-powered product end to end. Details to be added.
 :::
 
 ::: {.step-normal}
-### Step 3: Training fundamentals (coming soon)
+### Step 3: Inference deep dive
 
-Fine-tuning, LoRA, and training pipelines. Details to be added.
+**Goal:** Go beyond running a model — understand how inference works under the hood and how to serve models.
+
+**Topics:** Inference engines and runtimes (vLLM, TGI, llama.cpp server) · Batching and continuous batching · Quantization (GGUF, GPTQ, AWQ) · Structured output, function calling, and tool use · Serving and API design for inference endpoints
 :::
 
 ::: {.step-normal}
-### Step 4: Build an AI product (coming soon)
+### Step 4: Training fundamentals (coming soon)
 
-Ship an AI-powered product end to end. Details to be added.
+**Goal:** Build the foundations to train and fine-tune models from scratch.
+
+**Topics:** PyTorch fundamentals (tensors, autograd, training loops) · Modelling (transformers, attention, MLP) · Data pipelines · Fine-tuning (LoRA, QLoRA, full fine-tune, adapters) · Distributed training (DDP, FSDP, multi-GPU) · Experiment tracking and evaluation
+:::
+
+::: {.step-normal}
+### Step 5: Build an AI product (coming soon)
+
+**Goal:** Ship an AI-powered product end to end.
+
+**Topics:** Product thinking · Building with APIs, RAG, agents, and tool use · Frontend/backend integration · Deployment, monitoring, and iteration
 :::
 
 ::::

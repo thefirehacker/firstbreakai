@@ -111,6 +111,7 @@
 .timeline-step:nth-child(2)::before { background: #7c3aed; }
 .timeline-step:nth-child(3)::before { background: #06b6d4; }
 .timeline-step:nth-child(4)::before { background: #10b981; }
+.timeline-step:nth-child(5)::before { background: #f59e0b; }
 
 /* Card inside each step */
 .step-card {
@@ -130,6 +131,7 @@
 .timeline-step:nth-child(2) .step-card { border-top-color: #7c3aed; }
 .timeline-step:nth-child(3) .step-card { border-top-color: #06b6d4; }
 .timeline-step:nth-child(4) .step-card { border-top-color: #10b981; }
+.timeline-step:nth-child(5) .step-card { border-top-color: #f59e0b; }
 
 .step-card .step-label {
   font-size: 0.75rem;
