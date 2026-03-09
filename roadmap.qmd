@@ -1,0 +1,31 @@
+---
+title: "Roadmap"
+---
+
+Learning path for the cohort (in progress). Each phase has clear objectives; use your AI-based IDE and the community to complete them.
+
+## Phase 1: First use of AI for coding — Set up a Quarto blog with GitHub
+
+**Goal:** Create a Quarto blog and host it on GitHub with an about-me page, blog posts, “Today I learned,” and other pages.
+
+1. Set up the project locally, link it to a GitHub repository, and configure GitHub Pages for deployment.
+2. Use your AI-based IDE to complete this setup.
+
+**Learning objectives:**
+
+- GitHub basics refresher
+- Setting up a personal and blogging website
+- Understanding how coding tools or SWE / AI agents work
+
+## Phase 2: Run a model locally — Basic inference setup
+
+**Goal:** Run a model locally using a basic inference setup (e.g. **llama.cpp** or another minimal setup).
+
+**Topics to learn:**
+
+- Basics of inference: decoding, KV cache
+- Chat templates and system prompts
+- Prompting basics, tags and special tags
+- Tokenization
+
+More phases (training, AI products) can be added as the roadmap grows. Suggest new modules via [CONTRIBUTING.md](https://github.com/thefirehacker/firstbreakai/blob/main/CONTRIBUTING.md) or a pull request.

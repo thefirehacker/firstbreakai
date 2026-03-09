@@ -1,0 +1,19 @@
+---
+title: "AI Setup"
+---
+
+Tools you’ll use during the cohort. Start with the free tiers; upgrade as you grow.
+
+## AI-based IDE — Cursor or Claude Code
+
+We recommend **Cursor** to start (e.g. $20 plan). It’s similar to VS Code (it’s a fork) and lets you see code changes clearly. **Claude Code** is also strong but is terminal-based.
+
+Use your AI-based IDE for the first milestone: setting up a Quarto blog and pushing to GitHub.
+
+## ChatGPT
+
+You can start with the free tier. As your skills grow, a minimum ~$20/month subscription is useful to use better “thinking” models.
+
+## Open Router
+
+[Open Router](https://openrouter.ai/) gives you a single API to many models. Check whether signup gives you free credits and use it for experimentation.

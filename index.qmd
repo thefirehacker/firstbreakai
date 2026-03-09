@@ -1,0 +1,26 @@
+---
+title: "First Break AI"
+subtitle: "Your first break in AI"
+---
+
+::: {.column-page}
+
+**First Break AI** — your first break in AI. Free, open cohort to upskill in training, inference, and AI product building, and showcase what you build.
+
+First Break AI is a free, community-driven cohort for anyone who wants their first break in AI. Whether you're from engineering, an MBA, or self-taught, we focus on what matters: running and training models, understanding inference, and shipping AI-powered products. Most learning is self-directed and peer-supported; the roadmap, checklist, and resources live in the open so you can contribute and others can follow. The goal is simple: **upskill, build, showcase** — and get that first role or first break in AI.
+
+## Who it's for
+
+Self-learners (B.E. / M.Tech / MBA or any background) looking for a first break or employment in AI. Learning is self- and community-driven; no formal enrollment — just follow the path and build in the open.
+
+## Get started
+
+| Section | Description |
+|--------|--------------|
+| [Checklist](checklist.qmd) | Accounts to create (Hugging Face, GitHub, BubblSpace, Colab) and who to follow |
+| [AI Setup](setup.qmd) | AI-based IDE (Cursor / Claude Code), ChatGPT, Open Router |
+| [Roadmap](roadmap.qmd) | Learning path: Quarto blog, local inference, and beyond |
+
+For deeper dives and TIL posts, we link out to [thefirehacker](https://thefirehacker.github.io/) — the cohort site stays minimal; your blog and the community extend it.
+
+:::

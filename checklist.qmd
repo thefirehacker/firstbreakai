@@ -1,0 +1,25 @@
+---
+title: "Checklist"
+---
+
+Complete these before you start the cohort. Following the same accounts helps us build the community and follow you back.
+
+## Setup the following accounts
+
+| Platform | Link |
+|----------|------|
+| **Hugging Face** | [huggingface.co](https://huggingface.co/) |
+| **GitHub** | [github.com](https://github.com/) |
+| **BubblSpace** | [timecapsule.bubblspace.com](https://timecapsule.bubblspace.com/) — our product; sign in for now |
+| **Google Colab** (free) | [colab.research.google.com](https://colab.research.google.com/) |
+
+## Follow the cohort lead
+
+Follow on all platforms; we follow back.
+
+| Platform | Link |
+|----------|------|
+| **Hugging Face** | [@TheFireHacker](https://huggingface.co/TheFireHacker) |
+| **GitHub** | [@thefirehacker](https://github.com/thefirehacker) |
+| **X (Twitter)** | [@thefirehacker](https://x.com/thefirehacker) |
+| **LinkedIn** | [linkedin.com/in/thefirehacker](https://www.linkedin.com/in/thefirehacker/) |

@@ -1,0 +1,24 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "First Break AI"
+  site-url: "https://thefirehacker.github.io/firstbreakai/"
+  repo-url: "https://github.com/thefirehacker/firstbreakai"
+  repo-actions: [edit, source]
+  navbar:
+    background: primary
+    left:
+      - href: index.qmd
+        text: Home
+      - href: checklist.qmd
+        text: Checklist
+      - href: setup.qmd
+        text: AI Setup
+      - href: roadmap.qmd
+        text: Roadmap
+    right:
+      - icon: github
+        href: "https://github.com/thefirehacker/firstbreakai"
+        text: Repo
