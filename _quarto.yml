@@ -5,6 +5,7 @@ project:
 website:
   title: "First Break AI"
   site-url: "https://thefirehacker.github.io/firstbreakai/"
+  google-analytics: "G-V1B8R98P79"
   repo-url: "https://github.com/thefirehacker/firstbreakai"
   repo-actions: [edit, source]
   navbar:
@@ -19,6 +20,9 @@ website:
       - href: roadmap.qmd
         text: Roadmap
     right:
+      - icon: discord
+        href: "https://discord.gg/QZuBvfcj"
+        text: Discord
       - icon: github
         href: "https://github.com/thefirehacker/firstbreakai"
         text: Repo
