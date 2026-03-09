@@ -112,6 +112,7 @@
 .timeline-step:nth-child(3)::before { background: #06b6d4; }
 .timeline-step:nth-child(4)::before { background: #10b981; }
 .timeline-step:nth-child(5)::before { background: #f59e0b; }
+.timeline-step:nth-child(6)::before { background: #ef4444; }
 
 /* Card inside each step */
 .step-card {
@@ -132,6 +133,7 @@
 .timeline-step:nth-child(3) .step-card { border-top-color: #06b6d4; }
 .timeline-step:nth-child(4) .step-card { border-top-color: #10b981; }
 .timeline-step:nth-child(5) .step-card { border-top-color: #f59e0b; }
+.timeline-step:nth-child(6) .step-card { border-top-color: #ef4444; }
 
 .step-card .step-label {
   font-size: 0.75rem;
@@ -144,6 +146,8 @@
 .timeline-step:nth-child(2) .step-label { color: #7c3aed; }
 .timeline-step:nth-child(3) .step-label { color: #06b6d4; }
 .timeline-step:nth-child(4) .step-label { color: #10b981; }
+.timeline-step:nth-child(5) .step-label { color: #f59e0b; }
+.timeline-step:nth-child(6) .step-label { color: #ef4444; }
 
 .step-card h3 {
   margin: 0.25rem 0 0.5rem;

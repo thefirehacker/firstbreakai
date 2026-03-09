@@ -107,6 +107,24 @@ Ship an AI-powered product end to end.
 :::
 :::
 
+::: {.timeline-step .coming-soon data-step="6"}
+::: {.step-card}
+[Step 6 — coming soon]{.step-label}
+
+### Capstone project or open-source contribution
+
+Prove what you've learned. Pick one: build a capstone project or make a meaningful contribution to an open-source AI project.
+
+**Options:**
+
+- **Capstone:** End-to-end project combining inference, training, or product skills — deployed, documented, and added to your public portfolio
+- **Open-source contribution:** Submit a PR to an AI repo (model, library, dataset, docs) — get reviewed, merged, and credited
+- Present your work to the cohort; get peer feedback
+
+**Why it matters:** A shipped project or merged PR is the strongest signal on your profile when applying for your first AI role.
+:::
+:::
+
 :::
 
 ::::
@@ -156,6 +174,14 @@ Ship an AI-powered product end to end.
 **Goal:** Ship an AI-powered product end to end.
 
 **Topics:** Product thinking · Building with APIs, RAG, agents, and tool use · Frontend/backend integration · Deployment, monitoring, and iteration
+:::
+
+::: {.step-normal}
+### Step 6: Capstone project or open-source contribution (coming soon)
+
+**Goal:** Prove what you've learned. Pick one: build a capstone project or make a meaningful contribution to an open-source AI project.
+
+**Options:** Capstone (end-to-end project, deployed and documented, added to public portfolio) · Open-source contribution (PR to an AI repo — model, library, dataset, or docs) · Present your work to the cohort for peer feedback
 :::
 
 ::::
