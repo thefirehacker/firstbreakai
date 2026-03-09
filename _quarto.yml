@@ -13,12 +13,12 @@ website:
     left:
       - href: index.qmd
         text: Home
+      - href: roadmap.qmd
+        text: Roadmap
       - href: checklist.qmd
         text: Checklist
       - href: setup.qmd
         text: AI Setup
-      - href: roadmap.qmd
-        text: Roadmap
     right:
       - icon: discord
         href: "https://discord.gg/QZuBvfcj"

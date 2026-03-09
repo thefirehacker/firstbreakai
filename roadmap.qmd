@@ -1,31 +1,216 @@
 ---
 title: "Roadmap"
+subtitle: "Your journey to a first break in AI"
+css: styles/roadmap.css
 ---
 
-Learning path for the cohort (in progress). Each phase has clear objectives; use your AI-based IDE and the community to complete them.
+Your learning path — one journey, step by step. The cohort runs **8 March 2026 — 7 June 2026 (3 months)**. Use your AI-based IDE and the community to complete each step. This roadmap is in progress; new steps get added as the cohort grows.
 
-## Phase 1: First use of AI for coding — Set up a Quarto blog with GitHub
+::: {.view-toggle}
+<button class="active" onclick="toggleView('visual')">Visual</button>
+<button onclick="toggleView('normal')">Normal</button>
+:::
 
-**Goal:** Create a Quarto blog and host it on GitHub with an about-me page, blog posts, “Today I learned,” and other pages.
+<!-- ════════════════  VISUAL VIEW  ════════════════ -->
+
+:::: {.roadmap-visual .active}
+
+::: {.timeline}
+
+::: {.timeline-step data-step="1"}
+::: {.step-card}
+[Step 1]{.step-label}
+
+### First use of AI for coding
+
+Set up a **Quarto blog** and host it on GitHub with an about-me page, blog posts, "Today I learned," and other pages.
+
+1. Set up the project locally, link it to a GitHub repo, and configure GitHub Pages for deployment.
+2. Use your AI-based IDE to complete this setup.
+
+**You will learn:**
+
+- GitHub basics refresher
+- Setting up a personal and blogging website
+- How coding tools and SWE / AI agents work
+:::
+:::
+
+::: {.timeline-step data-step="2"}
+::: {.step-card}
+[Step 2]{.step-label}
+
+### Run a model locally
+
+Run a model locally using a basic inference setup (e.g. **llama.cpp** or another minimal setup).
+
+**You will learn:**
+
+- Basics of inference: decoding, KV cache
+- Chat templates and system prompts
+- Prompting basics, tags, and special tags
+- Tokenization
+:::
+:::
+
+::: {.timeline-step data-step="3"}
+::: {.step-card}
+[Step 3]{.step-label}
+
+### Inference deep dive
+
+Go beyond running a model — understand how inference works under the hood and how to serve models.
+
+**You will learn:**
+
+- Inference engines and runtimes (vLLM, TGI, llama.cpp server)
+- Batching, continuous batching, and throughput vs. latency
+- Quantization (GGUF, GPTQ, AWQ) and when to use each
+- Structured output, function calling, and tool use
+- Serving and API design for inference endpoints
+:::
+:::
+
+::: {.timeline-step .coming-soon data-step="4"}
+::: {.step-card}
+[Step 4 — coming soon]{.step-label}
+
+### Training fundamentals
+
+Build the foundations to train and fine-tune models from scratch.
+
+**You will learn:**
+
+- PyTorch fundamentals: tensors, autograd, training loops
+- Modelling: architectures (transformers, attention, MLP), building blocks
+- Data pipelines: datasets, dataloaders, preprocessing
+- Fine-tuning: LoRA, QLoRA, full fine-tune, adapters
+- Distributed training: DDP, FSDP, multi-GPU and multi-node setups
+- Experiment tracking and evaluation
+:::
+:::
+
+::: {.timeline-step .coming-soon data-step="5"}
+::: {.step-card}
+[Step 5 — coming soon]{.step-label}
+
+### Build an AI product
+
+Ship an AI-powered product end to end.
+
+**You will learn:**
+
+- Product thinking: problem → solution → users
+- Building with APIs, RAG, agents, and tool use
+- Frontend/backend integration for AI features
+- Deployment, monitoring, and iteration
+:::
+:::
+
+::: {.timeline-step .coming-soon data-step="6"}
+::: {.step-card}
+[Step 6 — coming soon]{.step-label}
+
+### Capstone project or open-source contribution
+
+Prove what you've learned. Pick one: build a capstone project or make a meaningful contribution to an open-source AI project.
+
+**Options:**
+
+- **Capstone:** End-to-end project combining inference, training, or product skills — deployed, documented, and added to your public portfolio
+- **Open-source contribution:** Submit a PR to an AI repo (model, library, dataset, docs) — get reviewed, merged, and credited
+- Present your work to the cohort; get peer feedback
+
+**Why it matters:** A shipped project or merged PR is the strongest signal on your profile when applying for your first AI role.
+:::
+:::
+
+:::
+
+::::
+
+<!-- ════════════════  NORMAL VIEW  ════════════════ -->
+
+:::: {.roadmap-normal}
+
+::: {.step-normal}
+### Step 1: First use of AI for coding — Quarto blog with GitHub
+
+**Goal:** Create a Quarto blog and host it on GitHub with an about-me page, blog posts, "Today I learned," and other pages.
 
 1. Set up the project locally, link it to a GitHub repository, and configure GitHub Pages for deployment.
 2. Use your AI-based IDE to complete this setup.
 
-**Learning objectives:**
+**Learning objectives:** GitHub basics refresher · Setting up a personal and blogging website · Understanding how coding tools or SWE / AI agents work
+:::
 
-- GitHub basics refresher
-- Setting up a personal and blogging website
-- Understanding how coding tools or SWE / AI agents work
-
-## Phase 2: Run a model locally — Basic inference setup
+::: {.step-normal}
+### Step 2: Run a model locally — Basic inference setup
 
 **Goal:** Run a model locally using a basic inference setup (e.g. **llama.cpp** or another minimal setup).
 
-**Topics to learn:**
+**Topics:** Basics of inference (decoding, KV cache) · Chat templates and system prompts · Prompting basics, tags, and special tags · Tokenization
+:::
 
-- Basics of inference: decoding, KV cache
-- Chat templates and system prompts
-- Prompting basics, tags and special tags
-- Tokenization
+::: {.step-normal}
+### Step 3: Inference deep dive
 
-More phases (training, AI products) can be added as the roadmap grows. Suggest new modules via [CONTRIBUTING.md](https://github.com/thefirehacker/firstbreakai/blob/main/CONTRIBUTING.md) or a pull request.
+**Goal:** Go beyond running a model — understand how inference works under the hood and how to serve models.
+
+**Topics:** Inference engines and runtimes (vLLM, TGI, llama.cpp server) · Batching and continuous batching · Quantization (GGUF, GPTQ, AWQ) · Structured output, function calling, and tool use · Serving and API design for inference endpoints
+:::
+
+::: {.step-normal}
+### Step 4: Training fundamentals (coming soon)
+
+**Goal:** Build the foundations to train and fine-tune models from scratch.
+
+**Topics:** PyTorch fundamentals (tensors, autograd, training loops) · Modelling (transformers, attention, MLP) · Data pipelines · Fine-tuning (LoRA, QLoRA, full fine-tune, adapters) · Distributed training (DDP, FSDP, multi-GPU) · Experiment tracking and evaluation
+:::
+
+::: {.step-normal}
+### Step 5: Build an AI product (coming soon)
+
+**Goal:** Ship an AI-powered product end to end.
+
+**Topics:** Product thinking · Building with APIs, RAG, agents, and tool use · Frontend/backend integration · Deployment, monitoring, and iteration
+:::
+
+::: {.step-normal}
+### Step 6: Capstone project or open-source contribution (coming soon)
+
+**Goal:** Prove what you've learned. Pick one: build a capstone project or make a meaningful contribution to an open-source AI project.
+
+**Options:** Capstone (end-to-end project, deployed and documented, added to public portfolio) · Open-source contribution (PR to an AI repo — model, library, dataset, or docs) · Present your work to the cohort for peer feedback
+:::
+
+::::
+
+More steps can be added as the roadmap grows. Suggest new modules via [CONTRIBUTING.md](https://github.com/thefirehacker/firstbreakai/blob/main/CONTRIBUTING.md) or a pull request.
+
+```{=html}
+<script>
+function toggleView(mode) {
+  document.querySelector('.roadmap-visual').classList.toggle('active', mode === 'visual');
+  document.querySelector('.roadmap-normal').classList.toggle('active', mode === 'normal');
+  document.querySelectorAll('.view-toggle button').forEach(function(btn) {
+    btn.classList.toggle('active', btn.textContent.trim().toLowerCase() === mode);
+  });
+}
+
+// Scroll-triggered fade-in for timeline steps
+(function() {
+  var steps = document.querySelectorAll('.timeline-step');
+  if (!steps.length) return;
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  steps.forEach(function(s) { observer.observe(s); });
+})();
+</script>
+```
