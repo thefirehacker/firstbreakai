@@ -1,31 +1,144 @@
 ---
 title: "Roadmap"
+subtitle: "Your journey to a first break in AI"
+css: styles/roadmap.css
 ---
 
-Learning path for the cohort (in progress). Each phase has clear objectives; use your AI-based IDE and the community to complete them.
+Your learning path — one journey, step by step. Use your AI-based IDE and the community to complete each step. This roadmap is in progress; new steps get added as the cohort grows.
 
-## Phase 1: First use of AI for coding — Set up a Quarto blog with GitHub
+::: {.view-toggle}
+<button class="active" onclick="toggleView('visual')">Visual</button>
+<button onclick="toggleView('normal')">Normal</button>
+:::
 
-**Goal:** Create a Quarto blog and host it on GitHub with an about-me page, blog posts, “Today I learned,” and other pages.
+<!-- ════════════════  VISUAL VIEW  ════════════════ -->
+
+:::: {.roadmap-visual .active}
+
+::: {.timeline}
+
+::: {.timeline-step data-step="1"}
+::: {.step-card}
+[Step 1]{.step-label}
+
+### First use of AI for coding
+
+Set up a **Quarto blog** and host it on GitHub with an about-me page, blog posts, "Today I learned," and other pages.
+
+1. Set up the project locally, link it to a GitHub repo, and configure GitHub Pages for deployment.
+2. Use your AI-based IDE to complete this setup.
+
+**You will learn:**
+
+- GitHub basics refresher
+- Setting up a personal and blogging website
+- How coding tools and SWE / AI agents work
+:::
+:::
+
+::: {.timeline-step data-step="2"}
+::: {.step-card}
+[Step 2]{.step-label}
+
+### Run a model locally
+
+Run a model locally using a basic inference setup (e.g. **llama.cpp** or another minimal setup).
+
+**You will learn:**
+
+- Basics of inference: decoding, KV cache
+- Chat templates and system prompts
+- Prompting basics, tags, and special tags
+- Tokenization
+:::
+:::
+
+::: {.timeline-step .coming-soon data-step="3"}
+::: {.step-card}
+[Step 3 — coming soon]{.step-label}
+
+### Training fundamentals
+
+Fine-tuning, LoRA, and training pipelines. Details to be added.
+:::
+:::
+
+::: {.timeline-step .coming-soon data-step="4"}
+::: {.step-card}
+[Step 4 — coming soon]{.step-label}
+
+### Build an AI product
+
+Ship an AI-powered product end to end. Details to be added.
+:::
+:::
+
+:::
+
+::::
+
+<!-- ════════════════  NORMAL VIEW  ════════════════ -->
+
+:::: {.roadmap-normal}
+
+::: {.step-normal}
+### Step 1: First use of AI for coding — Quarto blog with GitHub
+
+**Goal:** Create a Quarto blog and host it on GitHub with an about-me page, blog posts, "Today I learned," and other pages.
 
 1. Set up the project locally, link it to a GitHub repository, and configure GitHub Pages for deployment.
 2. Use your AI-based IDE to complete this setup.
 
-**Learning objectives:**
+**Learning objectives:** GitHub basics refresher · Setting up a personal and blogging website · Understanding how coding tools or SWE / AI agents work
+:::
 
-- GitHub basics refresher
-- Setting up a personal and blogging website
-- Understanding how coding tools or SWE / AI agents work
-
-## Phase 2: Run a model locally — Basic inference setup
+::: {.step-normal}
+### Step 2: Run a model locally — Basic inference setup
 
 **Goal:** Run a model locally using a basic inference setup (e.g. **llama.cpp** or another minimal setup).
 
-**Topics to learn:**
+**Topics:** Basics of inference (decoding, KV cache) · Chat templates and system prompts · Prompting basics, tags, and special tags · Tokenization
+:::
 
-- Basics of inference: decoding, KV cache
-- Chat templates and system prompts
-- Prompting basics, tags and special tags
-- Tokenization
+::: {.step-normal}
+### Step 3: Training fundamentals (coming soon)
 
-More phases (training, AI products) can be added as the roadmap grows. Suggest new modules via [CONTRIBUTING.md](https://github.com/thefirehacker/firstbreakai/blob/main/CONTRIBUTING.md) or a pull request.
+Fine-tuning, LoRA, and training pipelines. Details to be added.
+:::
+
+::: {.step-normal}
+### Step 4: Build an AI product (coming soon)
+
+Ship an AI-powered product end to end. Details to be added.
+:::
+
+::::
+
+More steps can be added as the roadmap grows. Suggest new modules via [CONTRIBUTING.md](https://github.com/thefirehacker/firstbreakai/blob/main/CONTRIBUTING.md) or a pull request.
+
+```{=html}
+<script>
+function toggleView(mode) {
+  document.querySelector('.roadmap-visual').classList.toggle('active', mode === 'visual');
+  document.querySelector('.roadmap-normal').classList.toggle('active', mode === 'normal');
+  document.querySelectorAll('.view-toggle button').forEach(function(btn) {
+    btn.classList.toggle('active', btn.textContent.trim().toLowerCase() === mode);
+  });
+}
+
+// Scroll-triggered fade-in for timeline steps
+(function() {
+  var steps = document.querySelectorAll('.timeline-step');
+  if (!steps.length) return;
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  steps.forEach(function(s) { observer.observe(s); });
+})();
+</script>
+```
