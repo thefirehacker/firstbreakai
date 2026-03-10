@@ -1,5 +1,6 @@
 ---
-title: "Checklist"
+title: "Checklist — Get Ready for the Cohort"
+description: "Get ready for First Break AI: create accounts on Hugging Face, GitHub, BubblSpace, and Google Colab, join the Discord, and follow the cohort lead."
 css: styles/checklist.css
 ---
 
@@ -12,6 +13,9 @@ Complete these before you start the cohort.
 Everything starts here. Join the Discord to connect with the cohort, ask questions, share progress, and get help.
 
 [Join Discord](https://discord.gg/QZuBvfcj){.cta-button-checklist}
+
+**Office Hours:** Every Friday, 9:00 — 10:00 PM IST. Meeting link shared on Discord.
+<span class="office-hours-local"></span>
 
 :::
 
@@ -40,3 +44,27 @@ Follow on all platforms; we follow back.
 | **GitHub** | [@thefirehacker](https://github.com/thefirehacker) |
 | **X (Twitter)** | [@thefirehacker](https://x.com/thefirehacker) |
 | **LinkedIn** | [linkedin.com/in/thefirehacker](https://www.linkedin.com/in/thefirehacker/) |
+
+```{=html}
+<script>
+(function() {
+  var els = document.querySelectorAll('.office-hours-local');
+  if (!els.length) return;
+  var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  var fri = new Date();
+  fri.setUTCHours(15, 30, 0, 0);
+  var end = new Date(fri.getTime() + 3600000);
+  var fmt = function(d) {
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+  };
+  var localStart = fmt(fri);
+  var localEnd = fmt(end);
+  var tzLabel = tz.replace(/_/g, ' ');
+  if (tz !== 'Asia/Calcutta' && tz !== 'Asia/Kolkata') {
+    els.forEach(function(el) {
+      el.textContent = 'That\u2019s ' + localStart + ' \u2013 ' + localEnd + ' in your time (' + tzLabel + ').';
+    });
+  }
+})();
+</script>
+```

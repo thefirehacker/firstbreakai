@@ -1,3 +1,25 @@
+/* ── Hero section ── */
+.hero-section {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.hero-image {
+  max-width: 100%;
+  width: 600px;
+  height: auto;
+  border-radius: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+}
+.hero-section p {
+  font-size: 1.1rem;
+  color: #334155;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ── CTA banner ── */
 .cta-banner {
   background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
   color: #fff;
@@ -35,4 +57,11 @@
   box-shadow: 0 6px 20px rgba(0,0,0,0.2);
   color: #7c3aed;
   text-decoration: none;
+}
+.office-hours-local {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.85);
+  font-style: italic;
 }

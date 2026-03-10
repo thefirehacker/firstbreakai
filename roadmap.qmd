@@ -1,6 +1,7 @@
 ---
 title: "Roadmap"
 subtitle: "Your journey to a first break in AI"
+description: "Step-by-step learning path: set up a Quarto blog, run models locally, learn inference and training, build an AI product, and ship a capstone project."
 css:
   - styles/roadmap.css
   - styles/home.css

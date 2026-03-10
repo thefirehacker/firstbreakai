@@ -1,15 +1,28 @@
 project:
   type: website
   output-dir: docs
+  resources:
+    - robots.txt
 
 website:
   title: "First Break AI"
+  description: "Free, open AI cohort — learn inference, training, and product building. No prerequisites. Build in the open, get your first break in AI."
   site-url: "https://thefirehacker.github.io/firstbreakai/"
+  favicon: public/images/favicon_io/favicon.ico
   google-analytics: "G-V1B8R98P79"
   repo-url: "https://github.com/thefirehacker/firstbreakai"
   repo-actions: [edit, source]
+  open-graph:
+    image: public/images/Fort-Journey-01.png
+    locale: en_US
+  twitter-card:
+    card-style: summary_large_image
+    image: public/images/Fort-Journey-01.png
+    creator: "@thefirehacker"
+    site: "@thefirehacker"
   navbar:
     background: primary
+    logo: public/images/favicon_io/favicon-32x32.png
     left:
       - href: index.qmd
         text: Home
@@ -26,3 +39,7 @@ website:
       - icon: github
         href: "https://github.com/thefirehacker/firstbreakai"
         text: Repo
+
+format:
+  html:
+    include-in-header: includes/schema.html
