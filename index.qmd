@@ -1,17 +1,19 @@
 ---
 title: "First Break AI"
-subtitle: "Your first break in AI"
 description: "First Break AI is a free, open cohort to learn AI by doing — inference, training, and product building. No prerequisites, just follow the roadmap and build in the open."
+title-block-style: none
 css: styles/home.css
 ---
 
 ```{=html}
 <div class="hero-banner">
-  <img src="public/images/Fort-Journey-01.png" alt="First Break AI" class="hero-bg" />
+  <img src="public/images/Fort-Journey-01-hero.jpg" alt="First Break AI" class="hero-bg" loading="eager" decoding="async" fetchpriority="high" />
   <div class="hero-overlay">
-    <h1 class="hero-title">First Break AI</h1>
-    <p class="hero-tagline">Your first break in AI</p>
-    <p class="hero-sub">Free, open cohort to upskill in training, inference, and AI product building.</p>
+    <div class="hero-text">
+      <h1 class="hero-title">First Break AI</h1>
+      <p class="hero-tagline">Your first break in AI</p>
+      <p class="hero-sub">Free, open cohort to upskill in training, inference, and AI product building.</p>
+    </div>
   </div>
 </div>
 ```

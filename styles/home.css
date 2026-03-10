@@ -2,60 +2,64 @@
    Home page — banner + content
    ══════════════════════════════════════════ */
 
+/* Hide Quarto auto-generated title block — we use the hero banner instead */
+#title-block-header,
+.quarto-title-block,
+header#title-block-header {
+  display: none !important;
+}
+
 /* ── Hero banner — full width with Fort image ── */
 .hero-banner {
   position: relative;
   width: 100vw;
   margin-left: calc(-50vw + 50%);
-  min-height: 420px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: #f0ebe1;
 }
 .hero-bg {
-  position: absolute;
-  top: 0; left: 0;
+  display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 30%;
+  max-height: 40vh;
+  object-fit: contain;
+  object-position: center center;
   z-index: 0;
 }
 .hero-overlay {
-  position: relative;
+  position: absolute;
+  bottom: 0; left: 0;
   z-index: 1;
   text-align: center;
-  padding: 3rem 1.5rem;
-  background: rgba(30, 26, 20, 0.55);
   width: 100%;
-  min-height: 420px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  background: linear-gradient(to top, rgba(20, 18, 14, 0.7) 0%, rgba(20, 18, 14, 0.4) 60%, transparent 100%);
+  padding: 2rem 1.5rem 1.25rem;
+}
+.hero-text {
+  max-width: 700px;
+  margin: 0 auto;
 }
 .hero-title {
   color: #f0ebe1 !important;
-  font-size: 3rem;
+  font-size: 2.4rem;
   font-weight: 800;
   letter-spacing: -0.03em;
-  margin: 0 0 0.25rem;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  margin: 0 0 0.15rem;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.5), 0 1px 4px rgba(0,0,0,0.3);
 }
 .hero-tagline {
-  color: #e0d8cb;
-  font-size: 1.3rem;
+  color: #f0ebe1;
+  font-size: 1.15rem;
   font-weight: 400;
-  margin: 0 0 1rem;
+  margin: 0 0 0.4rem;
   letter-spacing: 0.02em;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.4);
 }
 .hero-sub {
-  color: rgba(240,235,225,0.85);
-  font-size: 1.05rem;
+  color: rgba(240,235,225,0.9);
+  font-size: 0.95rem;
   max-width: 520px;
   margin: 0 auto;
-  line-height: 1.6;
+  line-height: 1.5;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.4);
 }
 
 /* ── Content section ── */
@@ -118,11 +122,11 @@
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  .hero-banner { min-height: 300px; }
-  .hero-overlay { min-height: 300px; padding: 2rem 1rem; }
-  .hero-title { font-size: 2rem; }
-  .hero-tagline { font-size: 1.1rem; }
-  .hero-sub { font-size: 0.95rem; }
+  .hero-bg { max-height: 35vh; }
+  .hero-overlay { padding: 1.25rem 1rem 1rem; }
+  .hero-title { font-size: 1.8rem; }
+  .hero-tagline { font-size: 1rem; }
+  .hero-sub { font-size: 0.85rem; }
 
   .content-section { padding: 1.5rem 1rem 2rem; }
 
@@ -131,8 +135,9 @@
 }
 
 @media (max-width: 480px) {
-  .hero-banner { min-height: 240px; }
-  .hero-overlay { min-height: 240px; }
-  .hero-title { font-size: 1.6rem; }
-  .hero-tagline { font-size: 1rem; }
+  .hero-bg { max-height: 28vh; }
+  .hero-overlay { padding: 1rem 0.75rem 0.75rem; }
+  .hero-title { font-size: 1.4rem; }
+  .hero-tagline { font-size: 0.9rem; }
+  .hero-sub { font-size: 0.8rem; }
 }
