@@ -42,4 +42,5 @@ website:
 
 format:
   html:
+    css: styles/global.css
     include-in-header: includes/schema.html

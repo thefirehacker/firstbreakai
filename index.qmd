@@ -5,14 +5,18 @@ description: "First Break AI is a free, open cohort to learn AI by doing — inf
 css: styles/home.css
 ---
 
-::: {.column-page}
+```{=html}
+<div class="hero-banner">
+  <img src="public/images/Fort-Journey-01.png" alt="First Break AI" class="hero-bg" />
+  <div class="hero-overlay">
+    <h1 class="hero-title">First Break AI</h1>
+    <p class="hero-tagline">Your first break in AI</p>
+    <p class="hero-sub">Free, open cohort to upskill in training, inference, and AI product building.</p>
+  </div>
+</div>
+```
 
-::: {.hero-section}
-![](public/images/Fort-Journey-01.png){.hero-image}
-
-**First Break AI** — your first break in AI.
-Free, open cohort to upskill in training, inference, and AI product building, and showcase what you build.
-:::
+::: {.content-section}
 
 **Cohort: 8 March 2026 — 7 June 2026 (3 months)**
 
@@ -49,7 +53,6 @@ This is a free, community-driven cohort. To join, sign up on Discord — that's 
   var els = document.querySelectorAll('.office-hours-local');
   if (!els.length) return;
   var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  // IST is UTC+5:30; Friday 21:00 IST = 15:30 UTC
   var fri = new Date();
   fri.setUTCHours(15, 30, 0, 0);
   var end = new Date(fri.getTime() + 3600000);
