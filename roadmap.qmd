@@ -1,10 +1,16 @@
 ---
 title: "Roadmap"
 subtitle: "Your journey to a first break in AI"
+description: "Step-by-step learning path: set up a Quarto blog, run models locally, learn inference and training, build an AI product, and ship a capstone project."
 css: styles/roadmap.css
 ---
 
 Your learning path — one journey, step by step. The cohort runs **8 March 2026 — 7 June 2026 (3 months)**. Use your AI-based IDE and the community to complete each step. This roadmap is in progress; new steps get added as the cohort grows.
+
+::: {.callout-important}
+## Before you begin
+Make sure you've completed the [Checklist](checklist.qmd) — set up your accounts and [join the Discord](https://discord.gg/QZuBvfcj) so you can ask questions and share progress as you go.
+:::
 
 ::: {.view-toggle}
 <button class="active" onclick="toggleView('visual')">Visual</button>

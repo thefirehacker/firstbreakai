@@ -1,0 +1,49 @@
+/* ══════════════════════════════════════════
+   Checklist page — warm tones
+   ══════════════════════════════════════════ */
+
+.checklist-highlight {
+  background: #faf6ee;
+  border: 2px solid #8b6914;
+  border-radius: 0.75rem;
+  padding: 1.5rem 2rem;
+  margin: 1.5rem 0;
+}
+.checklist-highlight h3 {
+  margin-top: 0;
+  color: #5a3e0e;
+}
+
+.cta-button-checklist {
+  display: inline-block;
+  background: #2c2417;
+  color: #f0ebe1;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 0.7rem 1.75rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 8px rgba(44,36,23,0.25);
+}
+.cta-button-checklist:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(44,36,23,0.35);
+  color: #f0ebe1;
+  text-decoration: none;
+}
+
+.office-hours-local {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #5a4e3e;
+  font-style: italic;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .checklist-highlight {
+    padding: 1.25rem 1.25rem;
+  }
+}

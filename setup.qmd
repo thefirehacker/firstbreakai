@@ -1,5 +1,6 @@
 ---
-title: "AI Setup"
+title: "AI Setup — Tools for the Cohort"
+description: "AI tools for the First Break AI cohort: Cursor IDE, Claude Code, ChatGPT, and Open Router. Start with free tiers and upgrade as you grow."
 ---
 
 Tools you’ll use during the cohort. Start with the free tiers; upgrade as you grow.

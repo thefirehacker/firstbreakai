@@ -1,0 +1,138 @@
+/* ══════════════════════════════════════════
+   Home page — banner + content
+   ══════════════════════════════════════════ */
+
+/* ── Hero banner — full width with Fort image ── */
+.hero-banner {
+  position: relative;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  min-height: 420px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero-bg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  z-index: 0;
+}
+.hero-overlay {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 3rem 1.5rem;
+  background: rgba(30, 26, 20, 0.55);
+  width: 100%;
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.hero-title {
+  color: #f0ebe1 !important;
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0 0 0.25rem;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+.hero-tagline {
+  color: #e0d8cb;
+  font-size: 1.3rem;
+  font-weight: 400;
+  margin: 0 0 1rem;
+  letter-spacing: 0.02em;
+}
+.hero-sub {
+  color: rgba(240,235,225,0.85);
+  font-size: 1.05rem;
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ── Content section ── */
+.content-section {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 3rem;
+}
+
+/* ── CTA banner ── */
+.cta-banner {
+  background: #2c2417;
+  color: #f0ebe1;
+  border-radius: 0.75rem;
+  padding: 2.5rem 2rem;
+  margin: 2.5rem 0;
+  text-align: center;
+}
+.cta-banner h3 {
+  color: #f0ebe1;
+  margin-top: 0;
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+.cta-banner p {
+  color: rgba(240,235,225,0.85);
+  font-size: 1rem;
+  max-width: 560px;
+  margin: 0.5rem auto 1.5rem;
+  line-height: 1.65;
+}
+.cta-banner strong {
+  color: #f0ebe1;
+}
+.cta-button {
+  display: inline-block;
+  background: #f0ebe1;
+  color: #2c2417;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 0.75rem 2rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  color: #2c2417;
+  text-decoration: none;
+}
+.office-hours-local {
+  display: block;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: rgba(240,235,225,0.7);
+  font-style: italic;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .hero-banner { min-height: 300px; }
+  .hero-overlay { min-height: 300px; padding: 2rem 1rem; }
+  .hero-title { font-size: 2rem; }
+  .hero-tagline { font-size: 1.1rem; }
+  .hero-sub { font-size: 0.95rem; }
+
+  .content-section { padding: 1.5rem 1rem 2rem; }
+
+  .cta-banner { padding: 1.75rem 1.25rem; }
+  .cta-banner h3 { font-size: 1.15rem; }
+}
+
+@media (max-width: 480px) {
+  .hero-banner { min-height: 240px; }
+  .hero-overlay { min-height: 240px; }
+  .hero-title { font-size: 1.6rem; }
+  .hero-tagline { font-size: 1rem; }
+}
