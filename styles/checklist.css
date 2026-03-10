@@ -1,0 +1,29 @@
+.checklist-highlight {
+  background: #f0f7ff;
+  border: 2px solid #2563eb;
+  border-radius: 1rem;
+  padding: 1.5rem 2rem;
+  margin: 1.5rem 0;
+}
+.checklist-highlight h3 {
+  margin-top: 0;
+  color: #2563eb;
+}
+.cta-button-checklist {
+  display: inline-block;
+  background: linear-gradient(135deg, #5865f2 0%, #7c3aed 100%);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 0.7rem 1.75rem;
+  border-radius: 2rem;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 12px rgba(88,101,242,0.3);
+}
+.cta-button-checklist:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(88,101,242,0.4);
+  color: #fff;
+  text-decoration: none;
+}

@@ -1,6 +1,7 @@
 ---
 title: "First Break AI"
 subtitle: "Your first break in AI"
+css: styles/home.css
 ---
 
 ::: {.column-page}
@@ -15,14 +16,20 @@ First Break AI is a free, community-driven cohort for anyone who wants their fir
 
 Self-learners (B.E. / M.Tech / MBA or any background) looking for a first break or employment in AI. Learning is self- and community-driven; no formal enrollment — just follow the path and build in the open.
 
-**Join the community:** [Discord (Bubblspace)](https://discord.gg/QZuBvfcj) — follow and chat with the cohort and get help as you go.
+::: {.cta-banner}
+### Ready to start your journey?
+
+This is a free, community-driven cohort. To join, sign up on Discord — that's where the cohort lives, where you get help, and where you connect with fellow learners.
+
+[Join Discord and start learning](https://discord.gg/QZuBvfcj){.cta-button}
+:::
 
 ## Get started
 
 | Section | Description |
 |--------|--------------|
+| [Roadmap](roadmap.qmd) | Learning path: Quarto blog, local inference, training, and beyond |
 | [Checklist](checklist.qmd) | Accounts to create (Hugging Face, GitHub, BubblSpace, Colab) and who to follow |
 | [AI Setup](setup.qmd) | AI-based IDE (Cursor / Claude Code), ChatGPT, Open Router |
-| [Roadmap](roadmap.qmd) | Learning path: Quarto blog, local inference, and beyond |
 
 :::

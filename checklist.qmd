@@ -1,10 +1,25 @@
 ---
 title: "Checklist"
+css: styles/checklist.css
 ---
 
-Complete these before you start the cohort. Following the same accounts helps us build the community and follow you back.
+Complete these before you start the cohort.
 
-## Setup the following accounts
+::: {.checklist-highlight}
+
+### Step 0: Join the Discord
+
+Everything starts here. Join the Discord to connect with the cohort, ask questions, share progress, and get help.
+
+[Join Discord](https://discord.gg/QZuBvfcj){.cta-button-checklist}
+
+:::
+
+::: {.checklist-highlight}
+
+### Step 1: Set up the following accounts
+
+These accounts are required for the cohort. Set them up now so you're ready to go from day one.
 
 | Platform | Link |
 |----------|------|
@@ -13,7 +28,9 @@ Complete these before you start the cohort. Following the same accounts helps us
 | **BubblSpace** | [timecapsule.bubblspace.com](https://timecapsule.bubblspace.com/) — our product; sign in for now |
 | **Google Colab** (free) | [colab.research.google.com](https://colab.research.google.com/) |
 
-## Follow the cohort lead
+:::
+
+## Step 2: Follow the cohort lead
 
 Follow on all platforms; we follow back.
 
@@ -23,4 +40,3 @@ Follow on all platforms; we follow back.
 | **GitHub** | [@thefirehacker](https://github.com/thefirehacker) |
 | **X (Twitter)** | [@thefirehacker](https://x.com/thefirehacker) |
 | **LinkedIn** | [linkedin.com/in/thefirehacker](https://www.linkedin.com/in/thefirehacker/) |
-| **Discord** | [Join Bubblspace Discord](https://discord.gg/QZuBvfcj) — cohort chat and support |
