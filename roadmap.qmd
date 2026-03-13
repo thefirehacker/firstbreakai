@@ -56,6 +56,8 @@ Run a model locally using a basic inference setup (e.g. **llama.cpp** or another
 - Chat templates and system prompts
 - Prompting basics, tags, and special tags
 - Tokenization
+
+**Guide:** [Run Qwen3 0.6B in pure C](blog/qwen3-run-locally.qmd) — inference from first principles (tokenization, chat templates, attention, KV cache).
 :::
 :::
 
@@ -156,6 +158,8 @@ Prove what you've learned. Pick one: build a capstone project or make a meaningf
 **Goal:** Run a model locally using a basic inference setup (e.g. **llama.cpp** or another minimal setup).
 
 **Topics:** Basics of inference (decoding, KV cache) · Chat templates and system prompts · Prompting basics, tags, and special tags · Tokenization
+
+**Guide:** [Run Qwen3 0.6B in pure C](blog/qwen3-run-locally.qmd) — inference from first principles.
 :::
 
 ::: {.step-normal}

@@ -1,0 +1,93 @@
+/* ══════════════════════════════════════════
+   Blog index — card layout (roadmap-style)
+   ══════════════════════════════════════════ */
+
+.blog-cards {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 960px;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 600px) {
+  .blog-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 900px) {
+  .blog-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Card block — matches roadmap .step-card */
+.blog-card {
+  background: #faf6ee;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 3px 12px rgba(44, 36, 23, 0.08);
+  border-top: 4px solid;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.blog-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(44, 36, 23, 0.12);
+}
+
+/* Step-specific top border and label color */
+.blog-card-step-1 { border-top-color: #8b6914; }
+.blog-card-step-2 { border-top-color: #6b5c4c; }
+.blog-card-step-3 { border-top-color: #7a5518; }
+
+.blog-card-step-1 .blog-card-label { color: #8b6914; }
+.blog-card-step-2 .blog-card-label { color: #6b5c4c; }
+.blog-card-step-3 .blog-card-label { color: #7a5518; }
+
+/* Empty / no post yet — muted */
+.blog-card-no-post {
+  opacity: 0.85;
+}
+
+.blog-card-no-post .blog-card-desc {
+  color: #5a4e3e;
+}
+
+.blog-card-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.25rem;
+}
+
+.blog-card h3 {
+  margin: 0.25rem 0 0.5rem;
+  font-size: 1.15rem;
+  color: #1a1510;
+}
+
+.blog-card-desc {
+  font-size: 0.95rem;
+  color: #1e1a14;
+  line-height: 1.5;
+  margin: 0 0 1rem;
+  flex-grow: 1;
+}
+
+.blog-card-link {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.blog-card-link::after {
+  content: " →";
+}
+
+/* Back link */
+.blog-back {
+  margin-top: 2rem;
+}
