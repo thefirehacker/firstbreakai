@@ -1,0 +1,54 @@
+---
+title: "Blog"
+subtitle: "Guides and posts by roadmap step"
+description: "First Break AI cohort blog — step-by-step guides that follow the roadmap. Run models locally, understand inference, and build in the open."
+css: ../styles/blog.css
+---
+
+Cohort guides and posts are organized by the [Roadmap](../roadmap.qmd). Start with the step you're on.
+
+## By roadmap step
+
+::: {.blog-cards}
+
+:::: {.blog-card .blog-card-step-1 .blog-card-no-post}
+[Step 1]{.blog-card-label}
+
+### First use of AI for coding
+
+::: {.blog-card-desc}
+Set up a Quarto blog, GitHub, and use your AI IDE.
+:::
+
+[See Roadmap](../roadmap.qmd){.blog-card-link}
+::::
+
+:::: {.blog-card .blog-card-step-2}
+[Step 2]{.blog-card-label}
+
+### Run a model locally
+
+::: {.blog-card-desc}
+Run Qwen3 0.6B in pure C. Tokens, BPE, chat templates, attention, KV cache — all in one C binary.
+:::
+
+[Read guide](qwen3-run-locally.qmd){.blog-card-link}
+::::
+
+:::: {.blog-card .blog-card-step-3 .blog-card-no-post}
+[Step 3]{.blog-card-label}
+
+### Inference deep dive
+
+::: {.blog-card-desc}
+vLLM, quantization, batching, APIs.
+:::
+
+[See Roadmap](../roadmap.qmd){.blog-card-link}
+::::
+
+:::
+
+::: {.blog-back}
+[← Back to Roadmap](../roadmap.qmd)
+:::

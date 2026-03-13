@@ -32,6 +32,8 @@ website:
         text: Checklist
       - href: setup.qmd
         text: AI Setup
+      - href: blog/index.qmd
+        text: Blog
     right:
       - icon: discord
         href: "https://discord.gg/QZuBvfcj"
