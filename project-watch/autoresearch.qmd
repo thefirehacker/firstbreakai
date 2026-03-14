@@ -1,0 +1,863 @@
+---
+title: "Autoresearch: An Autonomous Research Loop — A Design Journey"
+description: "A lesson-by-lesson walkthrough of the autoresearch design. You will read every key file, trace real experiments, understand the human/agent split, and see why the community is generalizing this loop far beyond ML training. No GPU required for most lessons."
+date: 2026-03-11
+categories: [project-watch, agents, research, autoresearch]
+---
+
+> **First Break AI — Project Watch**
+>
+> This is a [Project Watch](index.qmd) deep dive. We study real, shipping AI projects and reverse-engineer the engineering decisions.
+> This post goal: trace the design journey and understand *the autoresearch loop, the human/agent split, and why this pattern generalizes*.
+> Connects to: [Step 3](../roadmap.qmd) (inference engines), [Step 4](../roadmap.qmd) (training), [Step 5](../roadmap.qmd) (building AI products).
+
+---
+
+::: {.repo-link-card data-repo="karpathy/autoresearch"}
+::: {.repo-link-header}
+<svg viewBox="0 0 16 16"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8ZM5 12.25a.25.25 0 0 1 .25-.25h3.5a.25.25 0 0 1 .25.25v3.25a.25.25 0 0 1-.4.2l-1.45-1.087a.249.249 0 0 0-.3 0L5.4 15.7a.25.25 0 0 1-.4-.2Z"/></svg>
+[karpathy/autoresearch](https://github.com/karpathy/autoresearch){.repo-link-name}
+:::
+
+[The project source code discussed in this post.]{.repo-link-desc}
+
+::: {.repo-link-meta}
+:::
+:::
+
+## Navigate by roadmap
+
+| Roadmap step | What you already know | What this post adds |
+|---|---|---|
+| Step 2: Run a model locally | How inference works, what a training config is | The "toy training loop" that autoresearch agents iterate on |
+| Step 3: Inference deep dive | Engines, quantization, serving | How agents use fixed evaluation to drive automated experiments |
+| Step 4: Training | PyTorch, training loops, fine-tuning | How autoresearch automates the experiment-iterate cycle |
+| Step 5: Build an AI product | Product thinking, agents, tool use | Autoresearch as a template for agentic product design |
+
+[← Back to Roadmap](../roadmap.qmd)
+
+---
+
+## Table of contents
+
+- [The big picture](#the-big-picture)
+- [Lesson 0: The question that started it](#lesson-0-the-question-that-started-it)
+- [Lesson 1: The core loop](#lesson-1-the-core-loop)
+- [Lesson 2: Read program.md](#lesson-2-read-programmd--encoding-research-taste)
+- [Lesson 3: Read prepare.py](#lesson-3-read-preparepy--the-fixed-evaluation)
+- [Lesson 4: Read train.py](#lesson-4-read-trainpy--the-agents-canvas)
+- [Lesson 5: The human/agent split](#lesson-5-the-humanagent-split)
+- [Lesson 6: Trace one experiment](#lesson-6-trace-one-experiment)
+- [Lesson 7: Why the naive loop fails](#lesson-7-why-the-naive-loop-fails)
+- [Lesson 8: What the community built](#lesson-8-what-the-community-built)
+- [Lesson 9: The pattern beyond ML](#lesson-9-the-pattern-beyond-ml)
+- [Lesson 10: Why hype cooled but the project didn't stall](#lesson-10-why-hype-cooled-but-the-project-didnt-stall)
+- [The complete picture](#the-complete-picture)
+- [Learning plan](#learning-plan-for-first-break-ai)
+
+---
+
+# How Autoresearch Works
+
+By the end of this post you will have:
+
+- Understood the autoresearch core loop: propose, run, measure, keep or revert
+- Read every key file in the repo (`program.md`, `prepare.py`, `train.py`)
+- Understood the human/agent split — who controls what, and why
+- Traced one real experiment from proposal through measurement to commit or revert
+- Understood why autoresearch is not AutoML (code diffs vs parameter grids)
+- Seen how the community generalized this loop far beyond ML training
+
+This is a design journey. You will trace the decisions in the autoresearch repository. At each step we ask: **what problem was being solved, and how?**
+
+---
+
+## The Big Picture
+
+Here is the complete journey. Each box is a lesson.
+
+```{mermaid}
+flowchart TD
+    L0["Lesson 0<br>The question<br>What if AI could research<br>its own code?"]
+    L1["Lesson 1<br>The core loop<br>propose → run → measure → keep/revert"]
+    L2["Lesson 2<br>program.md<br>Encoding research taste"]
+    L3["Lesson 3<br>prepare.py<br>Fixed evaluation, TIME_BUDGET = 300"]
+    L4["Lesson 4<br>train.py<br>The agent's canvas"]
+    L5["Lesson 5<br>Human/agent split<br>Who controls what"]
+    L6["Lesson 6<br>Trace one experiment<br>Proposal → diff → metric → decision"]
+    L7["Lesson 7<br>Why naive loops fail<br>The taste problem"]
+    L8["Lesson 8<br>Community extensions<br>4 directions"]
+    L9["Lesson 9<br>The pattern beyond ML<br>Generalized loop"]
+    L10["Lesson 10<br>Why hype cooled<br>Perception vs reality"]
+
+    L0 --> L1
+    L1 --> L2
+    L1 --> L3
+    L1 --> L4
+    L2 --> L5
+    L3 --> L5
+    L4 --> L5
+    L5 --> L6
+    L6 --> L7
+    L7 --> L8
+    L8 --> L9
+    L9 --> L10
+```
+
+---
+
+## Lesson 0: The Question That Started It
+
+Before we look at any code, let us understand the question that motivated this project.
+
+### The old way: AutoML
+
+For years, the standard approach to automating research was **AutoML** — automated machine learning. You define a search space of hyperparameters:
+
+```
+learning_rate: [1e-4, 3e-4, 1e-3]
+batch_size: [32, 64, 128]
+depth: [6, 8, 12]
+```
+
+A search algorithm (grid, Bayesian, random) picks points from this grid, runs experiments, and finds the best configuration. The search object is a **point in a human-defined space**.
+
+The problem: these spaces are rigid and brittle. They can only explore what a human thought to parameterize. If the right answer involves "restructure the attention mechanism" or "add gradient clipping and change the learning rate schedule together" — AutoML cannot find it, because those ideas are not in the grid.
+
+### The key insight: search over code, not parameters
+
+What if the agent could edit the **actual training code**?
+
+```
+"Change the window pattern from [128, 256] to [64, 128, 256, 512]"
+"Add gradient clipping at 1.0"
+"Replace AdamW with a custom optimizer that..."
+```
+
+The search object becomes a **code diff**. The space is open-ended — the agent can propose any valid Python change. This is closer to how human researchers actually work: they do not pick points from a grid. They read code, form hypotheses, make changes, and measure results.
+
+```{mermaid}
+flowchart LR
+    subgraph automl ["Classical AutoML"]
+        P["Human-defined<br>parameter grid<br>lr, batch_size, depth"] --> S["Search algorithm<br>grid, Bayesian, random"]
+        S --> R["Best config<br>a point in the grid"]
+    end
+    subgraph autoresearch ["Autoresearch"]
+        C["Agent reads<br>existing code"] --> D["Proposes a<br>code diff"]
+        D --> E["Runs experiment<br>measures metric"]
+        E --> F["Keeps or reverts<br>git commit/revert"]
+        F --> C
+    end
+```
+
+As tensor [argued](https://x.com/): "AutoML methods operated on human-parameterized search spaces... This changes with models, which can operate as 'softly' as humans can on the search space." The key word is *softly* — not rigid parameter sweeps but flexible, context-aware code edits.
+
+### Check your understanding
+
+- What is the search object in classical AutoML?
+- What is the search object in autoresearch?
+- Why can an agent find improvements that a parameter grid cannot?
+
+---
+
+## Lesson 1: The Core Loop
+
+The answer to "what if AI could research its own code?" is remarkably minimal. The entire system is a single loop.
+
+### The five steps
+
+1. **Agent reads `program.md`** — the rules and constraints
+2. **Agent proposes a code change to `train.py`** — a diff to the training script
+3. **Run `uv run train.py`** — execute the experiment under a 5-minute time budget
+4. **Measure `val_bpb`** — the fixed evaluation metric (validation bits-per-byte)
+5. **Decision:** if `val_bpb` improved, `git commit`. If not, `git revert`. Go to step 2. **Never stop.**
+
+```{mermaid}
+flowchart TD
+    A["Agent reads program.md<br>(rules and constraints)"] --> B["Agent proposes code change<br>to train.py"]
+    B --> C["Run: uv run train.py<br>(5-minute budget)"]
+    C --> D["Measure val_bpb<br>(fixed evaluation from prepare.py)"]
+    D --> E{Improved?}
+    E -- Yes --> F["git commit<br>(keep the change)"]
+    E -- No --> G["git revert<br>(discard the change)"]
+    F --> B
+    G --> B
+```
+
+That is the entire system. ~32k stars, ~4k forks, ~100 open PRs — all built on this loop.
+
+### Three design decisions that matter
+
+**Fixed time budget (5 minutes).** Every experiment gets exactly 5 minutes. This makes results comparable across experiments and prevents the agent from running one experiment for hours to overfit.
+
+**Git as memory.** Every change is a commit, every failure is a revert. The entire history of experiments is in the git log. The agent can look back at what worked and what did not. This is better than "just overwrite the file" because nothing is ever lost.
+
+**Indefinite loop.** The agent never stops. It runs experiments 24/7. This is the key difference from human research — a human sleeps, the agent does not.
+
+### Check your understanding
+
+- What are the five steps of the autoresearch loop?
+- Why does every experiment get exactly 5 minutes?
+- Why is git better than "just overwrite the file" for tracking experiments?
+
+---
+
+## Lesson 2: Read program.md — Encoding Research Taste
+
+Now let us open the actual files. Each of the next three lessons reads one file from the repository.
+
+### Navigate to the source
+
+Open this file in your browser: [`program.md`](https://github.com/karpathy/autoresearch/blob/main/program.md)
+
+This is the file that encodes "research taste" — the rules that guide the agent's behavior.
+
+### What program.md contains
+
+The file defines a strict autonomous experimentation loop:
+
+1. Create a branch
+2. Run `uv run train.py` repeatedly under the fixed budget
+3. Grep metrics from stdout
+4. Keep commits that improve `val_bpb`, revert those that do not
+5. **Never stop**
+
+But it also contains something more subtle: **domain-specific guidance**. The file includes instructions about what kinds of changes to try, what to avoid, and how to interpret results. This is where the human encodes the research strategy.
+
+### The insight: who iterates on what
+
+The human iterates on `program.md` — refining the prompt, the constraints, the strategy. The agent iterates on `train.py` — making code changes and measuring results.
+
+This means "research taste" currently lives **in the human's prompt**, not in the agent itself. The agent follows instructions; the human decides what good research looks like. This is a critical limitation — and the reason the community is trying to build "taste" into agents (Lesson 7).
+
+### Check your understanding
+
+- What is the purpose of `program.md`?
+- Where does "research taste" live — in the agent or in `program.md`?
+- What happens if the human writes bad instructions in `program.md`?
+
+---
+
+## Lesson 3: Read prepare.py — The Fixed Evaluation
+
+### Navigate to the source
+
+Open this file in your browser: [`prepare.py`](https://github.com/karpathy/autoresearch/blob/main/prepare.py)
+
+This is the file that computes the ground-truth metric. The agent cannot touch it.
+
+### The key constants
+
+```
+TIME_BUDGET = 300  # seconds (5 minutes)
+```
+
+The function `evaluate_bpb` computes **validation bits-per-byte** on a fixed dataset, with fixed splits, every time. The evaluation is deterministic — same data, same splits, same metric.
+
+### Why the evaluation is fixed
+
+This is a deliberate design decision to prevent **Goodharting** — the principle that "when a measure becomes a target, it ceases to be a good measure."
+
+If the agent could edit `prepare.py`, it could:
+- Change the evaluation dataset to one where the model already scores well
+- Modify the metric calculation to produce artificially lower `val_bpb`
+- Reduce the dataset size so evaluation is easier
+
+By making `prepare.py` untouchable, the design forces the agent to genuinely improve the training code. The **only** way to improve `val_bpb` is to write better `train.py`.
+
+```{mermaid}
+flowchart LR
+    subgraph editable ["Editable zone (agent controls)"]
+        T["train.py<br>Architecture, hyperparams,<br>optimizer, data loading"]
+    end
+    subgraph fixed ["Fixed zone (human controls)"]
+        P["prepare.py<br>eval metric, dataset,<br>TIME_BUDGET = 300"]
+        PM["program.md<br>rules, constraints,<br>research strategy"]
+    end
+    T -- "agent proposes changes" --> T
+    P -- "cannot be modified" --> T
+    PM -- "guides agent behavior" --> T
+```
+
+### Check your understanding
+
+- What is `val_bpb` and why is it the ground-truth metric?
+- What is Goodharting, and how does the fixed evaluation prevent it?
+- What would happen if the agent *could* modify `prepare.py`?
+
+---
+
+## Lesson 4: Read train.py — The Agent's Canvas
+
+### Navigate to the source
+
+Open this file in your browser: [`train.py`](https://github.com/karpathy/autoresearch/blob/main/train.py)
+
+This is the file the agent is allowed to change. Everything inside it is fair game.
+
+### What train.py contains
+
+A small training script for a **character-level language model**. If you completed Step 2, you will recognize the core components:
+
+- **Embedding layer** — maps character IDs to vectors (like `token_embedding_table` in `run.c`)
+- **Attention mechanism** — Q, K, V projections, multi-head attention (like the attention loop in `run.c`)
+- **FFN** — feed-forward network with gated activation (like the SwiGLU FFN in `run.c`)
+- **Training loop** — forward pass, loss computation, backward pass, optimizer step
+
+The model is intentionally small. The file is ~200 lines. This is a deliberate design choice:
+
+**The file must fit in an LLM's context window.** If `train.py` were thousands of lines, the agent could not reason about it effectively. Keeping it small means the agent can read the entire file, understand the architecture, and propose meaningful changes.
+
+```{mermaid}
+flowchart TD
+    subgraph trainpy ["train.py (~200 lines)"]
+        EMB["Embedding<br>char → vector"]
+        ATT["Attention<br>Q, K, V, multi-head"]
+        FFN["FFN<br>gated activation"]
+        LOSS["Loss<br>cross-entropy"]
+        OPT["Optimizer<br>AdamW"]
+    end
+    EMB --> ATT --> FFN --> LOSS --> OPT
+    OPT -- "backward + step" --> EMB
+```
+
+### What the agent can change
+
+Everything. Architecture (depth, width, head count). Hyperparameters (learning rate, batch size, weight decay). Optimization strategy (optimizer, scheduler, clipping). Data loading (sequence length, sampling). Regularization (dropout, weight initialization).
+
+The constraint is not *what* can be changed, but *how it is evaluated*: every change must improve `val_bpb` within 5 minutes, or it gets reverted.
+
+### Check your understanding
+
+- Why is `train.py` intentionally kept to ~200 lines?
+- What components of the model can the agent change?
+- How does the 5-minute time budget constrain what changes are practical?
+
+---
+
+## Lesson 5: The Human/Agent Split
+
+Now that you have read all three files, the architecture becomes clear. Autoresearch works because **responsibilities are strictly separated**.
+
+### The split
+
+```{mermaid}
+flowchart TD
+    subgraph human ["Human responsibility"]
+        PM["program.md<br>Rules, constraints,<br>research strategy<br>(iterates on the prompt)"]
+        PP["prepare.py<br>Fixed evaluation,<br>val_bpb metric<br>(defines ground truth)"]
+    end
+    subgraph agent ["Agent responsibility"]
+        TP["train.py<br>Training code<br>(iterates on the code)"]
+        GIT["git<br>Commit improvements,<br>revert failures<br>(memory)"]
+    end
+    PM -- "guides" --> agent
+    PP -- "evaluates" --> agent
+```
+
+**The human controls the objective and constraints:**
+
+- `program.md` — what the agent should try, what it should avoid, how to interpret results
+- `prepare.py` — the metric, the dataset, the time budget
+
+**The agent controls the experiments:**
+
+- `train.py` — the code being optimized
+- git — the history of all experiments
+
+### Why this split matters
+
+**Safety:** The agent cannot change what "success" means. It cannot game the evaluation. It can only try to genuinely improve the training code.
+
+**Reliability:** The evaluation is deterministic. Same code → same metric. No randomness in whether an improvement is "real."
+
+**Scalability:** The human can refine the strategy (edit `program.md`) without touching the code. The agent can run experiments 24/7 without human supervision.
+
+**Debugging:** When something goes wrong, the boundary is clear. Is the problem in the agent's code changes? Check `train.py` diffs. Is the problem in the evaluation? Check `prepare.py`. Is the problem in the strategy? Check `program.md`.
+
+### The deeper insight
+
+The human writes the "meta-prompt" — instructions about how to do research. The agent writes the code — the actual research artifacts. This is a new division of labor that does not exist in traditional software engineering or traditional research.
+
+### Check your understanding
+
+- What does the human control in autoresearch?
+- What does the agent control?
+- Why can the agent not game the evaluation metric?
+
+---
+
+## Lesson 6: Trace One Experiment
+
+Let us follow one iteration of the loop from start to finish. This makes the abstract pattern concrete.
+
+### What a real experiment looks like
+
+The session reports (linked from the repo README) show real agent behavior. Here is the pattern of a typical iteration:
+
+1. **Agent reads current state:** The agent reads `train.py` and `program.md`. It sees the current architecture, hyperparameters, and recent git history.
+
+2. **Agent proposes a change:** For example, "increase batch size from 32 to 64 and reduce learning rate from 3e-4 to 1e-4."
+
+3. **Change is applied:** The diff modifies two lines in `train.py`.
+
+4. **Experiment runs:** `uv run train.py` executes for 5 minutes. The training loop runs, and at the end, `val_bpb` is computed.
+
+5. **Decision:** If `val_bpb` decreased (lower is better for bits-per-byte), the change is committed. If not, it is reverted.
+
+```{mermaid}
+flowchart LR
+    READ["Agent reads<br>train.py + program.md<br>+ git log"] --> PROPOSE["Proposes:<br>batch_size 32→64<br>lr 3e-4→1e-4"]
+    PROPOSE --> DIFF["Diff applied<br>2 lines changed<br>in train.py"]
+    DIFF --> RUN["uv run train.py<br>5 minutes"]
+    RUN --> METRIC["val_bpb measured<br>1.42 → 1.38"]
+    METRIC --> DECISION{"Improved?"}
+    DECISION -- "Yes (1.38 < 1.42)" --> COMMIT["git commit<br>'Increase batch size,<br>reduce lr'"]
+    DECISION -- "No" --> REVERT["git revert"]
+```
+
+### What the session reports show
+
+Real gains come from concrete, specific changes:
+
+- **Batch size adjustments** — finding the sweet spot for the 5-minute budget
+- **Depth changes** — adding or removing transformer layers
+- **Window pattern tuning** — changing attention window sizes
+- **RoPE parameter tuning** — adjusting rotary position encoding settings
+- **Weight decay and initialization changes** — small regularization tweaks
+
+The agent finds improvements that a human researcher might also find — but it runs 24/7 and tries far more combinations than a human would.
+
+### Check your understanding
+
+- What information does the agent have when proposing a change?
+- How does the agent decide whether to keep or revert a change?
+- Why does the git log matter for future experiments?
+
+---
+
+## Lesson 7: Why the Naive Loop Fails
+
+The core loop works — the agent finds real improvements. But it also hits walls. Understanding these failures is the key to understanding everything the community is building.
+
+### The search-policy wall
+
+After running for many iterations, the autoresearch loop often gets stuck. Four problems emerge:
+
+**1. Hallucinated code.** The agent sometimes proposes changes that do not compile or produce runtime errors. A 5-minute experiment wasted on a syntax error is 5 minutes lost.
+
+**2. Depth-first search only.** The agent tends to make small incremental changes — "increase batch size by 8," "decrease learning rate slightly." It rarely makes bold structural changes like "replace the optimizer" or "restructure the attention mechanism." This is the "depth-first" critique: the agent explores one direction deeply but does not explore broadly.
+
+**3. No memory.** The basic loop has no mechanism for the agent to remember *why* previous experiments succeeded or failed. Each iteration starts fresh — the agent reads the current code and proposes a change. It does not have a "research journal" of insights.
+
+**4. No transferability.** An improvement on one hardware setup may not transfer to another. An improvement at one model scale may not transfer to a larger scale. The loop does not test for generalization.
+
+```{mermaid}
+flowchart TD
+    subgraph failures ["Why the naive loop fails"]
+        F1["Hallucinated code<br>Syntax errors, runtime crashes<br>→ wasted 5-minute runs"]
+        F2["Depth-first only<br>Small incremental changes<br>→ misses bold structural improvements"]
+        F3["No memory<br>Agent forgets why things worked<br>→ repeats failed experiments"]
+        F4["No transferability<br>Improvements may not generalize<br>→ overfitting to one setup"]
+    end
+```
+
+### This motivates everything
+
+These are not abstract problems. The community hit all four of them. And the response — memory agents, guidance systems, verification tooling, search-policy improvements — is exactly what Lesson 8 is about.
+
+### Check your understanding
+
+- What is the "depth-first search" problem in autoresearch?
+- Why does lack of memory lead to repeated failed experiments?
+- How could you test whether an improvement generalizes beyond the current setup?
+
+---
+
+## Lesson 8: What the Community Built
+
+The autoresearch repo has ~32k stars, ~4k forks, and ~100 open PRs. Analyzing the PR and issue backlog reveals that the community is treating autoresearch as four different things simultaneously — each one a response to the failures in Lesson 7.
+
+### Direction 1: Research orchestration
+
+**Problem it solves:** The naive loop has no coordination, no memory, no dashboards.
+
+**What the community is building:**
+
+- Guidance agents (agents that steer other agents)
+- Long-term memory and semantic knowledge banks
+- Worker/function/trigger primitives
+- Checkpoint and queue systems
+- Multi-agent swarms with shared state
+- Dashboards and experiment visualization
+
+This is not "AutoML for one file." This is **agent-native research operations** — a platform where agents coordinate, remember, and verify.
+
+### Direction 2: Hardware portability
+
+**Problem it solves:** The original demo ran on an H100. Most people do not have H100s.
+
+**What the community is building:**
+
+- Apple Silicon / MLX support
+- Consumer NVIDIA GPU support (RTX 3090, 4090)
+- DGX Spark / GB10 support
+- Multi-GPU / DDP setups
+- Google Colab / Kaggle support
+- SDPA fallback for non-Hopper GPUs
+
+Users are treating autoresearch as a portable benchmark harness: "can an agent improve a training run on *my* hardware in 5 minutes?"
+
+### Direction 3: Research taste and verification
+
+**Problem it solves:** The naive loop has no "taste" — it tries everything, including garbage.
+
+**What the community is building:**
+
+- Pre-verification (reject obviously bad ideas before spending a full run)
+- Anti-overfitting policies
+- Early stopping detection
+- Bayesian sweeps and diversity-aware search
+- Interpretability and transfer tests
+- Deterministic controls
+
+This is the community recognizing the core bottleneck: **raw iteration is not enough.** Agents need taste, memory, transferability, and verification.
+
+### Direction 4: Pattern generalization
+
+**Problem it solves:** The loop works for ML training. Does it work for other domains?
+
+**What the community is building:** Applications of the autoresearch pattern to sorting algorithms, prompt optimization, ranking systems, trading strategies, and more. We cover this in Lesson 9.
+
+```{mermaid}
+flowchart TD
+    subgraph core ["Core loop"]
+        LOOP["propose → run → measure<br>→ keep/revert"]
+    end
+    subgraph community ["Community extensions"]
+        ORCH["Direction 1: Orchestration<br>multi-agent, memory,<br>dashboards, queues"]
+        PORT["Direction 2: Portability<br>MLX, RTX, Colab,<br>multi-GPU, DDP"]
+        TASTE["Direction 3: Taste<br>verification, triage,<br>search policy, early stop"]
+        GEN["Direction 4: Generalization<br>beyond ML training"]
+    end
+    core --> ORCH
+    core --> PORT
+    core --> TASTE
+    core --> GEN
+```
+
+### PR clustering data
+
+From the PR/issue backlog, the community's work clusters like this:
+
+| Category | PR count | Issue count | What it signals |
+|---|---:|---:|---|
+| Agent orchestration & ResearchOps | 15 | 5 | Multi-agent coordination, dashboards, buses |
+| Platform support & performance | 10 | 3 | Non-H100 hardware (Mac, Windows, RTX, Colab) |
+| Security & supply-chain hardening | 7 | 2 | Autonomous code execution creates safety concerns |
+| Search strategy & experiment design | 6 | 4 | Taste, diversity, pre-verification, early stopping |
+| Notable forks & ecosystem | 5 | 2 | The repo is becoming a hub, not a single implementation |
+| Evaluation & interpretability | 4 | 4 | Better measurement, logging, transfer tests |
+| Documentation & hygiene | 9 | 1 | Typical for early viral open source |
+
+### Check your understanding
+
+- What are the four directions the community is building in?
+- Which direction responds to the "depth-first only" problem?
+- Why is security a concern in autoresearch?
+
+---
+
+## Lesson 9: The Pattern Beyond ML
+
+The most important signal from the community is this: **the value is the loop, not the specific training target.**
+
+### The generalized pattern
+
+Any autoresearch-style system has four components:
+
+1. **An editable artifact** — the thing the agent is allowed to change (like `train.py`)
+2. **A fixed evaluation** — a deterministic metric the agent cannot game (like `val_bpb`)
+3. **A time budget** — every experiment gets the same fixed time
+4. **A git ledger** — every change is committed or reverted, creating memory
+
+```{mermaid}
+flowchart LR
+    ARTIFACT["Editable artifact<br>(code, config, strategy)"] --> LOOP["Tight loop<br>propose → run → measure"]
+    LOOP --> EVAL["Fixed evaluation<br>(any deterministic metric)"]
+    EVAL --> DECISION{"Improved?"}
+    DECISION -- "Yes" --> COMMIT["git commit<br>(keep + remember)"]
+    DECISION -- "No" --> REVERT["git revert<br>(discard + remember)"]
+    COMMIT --> ARTIFACT
+    REVERT --> ARTIFACT
+```
+
+### Beyond ML training
+
+People are already applying this pattern to domains far from training loops:
+
+**"Autocontext"** — a recursive self-improving harness for any text task. The agent generates a rubric, evaluates outputs against it, and iteratively improves. The editable artifact is a prompt template. The fixed evaluation is a rubric score.
+
+**Distributed agent networks** — connecting multiple autoresearch agents in peer-to-peer networks. Each agent explores a different branch. Improvements cross-pollinate between agents. The README describes the next step as "asynchronous, massively collaborative agents" — a SETI@home for research.
+
+**Skill factories** — using the propose/test/keep loop to create libraries of verified agent skills. The editable artifact is a skill definition. The fixed evaluation is a task completion rate.
+
+**Quant strategy evolution** — applying the same loop to trading strategy optimization. The editable artifact is a strategy script. The fixed evaluation is backtest performance on historical data.
+
+### Design exercise: your own loop
+
+Pick any domain. Define the four components:
+
+| Component | ML training | Sorting algorithm | Prompt optimization |
+|---|---|---|---|
+| Editable artifact | `train.py` | `sort.py` | `prompt.txt` |
+| Fixed evaluation | `val_bpb` | sort time on fixed input | accuracy on fixed test set |
+| Time budget | 5 minutes | 10 seconds | 30 seconds |
+| Git ledger | commit/revert | commit/revert | commit/revert |
+
+If you can fill in all four columns for your domain, you have an autoresearch-style loop.
+
+### Check your understanding
+
+- What are the four components of any autoresearch-style system?
+- Why does the pattern work for domains beyond ML training?
+- What would a sorting algorithm autoresearch loop look like?
+
+---
+
+## Lesson 10: Why Hype Cooled but the Project Didn't Stall
+
+If you look at Twitter/X, it might feel like autoresearch peaked and faded. The PR/issue data tells a different story.
+
+### Five factors explain the gap
+
+**1. The novelty phase ended fast.** Launch-week discourse was about the meme: "AI doing research on itself." After that, the hard questions took over — does it transfer? Is it just shallow local search? That naturally produces fewer viral takes and more infrastructure PRs.
+
+**2. The base repo is intentionally minimal.** It was designed to stay tiny and reviewable — one editable file, one context file, one GPU, one metric. That means ambitious extensions end up in forks and PR backlog, not in the main branch. Visible momentum shifts outward.
+
+**3. The community hit the search-policy wall.** Current behavior is too narrow — "only does depth-first search." Contributors are pushing for Bayesian sweeps, memory agents, diversity-aware exploration. This is the transition from "does the loop work?" to "how do we make the loop smart?"
+
+**4. Infrastructure PRs are not viral.** Porting to MLX, securing tokenizer caches, adding checkpoints, fixing notebooks — these are important but not "demo material." They signal maturation, not collapse.
+
+**5. Central repo activity is no longer the whole story.** Once the pattern generalizes into forks, custom backends, and orchestration layers, the right metric is **ecosystem activity**, not commits-to-main.
+
+```{mermaid}
+flowchart LR
+    subgraph perception ["What it looks like"]
+        HYPE["Tweet volume drops"]
+        FEWER["Fewer viral demos"]
+    end
+    subgraph reality ["What is actually happening"]
+        INFRA["Infrastructure PRs<br>MLX, security, checkpoints"]
+        FORKS["Activity moves to forks<br>Custom backends, orchestration"]
+        HARD["Hard problems tackled<br>Search policy, memory, verification"]
+    end
+    perception -- "people think<br>'it stalled'" --> reality
+```
+
+### The accurate take
+
+The hype cycle cooled, but the project shifted from novelty to engineering reality. The work is now about memory, orchestration, verification, portability, and better search policies. That is what maturation looks like in open source.
+
+### Check your understanding
+
+- Why is "commits-to-main" the wrong metric for autoresearch activity?
+- What is the "search-policy wall" the community hit?
+- Why do infrastructure PRs signal maturation, not collapse?
+
+---
+
+## The Complete Picture
+
+Here is the full journey from the original question to the community's response:
+
+```{mermaid}
+flowchart TD
+    subgraph question ["The question (Lesson 0)"]
+        Q["What if AI could<br>research its own code?"]
+    end
+
+    subgraph design ["The design (Lessons 1-5)"]
+        LOOP["Core loop:<br>propose → run → measure → keep/revert"]
+        FILES["Three files:<br>program.md + prepare.py + train.py"]
+        SPLIT["Human/agent split:<br>human controls eval + strategy<br>agent controls code + experiments"]
+    end
+
+    subgraph practice ["In practice (Lessons 6-7)"]
+        WORKS["Real improvements found:<br>batch size, depth, RoPE, init"]
+        FAILS["But also fails:<br>hallucinations, depth-first,<br>no memory, no transfer"]
+    end
+
+    subgraph community ["Community response (Lessons 8-10)"]
+        ORCH["Orchestration"]
+        PORT["Portability"]
+        TASTE["Taste + verification"]
+        GEN["Pattern generalization"]
+    end
+
+    question --> design
+    design --> practice
+    practice --> community
+```
+
+---
+
+## Connection to your learning
+
+| What you learned in the roadmap | How autoresearch connects |
+|---|---|
+| Step 2: `val_bpb` is a metric like any other eval | Autoresearch uses `val_bpb` as its single ground truth |
+| Step 2: attention, KV cache, forward pass | `train.py` implements a small transformer — the agent modifies its architecture |
+| Step 3: quantization, serving, benchmarking | Portability PRs are "benchmark this harness on my hardware" |
+| Step 4: training loops, loss, optimization | The entire system *is* a training loop — but the "optimizer" is an agent editing code |
+| Step 5: building AI products, agents, tool use | Autoresearch is a live case study of agentic product design |
+
+The deepest lesson: autoresearch is not a new model or a new training technique. It is a **design pattern** — a way to structure the relationship between humans, agents, code, and evaluation. That pattern is transferable far beyond ML.
+
+---
+
+## Exercises
+
+**Exercise 1: Read `program.md`**
+
+Open [`program.md`](https://github.com/karpathy/autoresearch/blob/main/program.md). Answer: What constraints does the agent operate under? What is off-limits? Where does "research taste" live?
+
+**Exercise 2: Read `prepare.py`**
+
+Open [`prepare.py`](https://github.com/karpathy/autoresearch/blob/main/prepare.py). Find `TIME_BUDGET` and `evaluate_bpb`. Why is the evaluation deterministic? Could the agent game this metric?
+
+**Exercise 3: Trace an experiment**
+
+Look at one of the session reports (linked from README). For one change: what did the agent propose? Did `val_bpb` improve? Was the commit kept or reverted?
+
+**Exercise 4: Design your own loop**
+
+Pick a domain outside ML training. Define: the editable artifact, the fixed evaluation, the time budget, and the `program.md` constraints. Write it as a one-page design doc.
+
+**Exercise 5: Fork and run**
+
+If you have GPU access: fork the repo, run one 5-minute experiment, analyze the result. Write a one-paragraph analysis: was the change smart?
+
+---
+
+## Learning Plan for First Break AI
+
+### Concept-to-code mapping
+
+| Concept | Where to find it | Lesson |
+|---|---|---|
+| AutoML vs code diffs | Lesson 0 diagrams | 0 |
+| Core loop | Core loop diagram, `program.md` | 1 |
+| Research taste | `program.md` in the repo | 2 |
+| Fixed evaluation | `prepare.py` in the repo | 3 |
+| Agent's canvas | `train.py` in the repo | 4 |
+| Human/agent split | Architecture diagram | 5 |
+| Real experiment trace | Session reports | 6 |
+| Failure modes | Community PRs/issues | 7 |
+| Community extensions | PR clustering table | 8 |
+| Generalized pattern | Pattern diagram | 9 |
+
+### Phase 1: Understand the design (Day 1)
+
+**Theory:**
+
+- [ ] Read Lesson 0 — understand AutoML vs autoresearch
+- [ ] Read Lesson 1 — understand the core loop
+- [ ] Read Lessons 2-4 — open each file on GitHub
+
+**Practice:**
+
+- [ ] Open `program.md` on GitHub, read the constraints
+- [ ] Open `prepare.py`, find `TIME_BUDGET` and `evaluate_bpb`
+- [ ] Open `train.py`, identify the model architecture
+
+**Verification:**
+
+- [ ] Can you draw the core loop from memory?
+- [ ] Can you explain the human/agent split?
+
+### Phase 2: See it in action (Day 2)
+
+**Theory:**
+
+- [ ] Read Lesson 5 — understand the human/agent split deeply
+- [ ] Read Lesson 6 — trace one real experiment
+- [ ] Read Lesson 7 — understand why the naive loop fails
+
+**Practice:**
+
+- [ ] Find one session report from the autoresearch repo
+- [ ] Trace one experiment: proposal → diff → metric → decision
+- [ ] List the four failure modes from memory
+
+**Verification:**
+
+- [ ] Can you explain Goodharting and how the fixed eval prevents it?
+- [ ] Can you name the four failure modes of the naive loop?
+
+### Phase 3: See the bigger picture (Day 3)
+
+**Theory:**
+
+- [ ] Read Lesson 8 — understand the four community directions
+- [ ] Read Lesson 9 — understand the generalized pattern
+- [ ] Read Lesson 10 — understand perception vs reality
+
+**Practice:**
+
+- [ ] Design your own autoresearch loop for a non-ML domain
+- [ ] Complete Exercise 4 (design doc)
+- [ ] If GPU available: complete Exercise 5 (fork and run)
+
+**Verification:**
+
+- [ ] Can you define the four components of any autoresearch-style system?
+- [ ] Can you explain why hype cooled but the project didn't stall?
+
+---
+
+## Progress tracker
+
+Copy and paste this into your notes:
+
+```
+Autoresearch Design Journey Progress
+======================================
+[ ] Lesson 0: The question that started it
+[ ] Lesson 1: The core loop
+[ ] Lesson 2: Read program.md
+[ ] Lesson 3: Read prepare.py
+[ ] Lesson 4: Read train.py
+[ ] Lesson 5: The human/agent split
+[ ] Lesson 6: Trace one experiment
+[ ] Lesson 7: Why the naive loop fails
+[ ] Lesson 8: What the community built
+[ ] Lesson 9: The pattern beyond ML
+[ ] Lesson 10: Why hype cooled
+Exercises:
+    [ ] Exercise 1: Read program.md
+    [ ] Exercise 2: Read prepare.py
+    [ ] Exercise 3: Trace an experiment
+    [ ] Exercise 4: Design your own loop
+    [ ] Exercise 5: Fork and run
+```
+
+---
+
+## Summary
+
+| Concept | What it is | Where to find it |
+|---|---|---|
+| The core loop | propose → run → measure → keep/revert | `program.md` defines it |
+| AutoML vs autoresearch | Parameter grids vs code diffs | Lesson 0 |
+| Human/agent split | Human controls eval + strategy, agent controls code | `program.md` + `prepare.py` vs `train.py` |
+| Fixed evaluation | Deterministic metric the agent cannot game | `prepare.py`, `val_bpb` |
+| Goodharting prevention | Agent cannot modify the evaluation | `prepare.py` is untouchable |
+| The taste problem | Agents need memory, diversity, verification | Community PRs, Lesson 7 |
+| The generalized pattern | Editable artifact + fixed eval + time budget + git | Lesson 9 |
+
+---
+
+::: {.blog-back}
+[← Back to Project Watch](index.qmd) | [← Back to Roadmap](../roadmap.qmd)
+:::

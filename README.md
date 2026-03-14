@@ -1,4 +1,4 @@
-# First Break AI
+# First Break AI.
 
 Free, open cohort for your first break in AI. Live site: [thefirehacker.github.io/firstbreakai](https://thefirehacker.github.io/firstbreakai).
 

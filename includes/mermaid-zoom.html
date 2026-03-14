@@ -1,0 +1,90 @@
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Attach click-to-zoom on all rendered Mermaid SVGs.
+  // Idempotent: skips containers already wired up.
+  function attachZoom() {
+    var svgs = document.querySelectorAll('svg.mermaid-js');
+    if (svgs.length === 0) return false;
+
+    svgs.forEach(function(svg) {
+      var container = svg.parentElement;
+      if (!container || container.dataset.zoomAttached) return;
+      container.dataset.zoomAttached = 'true';
+
+      container.addEventListener('click', function(e) {
+        if (e.target.closest('.mermaid-fullscreen-overlay')) return;
+
+        var overlay = document.createElement('div');
+        overlay.className = 'mermaid-fullscreen-overlay';
+
+        var content = document.createElement('div');
+        content.className = 'mermaid-fullscreen-content';
+
+        var closeBtn = document.createElement('button');
+        closeBtn.className = 'mermaid-fullscreen-close';
+        closeBtn.innerHTML = '&times;';
+        closeBtn.setAttribute('aria-label', 'Close');
+
+        var hint = document.createElement('div');
+        hint.className = 'mermaid-fullscreen-hint';
+        hint.textContent = 'Click outside or press Esc to close';
+
+        var svgClone = svg.cloneNode(true);
+        // Remove inline dimensions so SVG scales to fill container via viewBox
+        svgClone.removeAttribute('width');
+        svgClone.removeAttribute('height');
+        svgClone.style.width = '100%';
+        svgClone.style.height = 'auto';
+
+        content.appendChild(closeBtn);
+        content.appendChild(svgClone);
+        content.appendChild(hint);
+        overlay.appendChild(content);
+        document.body.appendChild(overlay);
+
+        document.body.style.overflow = 'hidden';
+
+        function close() {
+          overlay.remove();
+          document.body.style.overflow = '';
+        }
+
+        overlay.addEventListener('click', function(ev) {
+          if (ev.target === overlay) close();
+        });
+
+        closeBtn.addEventListener('click', function(ev) {
+          ev.stopPropagation();
+          close();
+        });
+
+        document.addEventListener('keydown', function handler(ev) {
+          if (ev.key === 'Escape') {
+            close();
+            document.removeEventListener('keydown', handler);
+          }
+        });
+      });
+    });
+
+    return true;
+  }
+
+  // Quarto's mermaid-init.js renders async: it removes <pre class="mermaid">
+  // and replaces it with <svg class="mermaid-js">. Use MutationObserver to
+  // detect when that swap happens.
+  var observer = new MutationObserver(function() {
+    if (attachZoom()) {
+      observer.disconnect();
+    }
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  // Fallback: if mutations were missed (e.g. already rendered), try once more
+  setTimeout(function() {
+    attachZoom();
+    observer.disconnect();
+  }, 3000);
+});
+</script>

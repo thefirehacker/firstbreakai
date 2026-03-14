@@ -3,6 +3,11 @@ project:
   output-dir: docs
   resources:
     - robots.txt
+  render:
+    - "*.qmd"
+    - "blog/*.qmd"
+    - "project-watch/*.qmd"
+    - "!temp/"
 
 website:
   title: "First Break AI"
@@ -34,6 +39,8 @@ website:
         text: AI Setup
       - href: blog/index.qmd
         text: Blog
+      - href: project-watch/index.qmd
+        text: Project Watch
     right:
       - icon: discord
         href: "https://discord.gg/QZuBvfcj"
@@ -46,3 +53,8 @@ format:
   html:
     css: styles/global.css
     include-in-header: includes/schema.html
+    include-after-body:
+      - includes/mermaid-zoom.html
+      - includes/github-card.html
+    mermaid:
+      theme: neutral

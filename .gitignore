@@ -1,4 +1,4 @@
-.cursor/*
+# .cursor/*
 docs/
 
 /.quarto/
@@ -6,3 +6,6 @@ docs/
 
 # Mac
 .DS_Store*
+
+# # temp files 
+# temp/*

@@ -105,6 +105,247 @@ table a:hover {
 }
 .nav-footer a { color: #e0d8cb; }
 
+/* ══════════════════════════════════════════
+   Mermaid diagrams — warm paper styling
+   After Quarto renders, <pre class="mermaid">
+   is replaced with <svg class="mermaid-js">.
+   All selectors target the post-render DOM.
+   ══════════════════════════════════════════ */
+
+/* Container — the div that directly wraps the rendered SVG */
+div:has(> svg.mermaid-js) {
+  position: relative;
+  background: #faf6ee;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 2px 12px rgba(44, 36, 23, 0.08);
+  border: 1px solid #e0d8cb;
+  transition: box-shadow 0.2s ease;
+  cursor: default;
+  overflow-x: auto;
+}
+
+div:has(> svg.mermaid-js):hover {
+  box-shadow: 0 4px 20px rgba(44, 36, 23, 0.14);
+}
+
+/* The SVG itself — no padding so content isn't compressed */
+svg.mermaid-js {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* Override Mermaid node colors to match warm paper theme */
+.mermaid-js .node rect,
+.mermaid-js .node polygon,
+.mermaid-js .node circle {
+  fill: #faf6ee !important;
+  stroke: #b8a88a !important;
+  stroke-width: 1.5px !important;
+}
+
+.mermaid-js .cluster rect {
+  fill: #f5efe4 !important;
+  stroke: #c4b8a0 !important;
+  stroke-width: 1.5px !important;
+  rx: 8px !important;
+}
+
+.mermaid-js .cluster text {
+  fill: #5a4e3e !important;
+  font-weight: 700 !important;
+}
+
+.mermaid-js .nodeLabel,
+.mermaid-js .node .label {
+  color: #1a1510 !important;
+  font-family: system-ui, -apple-system, sans-serif !important;
+  font-size: 13px !important;
+}
+
+.mermaid-js .edgeLabel {
+  background-color: #f0ebe1 !important;
+  color: #5a4e3e !important;
+  font-size: 12px !important;
+}
+
+.mermaid-js .edgePath .path,
+.mermaid-js .flowchart-link {
+  stroke: #7a5518 !important;
+  stroke-width: 1.5px !important;
+}
+
+.mermaid-js .marker {
+  fill: #7a5518 !important;
+  stroke: #7a5518 !important;
+}
+
+/* Zoom icon badge — top-right expand icon on hover */
+div:has(> svg.mermaid-js)::after {
+  content: "";
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  background: rgba(250, 246, 238, 0.9) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237a5518' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='15 3 21 3 21 9'/%3E%3Cpolyline points='9 21 3 21 3 15'/%3E%3Cline x1='21' y1='3' x2='14' y2='10'/%3E%3Cline x1='3' y1='21' x2='10' y2='14'/%3E%3C/svg%3E") center/1rem no-repeat;
+  border-radius: 0.3rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+
+div:has(> svg.mermaid-js):hover::after {
+  opacity: 1;
+}
+
+/* ── Fullscreen overlay for diagrams ── */
+.mermaid-fullscreen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(30, 26, 20, 0.85);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+  animation: mermaid-fade-in 0.2s ease;
+}
+
+@keyframes mermaid-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.mermaid-fullscreen-overlay .mermaid-fullscreen-content {
+  min-width: 70vw;
+  max-width: 92vw;
+  max-height: 90vh;
+  overflow: auto;
+  background: #faf6ee;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.mermaid-fullscreen-overlay .mermaid-fullscreen-content svg {
+  width: 100%;
+  height: auto;
+  cursor: text;
+  user-select: text;
+  -webkit-user-select: text;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  background: transparent;
+}
+
+.mermaid-fullscreen-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #5a4e3e;
+  cursor: pointer;
+  background: none;
+  border: none;
+  line-height: 1;
+  z-index: 10;
+}
+
+.mermaid-fullscreen-close:hover {
+  color: #1a1510;
+}
+
+.mermaid-fullscreen-hint {
+  position: absolute;
+  bottom: 0.75rem;
+  right: 1rem;
+  font-size: 0.7rem;
+  color: #7a5518;
+  font-weight: 600;
+}
+
+/* ══════════════════════════════════════════
+   GitHub repo link card — in-post card
+   ══════════════════════════════════════════ */
+
+.repo-link-card {
+  background: #faf6ee;
+  border: 2px solid #b8a88a;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.repo-link-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.repo-link-header svg {
+  width: 1rem;
+  height: 1rem;
+  fill: #5a4e3e;
+  flex-shrink: 0;
+}
+
+.repo-link-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #7a5518;
+}
+
+.repo-link-name:hover {
+  text-decoration: underline;
+}
+
+.repo-link-desc {
+  font-size: 0.9rem;
+  color: #3d3428;
+  line-height: 1.5;
+  margin: 0 0 0.75rem;
+}
+
+.repo-link-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: #5a4e3e;
+}
+
+.repo-link-meta span {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.repo-link-lang-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.repo-link-meta svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  fill: #5a4e3e;
+}
+
 /* ── Responsive base ── */
 @media (max-width: 768px) {
   h1 { font-size: 1.7rem; }
@@ -115,5 +356,13 @@ table a:hover {
     display: block;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+  }
+
+  div:has(> svg.mermaid-js) {
+    padding: 1rem;
+  }
+
+  div:has(> svg.mermaid-js)::after {
+    display: none;
   }
 }
