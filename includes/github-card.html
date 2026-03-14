@@ -1,0 +1,58 @@
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Language → color map (matches GitHub)
+  var langColors = {
+    Python: '#3572A5', JavaScript: '#f1e05a', TypeScript: '#3178c6',
+    Rust: '#dea584', Go: '#00ADD8', C: '#555555', 'C++': '#f34b7d',
+    Jupyter: '#DA5B0B', Shell: '#89e051', Cuda: '#3A4E3A'
+  };
+
+  document.querySelectorAll('.repo-link-card[data-repo]').forEach(function(card) {
+    var repo = card.dataset.repo;
+    if (!repo) return;
+
+    var metaEl = card.querySelector('.repo-link-meta');
+    var descEl = card.querySelector('.repo-link-desc');
+    if (!metaEl) return;
+
+    fetch('https://api.github.com/repos/' + repo)
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.message) return; // API error
+
+        // Update description if API returned one
+        if (data.description && descEl) {
+          descEl.textContent = data.description;
+        }
+
+        // Build metadata row
+        var parts = [];
+
+        if (data.language) {
+          var color = langColors[data.language] || '#8b6914';
+          parts.push(
+            '<span><span class="repo-link-lang-dot" style="background:' + color + '"></span>' +
+            data.language + '</span>'
+          );
+        }
+
+        if (data.stargazers_count != null) {
+          parts.push(
+            '<span><svg viewBox="0 0 16 16"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg>' +
+            data.stargazers_count.toLocaleString() + '</span>'
+          );
+        }
+
+        if (data.forks_count != null) {
+          parts.push(
+            '<span><svg viewBox="0 0 16 16"><path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 0-1.5 0v.878H6.75v-.878a2.25 2.25 0 1 0-1.5 0ZM8 1.25a.75.75 0 1 1 0 1.5.75.75 0 0 1 0-1.5Zm-2.25 0a.75.75 0 1 1 0 1.5.75.75 0 0 1 0-1.5ZM5 9.5v2.25a.75.75 0 0 0 .75.75h4.5a.75.75 0 0 0 .75-.75V9.5a2.25 2.25 0 1 0-1.5 0v2.25H6.75V9.5a2.25 2.25 0 1 0-1.5 0Z"/></svg>' +
+            data.forks_count.toLocaleString() + '</span>'
+          );
+        }
+
+        metaEl.innerHTML = parts.join('');
+      })
+      .catch(function() { /* Silently fail — static fallback is fine */ });
+  });
+});
+</script>

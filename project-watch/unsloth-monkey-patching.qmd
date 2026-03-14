@@ -1,0 +1,906 @@
+---
+title: "Unsloth: How Monkey Patching Makes LLMs 2x Faster — A Code-Reading Journey"
+description: "A lesson-by-lesson walkthrough of how Unsloth replaces HuggingFace model internals at runtime. You will trace the actual source code, read Triton kernels, and understand every optimization — from a 3-line patch to a full pipeline rewrite. No GPU required. Bring a browser and curiosity."
+date: 2026-03-11
+categories: [project-watch, inference, gpu, optimization, unsloth]
+---
+
+> **First Break AI — Project Watch**
+>
+> This is a [Project Watch](index.qmd) deep dive. We study real, shipping AI projects and reverse-engineer the engineering decisions.
+> This post goal: read Unsloth's source code and understand *monkey patching, fused kernels, and how production systems optimize LLM inference*.
+> Connects to: [Step 2](../roadmap.qmd) (inference basics), [Step 3](../roadmap.qmd) (inference engines), [Step 4](../roadmap.qmd) (training).
+
+---
+
+::: {.repo-link-card data-repo="unslothai/unsloth"}
+::: {.repo-link-header}
+<svg viewBox="0 0 16 16"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8ZM5 12.25a.25.25 0 0 1 .25-.25h3.5a.25.25 0 0 1 .25.25v3.25a.25.25 0 0 1-.4.2l-1.45-1.087a.249.249 0 0 0-.3 0L5.4 15.7a.25.25 0 0 1-.4-.2Z"/></svg>
+[unslothai/unsloth](https://github.com/unslothai/unsloth){.repo-link-name}
+:::
+
+[The project source code discussed in this post.]{.repo-link-desc}
+
+::: {.repo-link-meta}
+:::
+:::
+
+## Navigate by roadmap
+
+| Roadmap step | What you already know | What this post adds |
+|---|---|---|
+| Step 2: Run a model locally | RMSNorm, RoPE, attention, KV cache in C | How Unsloth optimizes these same ops with fused GPU kernels |
+| Step 3: Inference deep dive | Inference engines, quantization | Why frameworks like Unsloth exist alongside vLLM/llama.cpp |
+| Step 4: Training | PyTorch, fine-tuning, LoRA | How Unsloth patches training paths too (cross-entropy, LoRA) |
+
+[← Back to Roadmap](../roadmap.qmd)
+
+---
+
+## Table of contents
+
+- [The big picture](#the-big-picture)
+- [Lesson 0: The problem](#lesson-0-the-problem)
+- [Lesson 1: What is monkey patching?](#lesson-1-what-is-monkey-patching)
+- [Lesson 2: Open the real file](#lesson-2-open-the-real-file)
+- [Lesson 3: pre_patch() — where the rewiring happens](#lesson-3-pre_patch--where-the-rewiring-happens)
+- [Lesson 4: Trace the training path](#lesson-4-trace-the-training-path)
+- [Lesson 5: Trace the inference path](#lesson-5-trace-the-inference-path)
+- [Lesson 6: Follow one call down — the Triton kernel](#lesson-6-follow-one-call-down--the-triton-kernel)
+- [Lesson 7: Full stack trace](#lesson-7-full-stack-trace)
+- [Lesson 8: Trade-offs and version fragility](#lesson-8-trade-offs-and-version-fragility)
+- [Lesson 9: Code reading exercises](#lesson-9-code-reading-exercises)
+- [The complete picture](#the-complete-picture)
+- [Learning plan](#learning-plan-for-first-break-ai)
+
+---
+
+# How Unsloth Makes LLMs Faster
+
+By the end of this post you will have:
+
+- Understood what monkey patching is and why it matters for LLM performance
+- Read the actual Unsloth source code for the Qwen3 patch on GitHub
+- Traced a complete forward pass through the patched execution stack
+- Understood what a fused GPU kernel is and why RMSNorm is the ideal teaching example
+- Followed one function call from Python down to a `@triton.jit` kernel
+- Completed progressive code-reading exercises on a real production codebase
+
+This is a code-reading journey. You will trace the decisions in Unsloth's actual source code. At each step we ask: **what problem was being solved, and how?**
+
+---
+
+## The Big Picture
+
+Here is the complete journey. Each box is a lesson.
+
+```{mermaid}
+flowchart TD
+    L0["Lesson 0<br>The problem<br>HF is slow — count the kernel launches"]
+    L1["Lesson 1<br>Monkey patching<br>The 3-line switch"]
+    L2["Lesson 2<br>Open the real file<br>unsloth/models/qwen3.py"]
+    L3["Lesson 3<br>pre_patch()<br>Every .forward = assignment"]
+    L4["Lesson 4<br>Training path<br>Qwen3Attention_fast_forward"]
+    L5["Lesson 5<br>Inference path<br>Paged KV cache, single-token decode"]
+    L6["Lesson 6<br>Follow one call down<br>RMSNorm Triton kernel"]
+    L7["Lesson 7<br>Full stack trace<br>from_pretrained → Triton"]
+    L8["Lesson 8<br>Trade-offs<br>Version fragility, warm-up cost"]
+    L9["Lesson 9<br>Exercises<br>Progressive code-reading challenges"]
+
+    L0 --> L1 --> L2 --> L3
+    L3 --> L4
+    L3 --> L5
+    L4 --> L6
+    L5 --> L6
+    L6 --> L7 --> L8 --> L9
+```
+
+---
+
+## Lesson 0: The Problem
+
+Before we look at any Unsloth code, let us understand the problem that motivated the project.
+
+### HuggingFace is slow — but why?
+
+[HuggingFace Transformers](https://github.com/huggingface/transformers) is designed for correctness and readability, not peak GPU performance. Every forward pass goes through many small Python calls, each launching a separate GPU kernel.
+
+Take RMSNorm — the normalization step you saw in Step 2's `rmsnorm()` function in `run.c`. A standard PyTorch RMSNorm might execute as:
+
+1. Square each element (kernel launch 1)
+2. Sum the squares (kernel launch 2)
+3. Compute the mean (kernel launch 3)
+4. Take the square root (kernel launch 4)
+5. Multiply by the reciprocal (kernel launch 5)
+6. Multiply by the weight (kernel launch 6)
+
+That is **6 separate GPU kernel launches** for one RMSNorm call. Each launch has overhead: scheduling, memory reads, memory writes, data moving between GPU memory and compute units.
+
+### Why this compounds
+
+RMSNorm appears in every transformer block, twice — once before attention, once before the FFN. For a model with 28 layers, that is:
+
+```
+28 layers × 2 norms per layer = 56 RMSNorm calls per token
+56 calls × 6 kernel launches = 336 kernel launches — just for normalization
+```
+
+And RMSNorm is only one of many operations. RoPE, attention, the gated MLP — each has its own chain of small kernel launches. The overhead adds up across every generated token.
+
+```{mermaid}
+flowchart LR
+    subgraph unfused ["Standard HF: 6 kernel launches"]
+        S1["square"] --> S2["sum"] --> S3["mean"] --> S4["sqrt"] --> S5["reciprocal"] --> S6["weight mul"]
+    end
+    subgraph fused ["Fused: 1 kernel launch"]
+        F1["RMSNorm<br>All 6 steps in one kernel<br>Data stays on-chip"]
+    end
+```
+
+A **fused kernel** does all six steps in a single GPU kernel — one launch, data stays on-chip. The insight: if you fuse RMSNorm, RoPE, the gated MLP, and more, the modest speedups compound across 28 layers and thousands of decode steps.
+
+### Why inference pays off even more than training
+
+In decoding, you run the same tiny step thousands of times — one token at a time. The same shapes keep reappearing. KV cache can be reused. Pre-allocated buffers can be reused. Once compiled and fused, the win compounds over every generated token.
+
+### Check your understanding
+
+- Why does a standard PyTorch RMSNorm launch 6 separate GPU kernels?
+- If a model has 28 layers, how many RMSNorm calls happen per token?
+- Why does fusing kernels help more in inference than in training?
+
+---
+
+## Lesson 1: What Is Monkey Patching?
+
+The problem is clear: HF is slow because of too many small kernel launches. But forking HuggingFace Transformers would mean maintaining a separate copy of hundreds of model files. Instead, Unsloth uses a technique called **monkey patching**.
+
+### The core idea
+
+Monkey patching is replacing a method on a class at runtime, so all future calls to that method execute your replacement instead of the original.
+
+In Python, every class method is just an attribute. You can overwrite it:
+
+```python
+SomeClass.some_method = my_replacement_function
+```
+
+After that line, every instance of `SomeClass` that calls `some_method()` will run `my_replacement_function` instead.
+
+### The 3-line example
+
+The simplest real example comes from [TinyZero](https://github.com/Jiayi-Pan/TinyZero). This is what the approach looks like in miniature:
+
+```python
+# From TinyZero — a minimal monkey patch on a real LLM
+from transformers.models.qwen2.modeling_qwen2 import Qwen2FlashAttention2
+from verl.models.transformers.qwen2 import qwen2_flash_attn_forward
+
+Qwen2FlashAttention2.forward = qwen2_flash_attn_forward
+```
+
+Three lines. What happens:
+
+1. Import the HuggingFace attention class (`Qwen2FlashAttention2`)
+2. Import a custom replacement forward function
+3. Overwrite the class method
+
+From this point on, every `Qwen2FlashAttention2` instance in memory runs the custom function when `.forward()` is called. Same class, same API, different runtime behavior.
+
+```{mermaid}
+flowchart LR
+    A["HuggingFace loads<br>Qwen2FlashAttention2"] --> B["Line 3:<br>Overwrite .forward"]
+    B --> C["All future .forward() calls<br>run the custom function"]
+    C --> D["User code unchanged<br>model.generate() still works"]
+```
+
+This is the **micro patch** — one method on one class. Unsloth scales this idea up to the entire model stack.
+
+### Check your understanding
+
+- What does `Qwen2FlashAttention2.forward = qwen2_flash_attn_forward` actually do in Python's object model?
+- Why is monkey patching better than forking HuggingFace Transformers?
+- After the patch, does the user need to change any of their code?
+
+---
+
+## Lesson 2: Open the Real File
+
+The TinyZero example shows the idea. Now let us open the real thing.
+
+### Navigate to the source
+
+Open this file in your browser: [`unsloth/models/qwen3.py`](https://github.com/unslothai/unsloth/blob/main/unsloth/models/qwen3.py)
+
+This is the file where Unsloth patches the entire Qwen3 model stack. Let us tour the structure.
+
+### The imports — what Unsloth brings in
+
+The file starts by importing from two worlds — HuggingFace and Unsloth's own fast paths:
+
+```python
+# From Unsloth's own codebase
+from .llama import *
+from ._utils import __version__
+from ..utils.attention_dispatch import (
+    run_attention, SDPA, select_attention_backend,
+)
+
+# From HuggingFace — the classes we will patch
+from transformers.models.qwen3.modeling_qwen3 import (
+    Qwen3Attention,
+    Qwen3DecoderLayer,
+    Qwen3Model,
+    Qwen3ForCausalLM,
+)
+```
+
+Notice what is happening: Unsloth imports the standard HuggingFace classes *by name*. It needs to know exactly which classes exist, and exactly what their methods are called. This is the foundation of the monkey patch — you cannot overwrite a method if you do not know the class.
+
+### The version check — a critical guard
+
+```python
+if not transformers_version >= Version("4.50.3"):
+    raise ImportError(
+        "Unsloth: Your transformers version does not support Qwen3..."
+    )
+```
+
+This is the fragility of monkey patching in action. Qwen3 only exists in Transformers `4.50.3` and above. If the version is wrong, the import fails and Unsloth tells you exactly what to do. Unsloth has to maintain these version checks for every model.
+
+### The file structure
+
+```{mermaid}
+flowchart TD
+    A["Imports<br>HuggingFace classes + Unsloth fast ops"] --> B["Qwen3Attention_fast_forward()<br>Training/prefill path (~110 lines)"]
+    B --> C["Qwen3Attention_fast_forward_inference()<br>Decode path (~230 lines)"]
+    C --> D["FastQwen3Model class<br>pre_patch() + from_pretrained()"]
+```
+
+The file has three main sections:
+
+1. **`Qwen3Attention_fast_forward`** — the replacement attention function for training and prefill
+2. **`Qwen3Attention_fast_forward_inference`** — the replacement for single-token decode
+3. **`FastQwen3Model`** — the class that orchestrates the patching
+
+### Check your understanding
+
+- Why does Unsloth import HuggingFace classes by name?
+- What happens if your Transformers version is below 4.50.3?
+- What are the three main sections of the Qwen3 patch file?
+
+---
+
+## Lesson 3: pre_patch() — Where the Rewiring Happens
+
+Now we reach the heart of the file. `FastQwen3Model.pre_patch()` is where the actual surgery happens.
+
+### The method
+
+From `FastQwen3Model` in `unsloth/models/qwen3.py`:
+
+```python
+@staticmethod
+def pre_patch():
+    init_name, function = patch_linear_scaling(
+        model_name="Qwen3",
+        rope_module=LlamaRotaryEmbedding,
+        scaled_rope_module=LlamaLinearScalingRotaryEmbedding,
+        attention_module=Qwen3Attention,
+    )
+    if init_name is not None:
+        exec(function, globals())
+        Qwen3Attention.__init__ = eval(init_name)
+
+    Qwen3Attention.forward       = Qwen3Attention_fast_forward
+    Qwen3SdpaAttention.forward   = Qwen3Attention_fast_forward
+    Qwen3FlashAttention2.forward = Qwen3Attention_fast_forward
+    Qwen3DecoderLayer.forward    = LlamaDecoderLayer_fast_forward
+    Qwen3Model.forward           = LlamaModel_fast_forward
+    Qwen3ForCausalLM.forward     = CausalLM_fast_forward(
+        _LlamaModel_fast_forward_inference(
+            Qwen3Attention_fast_forward_inference
+        )
+    )
+    PeftModelForCausalLM.forward = PeftModel_fast_forward
+    fix_prepare_inputs_for_generation(Qwen3ForCausalLM)
+
+    transformers.models.qwen3.modeling_qwen3.Qwen3RotaryEmbedding = (
+        LlamaRotaryEmbedding
+    )
+```
+
+Every line that says `.forward = ` is a monkey patch. Count them: **7 method replacements** plus a RoPE class replacement. That is the entire model stack being rewired.
+
+### Three levels of patching
+
+Unsloth patches at three different levels of the model hierarchy:
+
+```{mermaid}
+flowchart LR
+    subgraph level1 ["Level 1: Hot-op patch"]
+        A1["Qwen3Attention.forward"]
+        A2["Qwen3SdpaAttention.forward"]
+        A3["Qwen3FlashAttention2.forward"]
+    end
+    subgraph level2 ["Level 2: Block patch"]
+        B1["Qwen3DecoderLayer.forward"]
+    end
+    subgraph level3 ["Level 3: Pipeline patch"]
+        C1["Qwen3Model.forward"]
+        C2["Qwen3ForCausalLM.forward"]
+        C3["PeftModelForCausalLM.forward"]
+    end
+    A1 --> FAST_ATT["Qwen3Attention_fast_forward"]
+    A2 --> FAST_ATT
+    A3 --> FAST_ATT
+    B1 --> FAST_DEC["LlamaDecoderLayer_fast_forward"]
+    C1 --> FAST_MOD["LlamaModel_fast_forward"]
+    C2 --> FAST_CLM["CausalLM_fast_forward"]
+    C3 --> FAST_PEFT["PeftModel_fast_forward"]
+```
+
+**Level 1 — Hot-op patch:** Replace attention forward. All three attention variants (vanilla, SDPA, Flash) route to the same fast function. This choice was made because HuggingFace has multiple attention implementations, but Unsloth only needs one fast path.
+
+**Level 2 — Block patch:** Replace the decoder layer forward. Each of the 28+ transformer blocks now runs through Unsloth's optimized path.
+
+**Level 3 — Pipeline patch:** Replace the whole model forward, the CausalLM wrapper, the PEFT wrapper, and generation input preparation. This is what makes `generate()` run the fast path end-to-end.
+
+### Why all three attention variants route to one function
+
+Notice that `Qwen3Attention`, `Qwen3SdpaAttention`, and `Qwen3FlashAttention2` all get the same replacement. HuggingFace creates different classes for different attention backends. Unsloth's solution: replace them all with one function that handles backend dispatch internally. Simpler code, one place to optimize.
+
+### Check your understanding
+
+- How many `.forward` methods does `pre_patch()` replace?
+- Why do all three attention variants (`Qwen3Attention`, `Qwen3SdpaAttention`, `Qwen3FlashAttention2`) point to the same function?
+- What is the difference between a Level 1 (hot-op) patch and a Level 3 (pipeline) patch?
+
+---
+
+## Lesson 4: Trace the Training Path
+
+Now that we know *what* gets patched, let us read *what actually runs*. The function `Qwen3Attention_fast_forward` is the training/prefill path — it processes a batch of tokens through attention.
+
+We will trace it in five stages, each solving a specific problem.
+
+### Stage 1: Custom QKV projection
+
+```python
+Q, K, V = self.apply_qkv(self, hidden_states)
+Q = Q.view(bsz, q_len, n_heads, head_dim)
+K = K.view(bsz, q_len, n_kv_heads, head_dim)
+V = V.view(bsz, q_len, n_kv_heads, head_dim).transpose(1, 2)
+```
+
+**What this solves:** Instead of the stock HF projection path, Unsloth uses its own `apply_qkv` which may fuse the three linear projections and control memory layout. Notice Q has `n_heads` while K and V have `n_kv_heads` — this is Grouped Query Attention (GQA), the same optimization you saw in Step 2.
+
+### Stage 2: QKNorm with fast RMSNorm
+
+```python
+# Qwen3 has QKNorm — the only difference from Qwen2
+Q = fast_rms_layernorm(self.q_norm, Q)
+K = fast_rms_layernorm(self.k_norm, K)
+```
+
+**What this solves:** Qwen3 introduced QK normalization — applying RMSNorm to Q and K before attention. In Step 2 you saw `rmsnorm()` in `run.c`. Here it is again, but backed by a Triton kernel instead of C loops. We will trace this kernel in Lesson 6.
+
+### Stage 3: Fast RoPE embedding
+
+```python
+Q, K = fast_rope_embedding(Q, K, cos, sin, rope_position_ids)
+```
+
+**What this solves:** RoPE (Rotary Position Encoding) gives the model a sense of token position. In Step 2 you traced the cos/sin rotation loop. Unsloth replaces this with a fused implementation that avoids separate kernel launches for each rotation step.
+
+### Stage 4: Attention backend dispatch
+
+```python
+backend = (
+    SDPA if attention_mask is not None
+    else select_attention_backend(use_varlen)
+)
+A = run_attention(config=attention_config, context=context, Q=Q, K=K, V=V)
+```
+
+**What this solves:** Rather than blindly using one attention implementation, Unsloth selects the best backend — SDPA, flash attention, or variable-length attention — and dispatches through a unified runner. The choice depends on the context: is there an attention mask? Is this variable-length packed input?
+
+### Stage 5: Output projection
+
+```python
+attn_output = A.reshape(bsz, q_len, n_heads * head_dim)
+attn_output = self.apply_o(self, attn_output)
+return attn_output, attn_weights, past_key_value
+```
+
+**What this solves:** The attention output is reshaped and projected back to the hidden dimension. `apply_o` is Unsloth's fast linear path.
+
+```{mermaid}
+flowchart TD
+    H["hidden_states"] --> QKV["Stage 1: apply_qkv<br>Q, K, V projections"]
+    QKV --> NORM["Stage 2: fast_rms_layernorm<br>QKNorm on Q and K"]
+    NORM --> ROPE["Stage 3: fast_rope_embedding<br>Position encoding"]
+    ROPE --> KV["KV cache update<br>torch.cat past + new"]
+    KV --> ATT["Stage 4: run_attention<br>Backend dispatch:<br>SDPA / Flash / VarLen"]
+    ATT --> OUT["Stage 5: apply_o<br>Output projection"]
+```
+
+### Check your understanding
+
+- Why does Q have `n_heads` dimensions while K and V have `n_kv_heads`?
+- What is QKNorm, and why is it specific to Qwen3?
+- Why does Unsloth select between different attention backends instead of always using the same one?
+
+---
+
+## Lesson 5: Trace the Inference Path
+
+Training processes many tokens at once. But during generation, the model processes **one token at a time**, thousands of times. Unsloth has a completely separate function for this: `Qwen3Attention_fast_forward_inference`.
+
+### Why a separate path?
+
+The decode path is the inner loop of text generation. It runs once per token — if you generate 500 tokens, this function runs 500 times. Every microsecond of overhead multiplies across every token. This is where Unsloth's optimizations pay off the most.
+
+### The QK^T insight — from the docstring
+
+The function starts with a brilliant docstring that explains the math:
+
+```python
+"""
+QK^T can be computed in 4 chunks:
+[Q, q] @ [K, k].T where q, k are the new tokens.
+[QK^T, Qk^T]
+[qK^T, qk^T]
+
+Since the attention mask wipes Qk^T, we just get:
+[QK^T,    0]
+[qK^T, qk^T]
+
+We just need to compute the last final row.
+This means we can pass in a row of Q, but we need to
+remember K and V — the KV cache.
+"""
+```
+
+This is the key insight: during decode, you only need to compute one row of the attention matrix. Everything above it was already computed. That is why the KV cache exists — it remembers K and V from all previous tokens.
+
+### Pre-allocated paged KV cache
+
+```python
+if do_prefill:
+    self.paged_attention = torch.empty(
+        (KV_CACHE_INCREMENT + seq_len + 1, 2, bsz, n_kv_heads, head_dim),
+        dtype=dtype, device=device,
+    )
+    self.paged_attention_K = self.paged_attention[:, 0]
+    self.paged_attention_V = self.paged_attention[:, 1]
+```
+
+**What this solves:** Instead of creating new tensors each step, the KV cache is pre-allocated in chunks (`KV_CACHE_INCREMENT`). K and V are stored as views into the same tensor. When the cache fills up, it grows by another increment rather than being re-created. This avoids GPU memory allocation on the hot path.
+
+### Manual RoPE — in-place math
+
+```python
+h = self.half_head_dim
+RH_Q = self.RH_Q
+RH_Q[:, :, :, :h] = Qn[:, :, :, h:]
+RH_Q[:, :, :, h:] = Qn[:, :, :, :h]
+RH_Q[:, :, :, :h].neg_()
+Qn *= cos
+Qn.addcmul_(RH_Q, sin)
+```
+
+**What this solves:** Instead of calling a high-level RoPE function, the inference path does the rotation manually with in-place operations. `addcmul_` is a fused multiply-accumulate that avoids creating intermediate tensors. Every allocation avoided is time saved in the hot loop.
+
+### Paged cache update
+
+```python
+self.paged_attention_K[seq_len] = Kn.permute(2, 0, 1, 3)
+self.paged_attention_V[seq_len] = Vn.permute(2, 0, 1, 3)
+Kn = self.paged_attention_K[:kv_seq_len].permute(1, 2, 0, 3)
+Vn = self.paged_attention_V[:kv_seq_len].permute(1, 2, 0, 3)
+```
+
+**What this solves:** The new K and V are written into the next slot of the paged cache. Then the full cache (all tokens so far) is read back as a view. No concatenation, no copying — just index and view.
+
+### Sliding window
+
+```python
+sliding_window = getattr(self.config, "sliding_window", None)
+if sliding_window is not None and kv_seq_len > sliding_window:
+    Knn = Kn[:, :, start:, :]
+    Vnn = Vn[:, :, start:, :]
+```
+
+**What this solves:** Some models use a sliding window — they only attend to the most recent N tokens. Instead of masking, Unsloth simply slices the KV cache to the window size. Cheaper than a full mask.
+
+```{mermaid}
+flowchart LR
+    subgraph prefill ["Prefill (many tokens)"]
+        P1["Process full prompt"] --> P2["Fill KV cache"] --> P3["Uses training path<br>Qwen3Attention_fast_forward"]
+    end
+    subgraph decode ["Decode (one token at a time)"]
+        D1["Process 1 new token"] --> D2["Append to paged KV cache"] --> D3["Uses inference path<br>Qwen3Attention_fast_forward_inference"]
+    end
+```
+
+### Check your understanding
+
+- Why does Unsloth have separate training and inference paths for attention?
+- What is the advantage of paged KV cache allocation over creating new tensors each step?
+- What does `addcmul_` do, and why is in-place math faster in the decode loop?
+
+---
+
+## Lesson 6: Follow One Call Down — The Triton Kernel
+
+Monkey patching is the routing mechanism. The actual speedups come from what the patched methods call. Let us follow one call all the way down to the GPU.
+
+### The call chain
+
+In Lesson 4, Stage 2, we saw:
+
+```python
+Q = fast_rms_layernorm(self.q_norm, Q)
+```
+
+This function calls a Triton kernel. Let us trace it.
+
+### What is Triton?
+
+[Triton](https://github.com/triton-lang/triton) is a language for writing GPU kernels in Python. A `@triton.jit` decorated function compiles to GPU machine code. It lets you write custom GPU operations without CUDA — and Unsloth uses it extensively.
+
+### The RMSNorm Triton kernel
+
+Navigate to [`unsloth/kernels/rms_layernorm.py`](https://github.com/unslothai/unsloth/tree/main/unsloth/kernels) in the Unsloth repo. Inside you will find a function decorated with `@triton.jit`.
+
+The kernel body does all six RMSNorm steps — square, sum, mean, reciprocal square root, and weight multiply — in a single GPU kernel. The data never leaves the GPU's on-chip memory between steps.
+
+```{mermaid}
+flowchart TD
+    PY["Python: Qwen3Attention_fast_forward<br>calls fast_rms_layernorm()"]
+    PY --> WRAPPER["fast_rms_layernorm()<br>Prepares tensors, launches kernel"]
+    WRAPPER --> TRITON["@triton.jit kernel<br>All 6 RMSNorm steps in one GPU launch:<br>square → sum → mean → rsqrt → scale → weight"]
+    TRITON --> GPU["GPU: data stays on-chip<br>No intermediate memory roundtrips"]
+```
+
+### Why RMSNorm is the ideal teaching example
+
+1. **Simple math:** Square, sum, mean, square root, multiply. You already understand each step from Step 2.
+2. **Clearly a hot path:** 56 calls per token (28 layers × 2 norms).
+3. **Direct Triton implementation:** Not hidden behind PyTorch layers — you can read the actual kernel.
+4. **Measurable impact:** Fusing 6 launches into 1 across 56 calls is a concrete, countable improvement.
+
+### The distinction: routing vs. speedup
+
+This is important. **Monkey patching** proves that the execution path has been replaced. But it does not prove the replacement is faster. For that, you must inspect what the patched function actually calls.
+
+In Unsloth's case:
+- Monkey patching = the routing mechanism
+- Fused Triton kernels = the actual performance engine
+
+### Check your understanding
+
+- What does `@triton.jit` do?
+- Why is fusing 6 kernel launches into 1 better than launching them separately?
+- What is the difference between what monkey patching proves and what fused kernels prove?
+
+---
+
+## Lesson 7: Full Stack Trace
+
+Let us zoom all the way out and trace the complete path from user code to GPU.
+
+### How from_pretrained() triggers patching
+
+```python
+class FastQwen3Model(FastLlamaModel):
+    @staticmethod
+    def from_pretrained(
+        model_name="Qwen/Qwen3-7B",
+        max_seq_length=4096,
+        load_in_4bit=True,
+        ...
+    ):
+        return FastLlamaModel.from_pretrained(
+            model_name=model_name,
+            model_patcher=FastQwen3Model,  # ← this triggers pre_patch()
+            ...
+        )
+```
+
+The user calls `FastQwen3Model.from_pretrained(...)`. Internally, `model_patcher=FastQwen3Model` triggers `pre_patch()`, which rewires all the `.forward()` methods. The model loads normally from HuggingFace, but by the time the user gets the model object, every execution path has been rerouted.
+
+### The complete depth
+
+```{mermaid}
+flowchart TD
+    USER["User: FastQwen3Model.from_pretrained()"] --> LOAD["HuggingFace loads Qwen3 classes normally"]
+    LOAD --> PATCH["pre_patch() rewires all .forward methods<br>7 patches + RoPE replacement"]
+    PATCH --> RETURN["User gets model object<br>All paths now rerouted"]
+    RETURN --> GEN["User: model.generate()"]
+    GEN --> DECODE["For each token:"]
+    DECODE --> FAST["Qwen3Attention_fast_forward_inference"]
+    FAST --> KERNELS["fast_rms_layernorm<br>fast_rope_embedding<br>fast_linear_forward<br>run_attention"]
+    KERNELS --> GPU["Triton / CUDA kernels on GPU"]
+```
+
+### The kernel registry
+
+Here is the full set of fast operations Unsloth provides:
+
+| Kernel | What it replaces | Where it appears |
+|---|---|---|
+| `fast_rms_layernorm` | `torch.nn.RMSNorm` | Every decoder block (×2) |
+| `fast_rope_embedding` | Stock RoPE | Inside attention |
+| `fast_linear_forward` | `nn.Linear` forward | Q/K/V projections, output projection |
+| SwiGLU/GEGLU kernels | Gated MLP activation | FFN in every block |
+| Cross-entropy kernel | `F.cross_entropy` | Training loss |
+| Fast LoRA paths | Standard LoRA forward | Fine-tuning |
+
+The user still writes `from_pretrained()` and `generate()`. But under the hood, every hot operation has been replaced.
+
+### Check your understanding
+
+- What role does `model_patcher=FastQwen3Model` play in `from_pretrained()`?
+- At what point during model loading does the patching happen?
+- How many different fast kernel types does Unsloth provide?
+
+---
+
+## Lesson 8: Trade-offs and Version Fragility
+
+Monkey patching is powerful, but it comes with real costs. The maintainers have to deal with these every time HuggingFace releases an update.
+
+### Fragility across library versions
+
+Monkey patches depend on exact class and method structure. A HuggingFace Transformers update that renames a class, moves a method, or changes a function signature breaks the patch.
+
+```python
+if not transformers_version >= Version("4.50.3"):
+    raise ImportError(
+        "Unsloth: Your transformers version does not support Qwen3..."
+    )
+```
+
+This is not just a convenience check. It is a safety guard. Without it, Unsloth would silently fail — the patch would succeed (Python lets you assign anything), but the patched function would receive wrong arguments and crash deep inside the forward pass.
+
+### Warm-up cost
+
+Triton kernels need to be compiled on first use. The first inference or training step is slower; subsequent ones benefit from the compiled kernel cache. This is the "warm-up" cost you sometimes see when benchmarking.
+
+### Static-shape assumptions
+
+Some fused kernels only work when shapes — head dimension, sequence length increments, dtype — are stable. Dynamic shapes can trigger recompilation or fallback to slower paths. This is why Unsloth pre-allocates KV cache in fixed increments.
+
+### Harder debugging
+
+Since execution no longer follows the stock HF code path, stack traces become harder to read. When something goes wrong, you have to know about the monkey patch to understand what is actually running. A crash in `Qwen3Attention_fast_forward` does not appear in HuggingFace's source code.
+
+```{mermaid}
+flowchart LR
+    HF["HuggingFace Transformers<br>v4.50.3+"] --> UNSLOTH["Unsloth patch<br>Depends on exact<br>class names + signatures"]
+    HF -- "Class renamed?" --> BREAK["Patch breaks<br>ImportError"]
+    HF -- "Method signature changed?" --> SILENT["Silent failure<br>Wrong arguments"]
+    UNSLOTH --> TRITON["Triton kernel cache<br>First-run compilation cost"]
+```
+
+### Check your understanding
+
+- Why does Unsloth check the Transformers version before patching?
+- What is the warm-up cost, and why does it only affect the first run?
+- Why is debugging harder with monkey-patched code?
+
+---
+
+## Lesson 9: Code Reading Exercises
+
+These exercises are progressive. Each one requires you to actually open files and answer specific questions. This is code reading as a skill.
+
+**Exercise 1: Count the patches**
+
+Open the [Unsloth Qwen3 source](https://github.com/unslothai/unsloth/blob/main/unsloth/models/qwen3.py) and find `pre_patch()`. List every `.forward =` assignment. How many classes are patched? Include the RoPE replacement in your count.
+
+**Exercise 2: Trace the kernel**
+
+Starting from `fast_rms_layernorm` in the Qwen3 attention code, navigate to the kernel file. Find the `@triton.jit` decorator. Read the kernel body. Can you identify where the "fuse" happens — where multiple operations run in the same kernel body?
+
+**Exercise 3: Compare HF to Unsloth**
+
+Open HuggingFace's [`modeling_qwen3.py`](https://github.com/huggingface/transformers/blob/main/src/transformers/models/qwen3/modeling_qwen3.py) side by side with Unsloth's `qwen3.py`. Find `Qwen3Attention.forward()` in HF and `Qwen3Attention_fast_forward()` in Unsloth. List three concrete differences.
+
+**Exercise 4: Write a minimal monkey patch**
+
+Write a Python script that:
+
+1. Imports a small HuggingFace model class (e.g., any `RMSNorm`)
+2. Saves the original `.forward` method
+3. Defines a wrapper that prints `"PATCHED!"` then calls the original
+4. Assigns the wrapper as the new `.forward`
+5. Runs a forward pass and verifies the print appears
+
+This proves you understand the mechanism without needing GPU kernels.
+
+**Exercise 5: Measure the difference**
+
+If you have a GPU: load a model with and without Unsloth's `FastQwen3Model`. Time the generation of 100 tokens with `time.perf_counter()`. What is the tokens-per-second difference?
+
+---
+
+## The Complete Picture
+
+Here is the full journey from user code to GPU, with every lesson's concept in place:
+
+```{mermaid}
+flowchart TD
+    subgraph user ["What the user sees"]
+        U1["FastQwen3Model.from_pretrained()"]
+        U2["model.generate('Hello')"]
+    end
+
+    subgraph routing ["Monkey patching layer (Lessons 1-3)"]
+        R1["pre_patch() rewires 7 .forward methods"]
+        R2["All attention variants → one fast function"]
+        R3["Decoder, model, CausalLM, PEFT all patched"]
+    end
+
+    subgraph execution ["Fast execution paths (Lessons 4-5)"]
+        E1["Training: Qwen3Attention_fast_forward"]
+        E2["Inference: Qwen3Attention_fast_forward_inference"]
+        E3["Paged KV cache, in-place RoPE, backend dispatch"]
+    end
+
+    subgraph kernels ["Fused kernels (Lesson 6)"]
+        K1["fast_rms_layernorm → @triton.jit"]
+        K2["fast_rope_embedding → fused rotation"]
+        K3["fast_linear_forward → optimized projection"]
+        K4["SwiGLU / cross-entropy kernels"]
+    end
+
+    U1 --> R1
+    R1 --> U2
+    U2 --> E1
+    U2 --> E2
+    E1 --> K1
+    E2 --> K1
+    E1 --> K2
+    E1 --> K3
+    E2 --> K4
+```
+
+---
+
+## Connection to your learning
+
+| Concept from Step 2 | Where in Unsloth | What is different |
+|---|---|---|
+| `rmsnorm()` in `run.c` | `fast_rms_layernorm()` — Triton kernel | Fused into one GPU kernel vs. sequential C math |
+| RoPE rotation loop in `run.c` | `fast_rope_embedding()` | Fused rotation, no per-element kernel launches |
+| Attention score computation | `run_attention()` with backend dispatch | Selects SDPA/Flash/VarLen based on context |
+| KV cache (`key_cache`, `value_cache`) | `paged_attention` tensor with incremental growth | Paged allocation, pre-allocated temp buffers |
+| FFN with SiLU gating | SwiGLU fused kernel | Gate + activation + multiply in one kernel |
+| `forward()` function | Monkey-patched `.forward()` methods | Same idea, rerouted through optimized paths |
+
+If you completed Step 2, you understand every concept that Unsloth optimizes. The difference is the layer of abstraction: Step 2 showed you the raw math in C; Unsloth shows how production systems optimize that same math for GPU throughput.
+
+---
+
+## Learning Plan for First Break AI
+
+### Concept-to-code mapping
+
+| Concept | Where to find it | Lesson |
+|---|---|---|
+| Monkey patching mechanism | TinyZero 3-line example | 1 |
+| File structure and imports | `unsloth/models/qwen3.py` top section | 2 |
+| pre_patch() method | `FastQwen3Model.pre_patch()` | 3 |
+| Training attention path | `Qwen3Attention_fast_forward` | 4 |
+| Inference decode path | `Qwen3Attention_fast_forward_inference` | 5 |
+| Triton kernel | `unsloth/kernels/rms_layernorm.py` | 6 |
+| Full call chain | `from_pretrained()` through to GPU | 7 |
+| Version fragility | Version checks in imports | 8 |
+
+### Phase 1: Read the patch (Day 1)
+
+**Theory:**
+
+- [ ] Read Lesson 0 — understand the kernel launch overhead problem
+- [ ] Read Lesson 1 — understand monkey patching as a mechanism
+- [ ] Read Lesson 2 — open the real file on GitHub, tour the structure
+- [ ] Read Lesson 3 — trace every `.forward =` assignment in `pre_patch()`
+
+**Practice:**
+
+- [ ] Open `unsloth/models/qwen3.py` on GitHub
+- [ ] Find `pre_patch()` and count the patches
+- [ ] Identify which HuggingFace classes are imported
+
+**Verification:**
+
+- [ ] Can you explain the three levels of patching (hot-op, block, pipeline)?
+- [ ] Can you name at least 5 classes that get their `.forward` replaced?
+
+### Phase 2: Trace execution (Day 2)
+
+**Theory:**
+
+- [ ] Read Lesson 4 — trace each stage of the training path
+- [ ] Read Lesson 5 — trace the inference path, understand paged KV cache
+- [ ] Read Lesson 6 — follow `fast_rms_layernorm` down to Triton
+
+**Practice:**
+
+- [ ] Open `Qwen3Attention_fast_forward` on GitHub, identify the 5 stages
+- [ ] Open `Qwen3Attention_fast_forward_inference`, find the paged cache allocation
+- [ ] Navigate to `unsloth/kernels/rms_layernorm.py`, find the `@triton.jit` decorator
+
+**Verification:**
+
+- [ ] Can you trace the call chain from `.forward()` to a Triton kernel?
+- [ ] Can you explain why decode needs a separate path from training?
+
+### Phase 3: Full picture + exercises (Day 3)
+
+**Theory:**
+
+- [ ] Read Lesson 7 — trace the complete stack from `from_pretrained()` to GPU
+- [ ] Read Lesson 8 — understand the trade-offs
+- [ ] Review the kernel registry table
+
+**Practice:**
+
+- [ ] Complete Exercise 1 (count patches)
+- [ ] Complete Exercise 2 (trace the kernel)
+- [ ] Complete Exercise 3 (compare HF to Unsloth)
+- [ ] Complete Exercise 4 (write a minimal monkey patch)
+
+**Verification:**
+
+- [ ] Can you draw the full stack trace from user code to GPU from memory?
+- [ ] Can you explain why Unsloth checks the Transformers version?
+
+---
+
+## Progress tracker
+
+Copy and paste this into your notes:
+
+```
+Unsloth Code-Reading Journey Progress
+======================================
+[ ] Lesson 0: The problem
+[ ] Lesson 1: What is monkey patching
+[ ] Lesson 2: Open the real file
+[ ] Lesson 3: pre_patch()
+[ ] Lesson 4: Trace the training path
+[ ] Lesson 5: Trace the inference path
+[ ] Lesson 6: Follow one call down (Triton kernel)
+[ ] Lesson 7: Full stack trace
+[ ] Lesson 8: Trade-offs
+[ ] Lesson 9: Code reading exercises
+    [ ] Exercise 1: Count the patches
+    [ ] Exercise 2: Trace the kernel
+    [ ] Exercise 3: Compare HF to Unsloth
+    [ ] Exercise 4: Write a minimal monkey patch
+    [ ] Exercise 5: Measure the difference
+```
+
+---
+
+## Summary
+
+| Concept | What it is | Where in code |
+|---|---|---|
+| Monkey patching | Replacing `.forward()` methods at runtime | `pre_patch()` in `FastQwen3Model` |
+| Three patch levels | Hot-op → block → pipeline | 7 assignments in `pre_patch()` |
+| Training fast path | Optimized attention for batch processing | `Qwen3Attention_fast_forward` |
+| Inference fast path | Single-token decode with paged KV cache | `Qwen3Attention_fast_forward_inference` |
+| Fused kernels | Multiple ops in one GPU launch | `@triton.jit` in `unsloth/kernels/` |
+| RMSNorm fusion | 6 launches → 1 launch | `fast_rms_layernorm()` |
+| Version fragility | Patches break on HF updates | Version check in imports |
+
+---
+
+::: {.blog-back}
+[← Back to Project Watch](index.qmd) | [← Back to Roadmap](../roadmap.qmd)
+:::
