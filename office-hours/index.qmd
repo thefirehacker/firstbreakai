@@ -1,0 +1,30 @@
+---
+title: "Office Hours"
+subtitle: "Live sessions, documented for the cohort"
+description: "Summaries and expanded write-ups from First Break AI office hours. Each session covers topics from the roadmap with live Q&A, debugging, and discussion."
+css: ../styles/blog.css
+---
+
+Office Hours are live cohort sessions where we go deeper on roadmap topics, debug together, and discuss what learners are working on. Each session is documented here as an expanded write-up — not just meeting notes, but context and explanations you can reference later.
+
+## Sessions
+
+::: {.blog-cards}
+
+:::: {.blog-card .blog-card-oh}
+[Office Hours]{.blog-card-label}
+
+### 13 March 2026
+
+::: {.blog-card-desc}
+GitHub collaboration (PRs, conflicts, rebasing), Qwen3 inference concepts (temperature, chat templates, speculative decoding, GGUF vs SafeTensors, quantization/precision), cohort-based learning, and Unsloth efficiency.
+:::
+
+[Read session notes](2026-03-13.qmd){.blog-card-link}
+::::
+
+:::
+
+::: {.blog-back}
+[← Back to Roadmap](../roadmap.qmd)
+:::

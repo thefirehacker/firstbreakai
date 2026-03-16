@@ -7,6 +7,7 @@ project:
     - "*.qmd"
     - "blog/*.qmd"
     - "project-watch/*.qmd"
+    - "office-hours/*.qmd"
     - "!temp/"
 
 website:
@@ -41,6 +42,8 @@ website:
         text: Blog
       - href: project-watch/index.qmd
         text: Project Watch
+      - href: office-hours/index.qmd
+        text: Office Hours
     right:
       - icon: discord
         href: "https://discord.gg/QZuBvfcj"

@@ -1,0 +1,404 @@
+---
+title: "Office Hours — 13 March 2026"
+description: "GitHub collaboration workflows (PRs, merge conflicts, rebasing), Qwen3 inference concepts (temperature, chat templates, speculative decoding, LLMs as probability machines), cohort-based learning philosophy, and how Unsloth makes LLMs faster."
+date: 2026-03-13
+categories: [office-hours, git, inference, qwen3, unsloth, cohort]
+css: ../styles/blog.css
+---
+
+> **First Break AI — Office Hours**
+>
+> Session 1 — 13 March 2026. Four topics from the roadmap, covered live with the cohort.
+
+---
+
+## What we covered
+
+| # | Topic | Roadmap link |
+|---|---|---|
+| 1 | [GitHub collaboration: PRs, conflicts, rebasing](#topic-1-github-collaboration) | Step 1 |
+| 2 | [Qwen3 inference concepts](#topic-2-qwen3-inference-concepts) (temperature, chat templates, tokenization, speculative decoding, GGUF vs SafeTensors, quantization/precision, why pure C) | Step 2 |
+| 3 | [Cohort-based community learning](#topic-3-cohort-based-community-learning) | — |
+| 4 | [Unsloth and LLM efficiency](#topic-4-unsloth-and-llm-efficiency) | Project Watch |
+
+---
+
+# Topic 1: GitHub collaboration {#topic-1-github-collaboration}
+
+**Roadmap connection:** [Step 1 — First use of AI for coding](../roadmap.qmd)
+
+We walked through how real multi-contributor projects work on GitHub — not just the basics of committing code, but the full collaboration workflow that every professional team uses.
+
+## Creating a Pull Request
+
+A Pull Request (PR) is a proposal to merge your changes into the main codebase. The workflow:
+
+```{mermaid}
+flowchart TD
+    A["Create a branch\ngit checkout -b my-feature"] --> B["Make changes\nedit files, commit"]
+    B --> C["Push to remote\ngit push -u origin my-feature"]
+    C --> D["Open PR on GitHub\ncompare your branch to main"]
+    D --> E["Code review\nteammates review your changes"]
+    E --> F{Approved?}
+    F -- Yes --> G["Merge into main"]
+    F -- Changes requested --> B
+```
+
+1. **Branch** — never work directly on `main`. Create a feature branch: `git checkout -b fix-tokenizer-bug`
+2. **Commit** — make your changes and commit with clear messages
+3. **Push** — push your branch to GitHub: `git push -u origin fix-tokenizer-bug`
+4. **Open PR** — on GitHub, click "Compare & pull request." Write a description of what you changed and why.
+5. **Review** — teammates read your code, leave comments, suggest changes
+6. **Merge** — once approved, the PR is merged into `main`
+
+## Managing merge conflicts
+
+Conflicts happen when two people change the same lines in the same file. Git cannot automatically decide which version to keep.
+
+**When does this happen?**
+
+You and another contributor both edit `train.py`. They push their changes to `main` first. When you try to merge your PR, Git finds that both of you changed the same lines.
+
+**How to resolve it:**
+
+The recommended approach (what we covered in office hours):
+
+```bash
+git checkout main
+git pull origin main
+git checkout my-feature
+git merge main
+```
+
+If there are conflicts, Git marks them in the file:
+
+```text
+<<<<<<< HEAD
+learning_rate = 3e-4
+=======
+learning_rate = 1e-3
+>>>>>>> main
+```
+
+You manually choose the right version (or combine both), remove the markers, and commit:
+
+```bash
+git add train.py
+git commit -m "resolve merge conflict in learning_rate"
+```
+
+## Merge vs. Rebase
+
+We discussed two approaches to pulling changes from `main`:
+
+**Merge (recommended for this cohort):**
+
+```bash
+git merge main
+```
+
+This creates a merge commit that records when you combined the branches. The history shows exactly what happened.
+
+**Rebase:**
+
+```bash
+git rebase main
+```
+
+This replays your commits on top of the latest `main`, creating a cleaner linear history. But it rewrites commit hashes, which can cause problems if others are working on the same branch.
+
+**Our recommendation:** use `git merge` and resolve conflicts. It is safer, more transparent, and what most teams use for collaborative work. Rebase is useful for personal cleanup before opening a PR, but avoid it on shared branches.
+
+## How real projects manage this
+
+Professional teams add guardrails:
+
+- **Branch protection** — `main` is locked; nobody can push directly. All changes go through PRs.
+- **Required reviews** — at least one teammate must approve before merging
+- **CI checks** — automated tests run on every PR. If tests fail, the PR cannot be merged.
+- **Merge strategies** — teams choose between merge commits, squash merges, or rebase-and-merge based on how they want their history to look
+
+For First Break AI, we keep it simple: branch, PR, review, merge. This covers 90% of what you need.
+
+---
+
+# Topic 2: Qwen3 inference concepts {#topic-2-qwen3-inference-concepts}
+
+**Roadmap connection:** [Step 2 — Run a model locally](../roadmap.qmd), [Step 2 blog post](../blog/qwen3-run-locally.qmd)
+
+We discussed several core inference concepts that connect to what learners are building in Step 2.
+
+## Temperature
+
+Temperature controls how "creative" or "deterministic" the model's output is.
+
+When the model processes a token, it outputs a score (logit) for every possible next token — all 151,936 of them in Qwen3's vocabulary. These scores are converted to probabilities using softmax.
+
+**Temperature = 0** (greedy): always pick the highest-scoring token. Output is deterministic — same input, same output every time.
+
+**Temperature = 1.0** (default): use the raw probability distribution. High-probability tokens are likely, but lower-probability tokens still have a chance.
+
+**Temperature > 1.0** (high): flatten the distribution. More tokens become equally likely. Output becomes more random and "creative."
+
+**Temperature < 1.0** (low): sharpen the distribution. The highest-probability token dominates even more. Output becomes more focused and predictable.
+
+The math is simple — divide all logits by the temperature before applying softmax:
+
+```python
+probabilities = softmax(logits / temperature)
+```
+
+A low temperature makes the peaks sharper. A high temperature makes the distribution flatter. See [Lesson 7 in the Step 2 blog](../blog/qwen3-run-locally.qmd) for the full code trace.
+
+## Chat templates
+
+Chat templates are the formatting layer between human-readable messages and what the model actually sees.
+
+When you type "Hello, how are you?", the model does not see that raw text. It sees something like:
+
+```text
+<|im_start|>system
+You are a helpful assistant.<|im_end|>
+<|im_start|>user
+Hello, how are you?<|im_end|>
+<|im_start|>assistant
+```
+
+This is the **ChatML** format used by Qwen3. The special tokens (`<|im_start|>`, `<|im_end|>`) tell the model where each role's message begins and ends. Without this template, the model would not know who is speaking or when to start generating.
+
+See [Lesson 3 in the Step 2 blog](../blog/qwen3-run-locally.qmd) for the complete chat template walkthrough.
+
+## Why tokenization is necessary
+
+Models do not process text character by character. They process **tokens** — subword units that balance vocabulary size against sequence length.
+
+The word "tokenization" becomes 3 tokens: `["token", "ization"]` or similar, depending on the tokenizer. Common words like "the" are single tokens. Rare words get split into pieces.
+
+Why not just use characters? Because a model that processes characters one at a time needs far more steps to generate the same text. Tokens compress common patterns, so the model can "think" about larger units of meaning in each step.
+
+Why not just use whole words? Because the vocabulary would be enormous (every word in every language), and the model could never handle words it has not seen before.
+
+Tokenization is the compromise: a vocabulary of ~150,000 subword units that covers virtually all text efficiently.
+
+## Special tokens
+
+We discussed special tokens like `<|im_start|>` and `<|im_end|>`. These are tokens that do not represent text — they are control signals for the model:
+
+- `<|im_start|>` — marks the beginning of a message from a specific role
+- `<|im_end|>` — marks the end of a message
+- `<|endoftext|>` — signals the end of the entire document
+
+These tokens have special IDs in the vocabulary. The model learns during training to treat them as structural markers, not as content to generate.
+
+## Speculative decoding
+
+We introduced the concept of speculative decoding — a technique for speeding up inference.
+
+The basic idea: use a small, fast "draft" model to generate several tokens quickly, then use the large "target" model to verify them all at once. If the draft model's predictions match what the target model would have produced, you accept them for free. If not, you fall back to the target model from the point of disagreement.
+
+```{mermaid}
+flowchart LR
+    A["Draft model\nsmall, fast\ngenerates 5 tokens"] --> B["Target model\nlarge, accurate\nverifies all 5 at once"]
+    B --> C{All correct?}
+    C -- Yes --> D["Accept all 5\nmassive speedup"]
+    C -- "Diverges at token 3" --> E["Accept tokens 1-2\nregenerate from token 3"]
+```
+
+This works because:
+
+- The draft model is often right (small models agree with large models on easy tokens)
+- Verification is batched (the target model checks all tokens in one forward pass, not five separate passes)
+- You never sacrifice quality (the output is identical to what the target model would produce alone)
+
+## Reframing LLMs: probability machines, not intelligence
+
+The most important mental model shift we discussed: **LLMs are not intelligent. They are autoregressive probability machines.**
+
+At each step, the model outputs a probability distribution over its entire vocabulary — 151,936 numbers. What you see as "the model's response" is actually the result of repeatedly sampling from this distribution, one token at a time.
+
+The model does not "know" anything. It has learned statistical patterns from training data. When it produces a correct answer, it is because the pattern matching worked well. When it hallucinates, it is because the distribution assigned high probability to plausible-sounding but wrong tokens.
+
+**Think of LLM capability as task-specific:**
+
+- **Coding** — the model has seen vast amounts of code during training, so its probability distributions for code completion are well-calibrated
+- **Entity recognition** — it has seen named entities in context millions of times
+- **Translation** — it has seen parallel text in many language pairs
+- **Summarization** — it has seen documents followed by summaries
+
+The model is not a general intelligence that "understands" all of these. It is a probability distribution that happens to be well-calibrated for many different text-completion tasks, because it was trained on diverse data.
+
+This mental model matters because it tells you **when to trust the model and when not to.** If a task looks like something that appeared often in training data, the model's probabilities will be well-calibrated. If a task is novel, the model's probabilities will be less reliable.
+
+## GGUF vs SafeTensors — model weight formats
+
+We discussed the difference between the two main model file formats you will encounter:
+
+**SafeTensors** is the standard format on HuggingFace Hub. It stores tensors as raw bytes with a JSON header — secure (no code execution risk), memory-mappable, and works across Python frameworks (PyTorch, JAX, TensorFlow). When you call `AutoModelForCausalLM.from_pretrained()`, you are loading SafeTensors files.
+
+**GGUF** is the format used by llama.cpp and local inference tools (Ollama, LM Studio). It packs everything into a single file — weights, tokenizer vocabulary, architecture config, and chat template. Its killer feature is built-in quantization: a 7B model that is 28 GB in float32 can be compressed to 4 GB in Q4_K_M format, making it runnable on a laptop.
+
+The key insight: **the weights are the same numbers in both formats.** The format is just the container. SafeTensors is for the Python training/fine-tuning world; GGUF is for the local inference world. You convert between them as needed.
+
+For the full deep dive with file structure diagrams, conversion commands, and the security story behind pickle-based formats, see the blog post: [GGUF vs SafeTensors](../blog/model-formats-gguf-safetensors.qmd).
+
+## Why we start with pure C
+
+We discussed why Step 2 uses a raw C binary (`qwen3.c`) instead of Python with HuggingFace.
+
+The short answer: **you cannot understand optimization until you understand what you are optimizing.**
+
+When you run `model.generate()` in Python, everything is hidden — tokenization, attention, KV cache, sampling. When you run inference in C, every operation is visible in the source code. You see the matrix multiplications, the RMSNorm function, the RoPE rotation loop, the softmax.
+
+This matters because every later step in the roadmap builds on this understanding:
+
+- **Step 3** (inference engines) — you will know what vLLM is batching and serving, because you wrote the single-request version
+- **Project Watch: Unsloth** — you will recognize every operation that Daniel Han optimizes, because you implemented them in C
+- **Step 4** (training) — the forward pass in training is the same forward pass you already traced
+
+Starting from C is the Karpathy approach ([llama2.c](https://github.com/karpathy/llama2.c), [llm.c](https://github.com/karpathy/llm.c)) — strip away all abstractions so you can see the math. Then add abstractions back once you understand what they are abstracting over.
+
+## Quantization and precision — what Qwen3 0.6B teaches us
+
+We discussed what precision and quantization mean, using the model we run in Step 2 as the concrete example.
+
+### What is precision?
+
+Every parameter in a model is a number. The **precision** determines how many bits are used to store that number:
+
+| Precision | Bits per parameter | Bytes per param | Qwen3 0.6B size | Range / accuracy |
+|---|---|---|---|---|
+| FP32 (float32) | 32 | 4 | ~2.4 GB | Full precision — what training produces |
+| FP16 (float16) | 16 | 2 | ~1.2 GB | Half precision — nearly identical quality for inference |
+| BF16 (bfloat16) | 16 | 2 | ~1.2 GB | Same size as FP16 but wider range, slightly less decimal precision |
+| INT8 (8-bit) | 8 | 1 | ~600 MB | Quantized — noticeable compression, small quality loss |
+| INT4 (4-bit) | 4 | 0.5 | ~300 MB | Aggressive quantization — fits very small devices |
+
+In Step 2, we run Qwen3 0.6B in **FP32** — full precision, 2.4 GB of weights. This is intentional: at 0.6B parameters, FP32 fits comfortably in RAM, so we lose nothing by keeping full precision. We learn the math without quantization complicating things.
+
+### What is quantization?
+
+Quantization is the process of reducing precision after training. The model was trained in FP32 (or BF16), and you convert the weights to a lower precision format for inference.
+
+The core trade-off: **smaller model = faster inference + less memory, but potentially lower quality.**
+
+For a 0.6B model like Qwen3, quantization is less critical — the model already fits easily in memory at full precision. But for larger models (7B, 70B, 405B), quantization is what makes them runnable at all:
+
+| Model | FP32 size | Q4_K_M size | Fits in 8 GB RAM? |
+|---|---|---|---|
+| Qwen3 0.6B | 2.4 GB | ~400 MB | Yes (either way) |
+| Qwen3 7B | ~28 GB | ~4.1 GB | Only with Q4 |
+| Llama 3 70B | ~280 GB | ~40 GB | No (needs multi-GPU) |
+
+### FP16 vs BF16 — the two 16-bit formats
+
+Both use 16 bits, but they allocate those bits differently:
+
+- **FP16** — 1 sign bit, 5 exponent bits, 10 mantissa bits. Good decimal precision but limited range. Can overflow on large values during training.
+- **BF16** — 1 sign bit, 8 exponent bits, 7 mantissa bits. Less decimal precision but same range as FP32. Designed by Google Brain specifically for deep learning — it handles the large values that appear in training without overflow.
+
+For inference (which is what we do in Step 2), FP16 and BF16 produce nearly identical outputs. The difference matters more during training, where BF16 is preferred because it avoids overflow issues.
+
+### Why we use FP32 in Step 2
+
+Our Qwen3 0.6B GGUF file is FP32 — full precision. This is a deliberate learning choice:
+
+1. **No quantization artifacts** — what the model outputs is exactly what it learned during training
+2. **Simple C code** — `float*` pointers, standard `float` math, no dequantization logic
+3. **The model is small enough** — 2.4 GB fits in any modern laptop's RAM without issue
+4. **Learn quantization separately** — in Step 3, you will see quantized models and understand what you are trading away
+
+When you move to Step 3 and start working with inference engines, you will load Q4 and Q8 quantized models. At that point you will understand both sides: what full precision looks like (Step 2) and what you gain by compressing it (Step 3).
+
+For the full comparison of GGUF quantization formats and how to convert between them, see the blog post: [GGUF vs SafeTensors](../blog/model-formats-gguf-safetensors.qmd).
+
+---
+
+# Topic 3: Cohort-based community learning {#topic-3-cohort-based-community-learning}
+
+We discussed what makes cohort-based learning different from self-paced courses, and why First Break AI is structured the way it is.
+
+## What are office hours?
+
+Office hours are synchronous sessions where cohort members come together for:
+
+- **Live Q&A** — ask questions about what you are stuck on
+- **Group debugging** — share your screen and solve problems together
+- **Topic deep dives** — the session lead covers a concept in depth with live discussion
+- **Progress check-ins** — where are you on the roadmap? What is blocking you?
+
+They are not lectures. They are working sessions where the conversation is driven by what learners need right now.
+
+## How cohort-based learning differs from self-paced
+
+**Self-paced** (Coursera, YouTube, most online courses):
+
+- You go at your own speed
+- No peer group
+- High dropout rates (typically 85-95%)
+- No accountability
+- No live interaction
+
+**Cohort-based** (First Break AI, Scratch to Scale, etc.):
+
+- Shared timeline — everyone is working on the same step
+- Peer group — you learn with specific people, not alone
+- Accountability — office hours, check-ins, shared progress
+- Live interaction — questions get answered in real time
+- Lower dropout — social commitment keeps people going
+
+The research on learning outcomes consistently shows that cohort-based models outperform self-paced ones, primarily because of the social accountability and peer learning effects.
+
+## Other cohorts worth knowing about
+
+We mentioned [Scratch to Scale](https://www.scrachtoscale.com/) as an example of a well-run cohort-based program. The pattern is consistent across good cohorts:
+
+- Clear learning path with defined milestones
+- Regular synchronous touchpoints (office hours, standups)
+- A community channel (Discord, Slack) for async questions
+- Projects that build on each other
+- Public accountability (blogging, sharing work)
+
+First Break AI follows this pattern: the [Roadmap](../roadmap.qmd) is the learning path, office hours are the touchpoints, [Discord](https://discord.gg/QZuBvfcj) is the async channel, and each step builds on the previous one.
+
+---
+
+# Topic 4: Unsloth and LLM efficiency {#topic-4-unsloth-and-llm-efficiency}
+
+**Roadmap connection:** [Project Watch — Unsloth deep dive](../project-watch/unsloth-monkey-patching.qmd)
+
+We introduced Daniel Han's [Unsloth](https://github.com/unslothai/unsloth) and how it makes LLMs faster without changing user code.
+
+## The core idea
+
+HuggingFace Transformers is designed for correctness and readability. Every forward pass goes through many small Python calls, each launching a separate GPU kernel. Each kernel launch has overhead — reading data from memory, computing, writing back.
+
+Daniel Han's insight: **replace these default paths at runtime with fused implementations** that do multiple operations in a single GPU kernel launch. The mechanism is **monkey patching** — overwriting `.forward()` methods on HuggingFace classes so that execution is silently rerouted through Unsloth's optimized code.
+
+The user still writes:
+
+```python
+model, tokenizer = FastQwen3Model.from_pretrained("Qwen/Qwen3-0.6B")
+output = model.generate(inputs)
+```
+
+Same API. Same outputs. But the GPU is doing far less wasted work.
+
+## Why this matters for learners
+
+Understanding optimization is not just for library authors. As you progress through the roadmap:
+
+- **Step 2** teaches you what RMSNorm, RoPE, and attention actually compute (the raw math)
+- **Project Watch: Unsloth** teaches you how production systems optimize that math for GPU throughput
+- **Step 3** will teach you how inference engines like vLLM and llama.cpp take this even further
+
+The progression is: understand the math → understand the optimization → understand the systems. Each layer builds on the previous one.
+
+## Go deeper
+
+The full [Project Watch: Unsloth deep dive](../project-watch/unsloth-monkey-patching.qmd) is a guided code-reading journey through the actual Unsloth source code. You will trace every function call from `from_pretrained()` down to the Triton GPU kernels. Start there when you are ready.
+
+---
+
+::: {.blog-back}
+[← Back to Office Hours](index.qmd) | [← Back to Roadmap](../roadmap.qmd)
+:::

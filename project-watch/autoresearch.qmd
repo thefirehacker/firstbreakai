@@ -49,6 +49,7 @@ categories: [project-watch, agents, research, autoresearch]
 - [Lesson 5: The human/agent split](#lesson-5-the-humanagent-split)
 - [Lesson 6: Trace one experiment](#lesson-6-trace-one-experiment)
 - [Lesson 7: Why the naive loop fails](#lesson-7-why-the-naive-loop-fails)
+- [Hands-on: Build your own autoresearch](#hands-on-build-your-own-autoresearch)
 - [Lesson 8: What the community built](#lesson-8-what-the-community-built)
 - [Lesson 9: The pattern beyond ML](#lesson-9-the-pattern-beyond-ml)
 - [Lesson 10: Why hype cooled but the project didn't stall](#lesson-10-why-hype-cooled-but-the-project-didnt-stall)
@@ -66,6 +67,7 @@ By the end of this post you will have:
 - Understood the human/agent split — who controls what, and why
 - Traced one real experiment from proposal through measurement to commit or revert
 - Understood why autoresearch is not AutoML (code diffs vs parameter grids)
+- Built your own mini autoresearch loop and experienced its failure modes firsthand
 - Seen how the community generalized this loop far beyond ML training
 
 This is a design journey. You will trace the decisions in the autoresearch repository. At each step we ask: **what problem was being solved, and how?**
@@ -86,6 +88,7 @@ flowchart TD
     L5["Lesson 5<br>Human/agent split<br>Who controls what"]
     L6["Lesson 6<br>Trace one experiment<br>Proposal → diff → metric → decision"]
     L7["Lesson 7<br>Why naive loops fail<br>The taste problem"]
+    HO["Hands-on<br>Build your own<br>autoresearch loop"]
     L8["Lesson 8<br>Community extensions<br>4 directions"]
     L9["Lesson 9<br>The pattern beyond ML<br>Generalized loop"]
     L10["Lesson 10<br>Why hype cooled<br>Perception vs reality"]
@@ -99,7 +102,8 @@ flowchart TD
     L4 --> L5
     L5 --> L6
     L6 --> L7
-    L7 --> L8
+    L7 --> HO
+    HO --> L8
     L8 --> L9
     L9 --> L10
 ```
@@ -474,6 +478,338 @@ These are not abstract problems. The community hit all four of them. And the res
 
 ---
 
+## Hands-on: Build Your Own Autoresearch
+
+You have seen the design. Now build a toy version yourself. This is not a detour — it is the fastest way to make Lessons 0-7 stick. You will experience the failures from Lesson 7 with your own hands.
+
+### Step 1: The editable artifact — `my_train.py`
+
+Every autoresearch loop needs an **editable artifact** — a file that the agent modifies. In the real version, this is `train.py`. We start with something simpler.
+
+Create a file called `my_train.py`:
+
+```python
+import math
+
+def train():
+    """A tiny 'model' that predicts sin(x) using a polynomial."""
+    coefficients = [0.0, 1.0, 0.0, -0.1]  # initial guess: x - 0.1*x^3
+
+    def predict(x):
+        return sum(c * x**i for i, c in enumerate(coefficients))
+
+    test_points = [i * 0.1 for i in range(-30, 31)]
+    errors = [(predict(x) - math.sin(x))**2 for x in test_points]
+    mse = sum(errors) / len(errors)
+
+    print(f"METRIC:mse={mse:.6f}")
+    return mse
+
+if __name__ == "__main__":
+    train()
+```
+
+Run it:
+
+```bash
+python my_train.py
+# Output: METRIC:mse=0.847532
+```
+
+That MSE is the number the agent will try to minimize. The file is small enough to fit in any LLM's context window — this matters because the agent needs to read the full file to propose changes.
+
+### Step 2: The fixed evaluation — `my_eval.py`
+
+The evaluation is the **ground truth**. It must be fixed — the agent cannot change it. This is what prevents Goodharting (Lesson 3).
+
+Create a file called `my_eval.py`:
+
+```python
+import subprocess
+import re
+import sys
+
+def evaluate():
+    """Run my_train.py and extract the metric. Returns mse or None on failure."""
+    try:
+        result = subprocess.run(
+            [sys.executable, "my_train.py"],
+            capture_output=True, text=True, timeout=10
+        )
+        if result.returncode != 0:
+            print(f"EVAL_ERROR: script failed\n{result.stderr}")
+            return None
+
+        match = re.search(r"METRIC:mse=([\d.]+)", result.stdout)
+        if not match:
+            print("EVAL_ERROR: no METRIC line found in output")
+            return None
+
+        mse = float(match.group(1))
+        print(f"EVAL_RESULT: mse={mse:.6f}")
+        return mse
+    except subprocess.TimeoutExpired:
+        print("EVAL_ERROR: timeout (10s)")
+        return None
+    except Exception as e:
+        print(f"EVAL_ERROR: {e}")
+        return None
+
+if __name__ == "__main__":
+    evaluate()
+```
+
+Key design decisions — compare these to `prepare.py` (Lesson 3):
+
+1. **Subprocess isolation** — `my_train.py` runs in a separate process. If it crashes, the evaluation catches it.
+2. **Timeout** — 10 seconds. If the agent proposes code that runs forever, it gets killed.
+3. **Structured output** — the metric is extracted from a specific `METRIC:mse=` line.
+4. **Error handling** — anything that goes wrong returns `None`, which the loop treats as a failure.
+
+### Step 3: The loop — `my_loop.py`
+
+Now the core — the agent loop that ties everything together.
+
+Create `my_loop.py`:
+
+```python
+import subprocess
+import sys
+import re
+
+def read_file(path):
+    with open(path) as f:
+        return f.read()
+
+def write_file(path, content):
+    with open(path, "w") as f:
+        f.write(content)
+
+def git(cmd):
+    result = subprocess.run(
+        ["git"] + cmd.split(),
+        capture_output=True, text=True
+    )
+    return result.stdout.strip()
+
+def evaluate():
+    """Run my_eval.py and return the mse, or None on failure."""
+    result = subprocess.run(
+        [sys.executable, "my_eval.py"],
+        capture_output=True, text=True, timeout=30
+    )
+    match = re.search(r"EVAL_RESULT: mse=([\d.]+)", result.stdout)
+    if match:
+        return float(match.group(1))
+    return None
+
+def ask_agent(current_code, current_mse, history):
+    """Ask an LLM to propose a change to my_train.py.
+
+    Replace the body of this function with your preferred LLM API.
+    """
+    prompt = f"""You are an AI research agent. Your goal is to minimize the MSE
+of a polynomial approximation to sin(x).
+
+Here is the current code in my_train.py:
+
+```python
+{current_code}
+```
+
+Current MSE: {current_mse:.6f}
+
+Previous attempts:
+{history if history else "None yet."}
+
+Propose a SINGLE concrete change to my_train.py that will reduce the MSE.
+Return the COMPLETE new file content wrapped in ```python ... ``` markers.
+Only change the coefficients list or add more terms. Do not change the
+evaluation logic (test_points, the METRIC print line).
+"""
+    # --- REPLACE THIS with your LLM API call ---
+    # Example with OpenAI:
+    # from openai import OpenAI
+    # client = OpenAI()
+    # resp = client.chat.completions.create(
+    #     model="gpt-4o-mini",
+    #     messages=[{"role": "user", "content": prompt}]
+    # )
+    # return resp.choices[0].message.content
+    #
+    # Example with a local model via ollama:
+    # result = subprocess.run(
+    #     ["ollama", "run", "qwen3:0.6b", prompt],
+    #     capture_output=True, text=True
+    # )
+    # return result.stdout
+    raise NotImplementedError(
+        "Replace ask_agent() with your LLM API call. "
+        "See comments in the function for examples."
+    )
+
+def extract_code(response):
+    """Extract Python code from LLM response."""
+    match = re.search(r"```python\n(.*?)```", response, re.DOTALL)
+    if match:
+        return match.group(1).strip()
+    return None
+
+def run_loop(n_iterations=10):
+    git("init")
+    git("add my_train.py my_eval.py")
+    git("commit -m initial-commit")
+
+    baseline_mse = evaluate()
+    if baseline_mse is None:
+        print("ERROR: baseline evaluation failed")
+        return
+
+    print(f"=== BASELINE MSE: {baseline_mse:.6f} ===\n")
+    best_mse = baseline_mse
+    history = []
+
+    for i in range(n_iterations):
+        print(f"--- Iteration {i+1}/{n_iterations} ---")
+
+        current_code = read_file("my_train.py")
+
+        response = ask_agent(current_code, best_mse, "\n".join(history[-5:]))
+        new_code = extract_code(response)
+
+        if new_code is None:
+            print("  Agent returned no valid code. Skipping.")
+            history.append(f"Iter {i+1}: agent returned invalid response")
+            continue
+
+        write_file("my_train.py", new_code)
+
+        new_mse = evaluate()
+
+        if new_mse is None:
+            print("  Evaluation failed. Reverting.")
+            git("checkout -- my_train.py")
+            history.append(f"Iter {i+1}: evaluation failed (crash/timeout)")
+            continue
+
+        if new_mse < best_mse:
+            improvement = best_mse - new_mse
+            print(f"  IMPROVED: {best_mse:.6f} -> {new_mse:.6f} "
+                  f"(delta={improvement:.6f})")
+            git("add my_train.py")
+            git(f"commit -m improved-mse-{new_mse:.6f}")
+            best_mse = new_mse
+            history.append(
+                f"Iter {i+1}: KEPT. mse {best_mse+improvement:.6f} -> "
+                f"{new_mse:.6f}"
+            )
+        else:
+            print(f"  REVERTED: {best_mse:.6f} -> {new_mse:.6f} (worse)")
+            git("checkout -- my_train.py")
+            history.append(
+                f"Iter {i+1}: REVERTED. mse went to {new_mse:.6f}"
+            )
+
+        print()
+
+    print(f"=== FINAL MSE: {best_mse:.6f} "
+          f"(started at {baseline_mse:.6f}) ===")
+    print(f"=== Improvement: {baseline_mse - best_mse:.6f} ===")
+
+if __name__ == "__main__":
+    run_loop()
+```
+
+### Walk through the loop
+
+Read `run_loop()` step by step:
+
+1. **Initialize git** — `git init`, commit the initial files. This is the ledger.
+2. **Establish baseline** — run `my_eval.py` to get the starting MSE.
+3. **For each iteration:**
+   - Read the current `my_train.py`
+   - Ask the agent to propose a change (pass it the current code, current metric, and recent history)
+   - Extract the new code from the agent's response
+   - Write the new code to `my_train.py`
+   - Run the evaluation
+   - If MSE improved: `git commit` (keep the change)
+   - If MSE worsened or evaluation failed: `git checkout` (revert)
+4. **Report** — final MSE vs. baseline
+
+This is exactly the five-step loop from Lesson 1, implemented in Python. Compare: `program.md` → your prompt, `prepare.py` → `my_eval.py`, `train.py` → `my_train.py`, git → git.
+
+```{mermaid}
+flowchart TD
+    A["Read my_train.py<br>(current best version)"] --> B["Ask LLM:<br>propose a code change"]
+    B --> C["Write new code<br>to my_train.py"]
+    C --> D["Run my_eval.py<br>(10s timeout)"]
+    D --> E{MSE improved?}
+    E -- Yes --> F["git commit<br>keep the change"]
+    E -- No --> G["git checkout<br>revert to last good"]
+    E -- Error --> G
+    F --> A
+    G --> A
+```
+
+### Step 4: Run it and watch
+
+Before running, implement `ask_agent()` with your preferred LLM API:
+
+**Option A: OpenAI API** (if you have an API key):
+
+```python
+from openai import OpenAI
+client = OpenAI()
+resp = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[{"role": "user", "content": prompt}]
+)
+return resp.choices[0].message.content
+```
+
+**Option B: Local model via Ollama** (if you completed Step 2):
+
+```python
+result = subprocess.run(
+    ["ollama", "run", "qwen3:0.6b", prompt],
+    capture_output=True, text=True, timeout=60
+)
+return result.stdout
+```
+
+**Option C: Any API** — Claude, Gemini, Groq, or any model that accepts a text prompt and returns text.
+
+Once `ask_agent()` is implemented, create a fresh directory and run:
+
+```bash
+mkdir my-autoresearch && cd my-autoresearch
+cp ../my_train.py ../my_eval.py ../my_loop.py .
+python my_loop.py
+```
+
+Watch what happens across 10 iterations. Then check the git log:
+
+```bash
+git log --oneline
+```
+
+### What you experienced
+
+After running your loop, compare what you saw to the failures in Lesson 7:
+
+| Lesson 7 failure | What you likely experienced |
+|---|---|
+| Hallucinated code | Agent proposed code that didn't run — syntax errors, undefined variables |
+| Depth-first only | Agent kept tweaking coefficients instead of trying fundamentally different approaches |
+| No memory | Agent repeated similar proposals it already tried |
+| No transferability | Your polynomial improved on `test_points` but might not generalize to other ranges |
+
+These are not bugs in your code. These are the **fundamental problems of agentic research** — the same ones the community is responding to in Lesson 8.
+
+Now you understand *why* the real version has `program.md` (research taste), a fixed evaluation (anti-Goodharting), and git as memory. You built the naive loop; the community is building the smart one.
+
+---
+
 ## Lesson 8: What the Community Built
 
 The autoresearch repo has ~32k stars, ~4k forks, and ~100 open PRs. Analyzing the PR and issue backlog reveals that the community is treating autoresearch as four different things simultaneously — each one a response to the failures in Lesson 7.
@@ -754,6 +1090,7 @@ If you have GPU access: fork the repo, run one 5-minute experiment, analyze the 
 | Human/agent split | Architecture diagram | 5 |
 | Real experiment trace | Session reports | 6 |
 | Failure modes | Community PRs/issues | 7 |
+| Build your own loop | `my_train.py`, `my_eval.py`, `my_loop.py` | Hands-on |
 | Community extensions | PR clustering table | 8 |
 | Generalized pattern | Pattern diagram | 9 |
 
@@ -789,11 +1126,14 @@ If you have GPU access: fork the repo, run one 5-minute experiment, analyze the 
 - [ ] Find one session report from the autoresearch repo
 - [ ] Trace one experiment: proposal → diff → metric → decision
 - [ ] List the four failure modes from memory
+- [ ] Build your own autoresearch loop (`my_train.py`, `my_eval.py`, `my_loop.py`)
+- [ ] Run 10 iterations and check `git log --oneline`
 
 **Verification:**
 
 - [ ] Can you explain Goodharting and how the fixed eval prevents it?
 - [ ] Can you name the four failure modes of the naive loop?
+- [ ] Did you experience those failures in your own loop?
 
 ### Phase 3: See the bigger picture (Day 3)
 
@@ -831,6 +1171,7 @@ Autoresearch Design Journey Progress
 [ ] Lesson 5: The human/agent split
 [ ] Lesson 6: Trace one experiment
 [ ] Lesson 7: Why the naive loop fails
+[ ] Hands-on: Build your own autoresearch
 [ ] Lesson 8: What the community built
 [ ] Lesson 9: The pattern beyond ML
 [ ] Lesson 10: Why hype cooled
