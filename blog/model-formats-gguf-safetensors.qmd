@@ -1,0 +1,530 @@
+---
+title: "Step 2: Model Weight Formats — GGUF vs SafeTensors"
+description: "A complete guide to how LLM weights are stored on disk. GGUF, SafeTensors, PyTorch .bin, pickle — what each format does, why they exist, their trade-offs, and how to convert between them. Includes why First Break AI starts with pure C."
+date: 2026-03-13
+categories: [llm, inference, gguf, safetensors, formats, first-break-ai]
+---
+
+> **First Break AI — Step 2: Run a Model Locally**
+>
+> This post is part of the [First Break AI](../index.qmd) cohort roadmap.
+> Companion to the main Step 2 guide: [Run Qwen3 0.6B in pure C](qwen3-run-locally.qmd).
+> You do not need to read that guide first, but it helps.
+
+---
+
+## Navigate by roadmap
+
+| Step | Topic | This blog |
+|------|--------|-----------|
+| [Step 1](../roadmap.qmd) | First use of AI for coding (Quarto blog) | — |
+| **Step 2** | **Run a model locally** | **You are here** |
+| [Step 3](../roadmap.qmd) | Inference deep dive (vLLM, quantization) | — |
+
+[← Back to Roadmap](../roadmap.qmd)
+
+---
+
+::: {.callout-tip}
+## What you will know after this post
+
+- What a model weight file actually contains (it is just numbers)
+- How GGUF, SafeTensors, and PyTorch `.bin` store those numbers differently
+- Why SafeTensors was created as a security fix for pickle-based formats
+- How GGUF enables quantization and local inference without Python
+- How `mmap` lets a C program load a 3 GB model in milliseconds
+- How to convert between formats
+- Why First Break AI starts with pure C instead of Python frameworks
+:::
+
+---
+
+# Lesson 0: What is inside a model file?
+
+Before comparing formats, you need to understand what every model file contains. It is simpler than you think.
+
+A trained LLM is a collection of **tensors** — multi-dimensional arrays of floating-point numbers. Each tensor has:
+
+- A **name** — like `model.layers.0.self_attn.q_proj.weight`
+- A **shape** — like `[1024, 1024]` (a 1024x1024 matrix)
+- A **data type** — like `float32` (4 bytes per number) or `float16` (2 bytes)
+- The **numbers themselves** — millions or billions of them
+
+That is it. A model file is a container that stores these tensors along with some metadata (architecture name, vocabulary size, number of layers, etc.).
+
+```{mermaid}
+flowchart LR
+    subgraph modelFile ["Model file on disk"]
+        META["Metadata\narchitecture, dims,\nvocab size, etc."]
+        T1["Tensor: embed_tokens.weight\nshape: 151936 x 1024\ndtype: float32"]
+        T2["Tensor: layers.0.self_attn.q_proj.weight\nshape: 1024 x 1024\ndtype: float32"]
+        T3["Tensor: layers.0.self_attn.k_proj.weight\nshape: 256 x 1024\ndtype: float32"]
+        TN["... hundreds more tensors ..."]
+    end
+```
+
+Qwen3 0.6B has about 600 million parameters. At 4 bytes each (float32), that is ~2.4 GB of raw numbers. The rest of the file is metadata and tensor names.
+
+Every format we discuss stores exactly this information. The differences are **how** they store it — and that "how" has major implications for security, speed, compatibility, and quantization.
+
+---
+
+# Lesson 1: PyTorch `.bin` — the legacy format
+
+The original way PyTorch saves models.
+
+## How it works
+
+PyTorch uses Python's `pickle` module to serialize model state dictionaries. When you call:
+
+```python
+torch.save(model.state_dict(), "model.bin")
+```
+
+Python's pickle serializes the entire dictionary — tensor names, shapes, dtypes, and the raw data — into a binary stream.
+
+To load:
+
+```python
+state_dict = torch.load("model.bin")
+model.load_state_dict(state_dict)
+```
+
+## The pickle problem
+
+Pickle can serialize **arbitrary Python objects**, including executable code. This means a malicious `.bin` file can execute code on your machine when you load it:
+
+```python
+import pickle
+import os
+
+class Exploit:
+    def __reduce__(self):
+        return (os.system, ("rm -rf /",))
+
+pickle.dumps(Exploit())
+```
+
+When pickle deserializes this object, it calls `os.system("rm -rf /")`. A model file could contain this payload hidden among the tensor data. You would not know until it runs.
+
+This is not theoretical. Security researchers have demonstrated pickle-based attacks against ML model files. It was the primary motivation for creating SafeTensors.
+
+```{mermaid}
+flowchart TD
+    subgraph safe ["Safe file formats"]
+        ST["SafeTensors\nno code execution"]
+        GG["GGUF\nno code execution"]
+    end
+    subgraph unsafe ["Formats with code execution risk"]
+        PB["PyTorch .bin\npickle-based"]
+        PKL["Raw .pkl files"]
+    end
+    PB -->|"can contain\narbitrary code"| RISK["Code executes\non load"]
+    ST -->|"only contains\nnumbers + metadata"| SAFE["No code execution\npossible"]
+    GG -->|"only contains\nnumbers + metadata"| SAFE
+```
+
+::: {.callout-important}
+## Why this matters
+Every time you download a model from the internet and call `torch.load()`, you are trusting that the file does not contain malicious code. With pickle-based formats, that trust is not verifiable — you cannot inspect the file without executing it. SafeTensors was created specifically to solve this problem.
+:::
+
+---
+
+# Lesson 2: SafeTensors — the secure replacement
+
+[SafeTensors](https://github.com/huggingface/safetensors) was created by HuggingFace as a direct response to the pickle security problem.
+
+## Design principles
+
+1. **No code execution** — the format can only store tensors and metadata. There is no mechanism to embed executable code.
+2. **Zero-copy loading** — tensors can be memory-mapped directly from disk without copying data into RAM.
+3. **Format validation** — the file structure can be fully validated before any data is read.
+4. **Cross-framework** — works with PyTorch, TensorFlow, JAX, Flax, and others.
+
+## File structure
+
+A SafeTensors file has a dead-simple layout:
+
+```text
+┌──────────────────────────────────────────┐
+│ 8 bytes: header_size (little-endian u64) │
+├──────────────────────────────────────────┤
+│ JSON header                              │
+│ {                                        │
+│   "tensor_name": {                       │
+│     "dtype": "F32",                      │
+│     "shape": [1024, 1024],               │
+│     "data_offsets": [0, 4194304]          │
+│   },                                     │
+│   ...                                    │
+│ }                                        │
+├──────────────────────────────────────────┤
+│ Raw tensor data                          │
+│ (contiguous bytes, no padding)           │
+└──────────────────────────────────────────┘
+```
+
+The header is JSON — human-readable, parseable, and safe. It contains tensor names, shapes, dtypes, and byte offsets into the data section. The data section is just raw bytes — no structure, no code, no objects. Each tensor's data starts at the offset specified in the header.
+
+## Why "zero-copy" matters
+
+Because the data section is contiguous raw bytes with known offsets, you can `mmap` the file and point directly at any tensor without reading the entire file into RAM:
+
+```python
+from safetensors import safe_open
+
+with safe_open("model.safetensors", framework="pt") as f:
+    q_proj = f.get_tensor("model.layers.0.self_attn.q_proj.weight")
+```
+
+Only the pages containing that specific tensor get read from disk. On a 7B model (14 GB), loading one tensor is almost instant — the OS only reads the relevant pages.
+
+## How HuggingFace uses it
+
+HuggingFace Hub now defaults to SafeTensors. When you call:
+
+```python
+from transformers import AutoModelForCausalLM
+model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen3-0.6B")
+```
+
+The library downloads `.safetensors` files (not `.bin`) and loads them with zero-copy memory mapping. This is faster than pickle-based loading and eliminates the security risk.
+
+## Loading in Python
+
+```python
+from safetensors.torch import load_file
+
+tensors = load_file("model.safetensors")
+print(tensors.keys())
+# dict_keys(['model.embed_tokens.weight', 'model.layers.0.self_attn.q_proj.weight', ...])
+
+print(tensors["model.embed_tokens.weight"].shape)
+# torch.Size([151936, 1024])
+```
+
+---
+
+# Lesson 3: GGUF — the local inference format
+
+[GGUF](https://github.com/ggerganov/ggml/blob/master/docs/gguf.md) (GGML Unified Format) was created by Georgi Gerganov for [llama.cpp](https://github.com/ggerganov/llama.cpp). It is the standard format for running models locally without Python.
+
+## Why a separate format?
+
+SafeTensors solved security. GGUF solves a different set of problems:
+
+1. **Self-contained** — a single GGUF file contains everything needed to run inference: weights, tokenizer vocabulary, architecture config, chat template. No extra files.
+2. **Built-in quantization** — GGUF natively supports dozens of quantization formats (Q4_0, Q4_K_M, Q8_0, etc.) that reduce model size and speed up inference.
+3. **C/C++ native** — designed to be read by C programs, not Python. No pickle, no JSON libraries, no framework dependencies.
+4. **Memory-mappable** — like SafeTensors, tensor data is laid out for direct `mmap`.
+
+## File structure
+
+```text
+┌─────────────────────────────────────────┐
+│ Magic number: "GGUF" (4 bytes)          │
+│ Version: 3 (4 bytes)                    │
+│ Tensor count (8 bytes)                  │
+│ Metadata KV count (8 bytes)             │
+├─────────────────────────────────────────┤
+│ Metadata key-value pairs                │
+│ "general.architecture": "qwen3"         │
+│ "qwen3.block_count": 28                 │
+│ "qwen3.embedding_length": 1024          │
+│ "tokenizer.ggml.tokens": [...]          │
+│ "tokenizer.ggml.merges": [...]          │
+│ "tokenizer.chat_template": "..."        │
+│ ...                                     │
+├─────────────────────────────────────────┤
+│ Tensor info (names, shapes, offsets)    │
+├─────────────────────────────────────────┤
+│ Tensor data (aligned, memory-mappable)  │
+└─────────────────────────────────────────┘
+```
+
+### The metadata section
+
+This is what makes GGUF self-contained. The metadata includes:
+
+- **Architecture** — model family (llama, qwen3, mistral, etc.)
+- **Dimensions** — embedding size, number of layers, head count, etc.
+- **Tokenizer** — the full vocabulary, BPE merge rules, and special token IDs
+- **Chat template** — the Jinja template for formatting messages
+- **Quantization info** — what precision each tensor uses
+
+In SafeTensors, this information lives in separate files (`config.json`, `tokenizer.json`, `tokenizer_config.json`, etc.). In GGUF, it is all in one file. You can load a GGUF and run inference without any other files.
+
+### Quantization support
+
+This is GGUF's killer feature. Each tensor in a GGUF file can use a different quantization format:
+
+| Format | Bits per weight | Size for 7B model | Quality |
+|---|---|---|---|
+| F32 | 32 | ~28 GB | Full precision |
+| F16 | 16 | ~14 GB | Near-lossless |
+| Q8_0 | 8 | ~7 GB | Very good |
+| Q4_K_M | ~4.5 | ~4.1 GB | Good for most uses |
+| Q4_0 | 4 | ~3.8 GB | Acceptable |
+| Q2_K | ~2.5 | ~2.7 GB | Noticeable degradation |
+
+A 7B model that would be 28 GB in float32 can be 4 GB in Q4_K_M — small enough to run on a laptop with 8 GB RAM. The quantization is baked into the file format itself; the inference engine (llama.cpp, qwen3.c) knows how to read and dequantize each format.
+
+SafeTensors does not have built-in quantization — you need separate libraries (GPTQ, AWQ, bitsandbytes) to quantize and load quantized models.
+
+---
+
+# Lesson 4: Side-by-side comparison
+
+Here is the complete comparison:
+
+| Feature | PyTorch `.bin` | SafeTensors | GGUF |
+|---|---|---|---|
+| **Security** | Unsafe (pickle) | Safe (no code) | Safe (no code) |
+| **Memory mapping** | No | Yes | Yes |
+| **Self-contained** | No (needs config files) | No (needs config files) | Yes (everything in one file) |
+| **Quantization** | External only | External only | Built-in (Q4, Q8, etc.) |
+| **Tokenizer** | Separate file | Separate file | Embedded in metadata |
+| **Chat template** | Separate file | Separate file | Embedded in metadata |
+| **Primary ecosystem** | PyTorch | HuggingFace (multi-framework) | llama.cpp, local inference |
+| **Language** | Python only | Multi-language | C/C++ native |
+| **Loading speed** | Slow (deserialize) | Fast (mmap) | Fast (mmap) |
+| **File count** | 1+ (often sharded) | 1+ (often sharded) | Usually 1 file |
+
+```{mermaid}
+flowchart TD
+    subgraph training ["Training / fine-tuning"]
+        HF["HuggingFace ecosystem"]
+        ST["SafeTensors files\n+ config.json\n+ tokenizer.json"]
+    end
+    subgraph conversion ["Conversion"]
+        CONV["convert script\npython convert.py"]
+    end
+    subgraph inference ["Local inference"]
+        GGUF_FILE["Single GGUF file\nweights + vocab + config\n+ quantization"]
+        LLAMA["llama.cpp / qwen3.c\nC/C++ inference"]
+    end
+    HF --> ST
+    ST --> CONV
+    CONV --> GGUF_FILE
+    GGUF_FILE --> LLAMA
+```
+
+## When to use which
+
+**SafeTensors** — when you are working in Python with HuggingFace Transformers, PyTorch, or any Python ML framework. This is the default for training, fine-tuning, and Python-based inference.
+
+**GGUF** — when you want to run a model locally without Python. llama.cpp, Ollama, LM Studio, and other local inference tools use GGUF. Also when you need quantized models that fit in limited RAM.
+
+**PyTorch `.bin`** — legacy. Avoid for new work. Use SafeTensors instead.
+
+---
+
+# Lesson 5: How GGUF loading works in C
+
+In the [Step 2 blog](qwen3-run-locally.qmd), we ran Qwen3 0.6B using a single C binary (`run.c`). Here is how it loads the GGUF file.
+
+## Memory mapping — zero-copy loading
+
+```c
+*data = mmap(NULL, *file_size, PROT_READ, MAP_PRIVATE, *fd, 0);
+void* weights_ptr = ((char*)*data) + 5951648; // skip header
+memory_map_weights(weights, config, weights_ptr);
+```
+
+`mmap()` tells the operating system: "Map this file into my address space. Do not read it yet — just give me pointers." The OS creates virtual memory pages that correspond to the file on disk. When the program accesses a pointer, the OS reads that page from disk on demand.
+
+This means:
+
+- **Startup is instant** — even for a 3 GB file, `mmap` returns in microseconds. No data is read yet.
+- **Only used pages are loaded** — if the model only accesses certain layers, only those layers get read from disk.
+- **The OS page cache helps** — on subsequent runs, the data is already cached in RAM.
+
+## Weight pointers are just offsets
+
+```c
+void memory_map_weights(TransformerWeights *w, Config *p, void *ptr) {
+    float* fptr = (float*)ptr;
+    w->token_embedding_table = fptr;
+    fptr += p->vocab_size * p->dim;
+    // ...
+    w->wq = fptr;
+    fptr += p->n_layers * p->dim * (p->n_heads * p->head_size);
+    w->wk = fptr;
+    fptr += p->n_layers * p->dim * (p->n_kv_heads * p->head_size);
+    // ...
+}
+```
+
+Each weight pointer (`w->wq`, `w->wk`, etc.) is just an offset from the start of the tensor data. No copying, no deserialization, no memory allocation. The pointers point directly into the memory-mapped file.
+
+```{mermaid}
+flowchart LR
+    subgraph disk ["GGUF file on disk"]
+        H["Header + metadata\n5.9 MB"]
+        EMB["embed_tokens\n600 MB"]
+        WQ["wq tensors\n~900 MB"]
+        WK["wk tensors\n~225 MB"]
+        REST["... remaining tensors"]
+    end
+    subgraph memory ["C pointers in memory"]
+        PEMB["w->token_embedding_table"]
+        PWQ["w->wq"]
+        PWK["w->wk"]
+    end
+    EMB -.->|"direct pointer\nvia mmap"| PEMB
+    WQ -.->|"direct pointer"| PWQ
+    WK -.->|"direct pointer"| PWK
+```
+
+Compare this to PyTorch loading, which:
+
+1. Opens the file
+2. Deserializes pickle objects (security risk)
+3. Copies tensor data into new Python/CUDA tensors
+4. Allocates GPU memory and transfers data
+
+The mmap approach skips all of that. This is why qwen3.c can start generating text almost instantly.
+
+---
+
+# Lesson 6: Converting between formats
+
+In practice, you will encounter models in different formats and need to convert between them.
+
+## SafeTensors to GGUF
+
+This is the most common conversion — taking a HuggingFace model and making it runnable by llama.cpp.
+
+Using llama.cpp's conversion script:
+
+```bash
+python convert_hf_to_gguf.py \
+    --outfile model-f16.gguf \
+    --outtype f16 \
+    ./Qwen3-0.6B/
+```
+
+This reads the SafeTensors files + config.json + tokenizer files, and packages everything into a single GGUF file.
+
+## Quantizing a GGUF
+
+Once you have a GGUF in float16 or float32, you can quantize it to smaller sizes:
+
+```bash
+./llama-quantize model-f16.gguf model-q4_k_m.gguf Q4_K_M
+```
+
+This converts from 16-bit to ~4.5-bit quantization. The file shrinks from ~1.2 GB to ~400 MB, and inference gets faster because less data needs to move through memory.
+
+## GGUF to SafeTensors
+
+Going the other direction (local format back to HuggingFace):
+
+```bash
+python convert_gguf_to_safetensors.py model.gguf --output ./model-hf/
+```
+
+This extracts tensors from the GGUF and saves them as SafeTensors files with the standard HuggingFace directory structure.
+
+```{mermaid}
+flowchart LR
+    subgraph hf ["HuggingFace Hub"]
+        SF["model.safetensors\n+ config.json\n+ tokenizer.json"]
+    end
+    subgraph local ["Local inference"]
+        GF32["model-f32.gguf"]
+        GF16["model-f16.gguf"]
+        GQ4["model-q4_k_m.gguf"]
+    end
+    SF -->|"convert_hf_to_gguf.py"| GF16
+    GF16 -->|"llama-quantize"| GQ4
+    GF32 -->|"llama-quantize"| GQ4
+    GQ4 -->|"convert_gguf_to_safetensors.py"| SF
+```
+
+---
+
+# Lesson 7: Why this matters for the rest of the roadmap
+
+Understanding model formats is not just trivia. It connects to every step ahead:
+
+| Roadmap step | How formats matter |
+|---|---|
+| **Step 2** (current) | You loaded a GGUF file with mmap in C — now you know why that was fast and safe |
+| **Step 3**: Inference engines | vLLM loads SafeTensors; llama.cpp loads GGUF. Different engines, different formats, same weights. |
+| **Step 3**: Quantization | GGUF's Q4/Q8 quantization is why models fit on laptops. Understanding the format helps you choose the right quant. |
+| **Step 4**: Training | PyTorch saves checkpoints as SafeTensors. You will convert to GGUF for deployment. |
+| **Project Watch**: Unsloth | Unsloth works with SafeTensors models in Python. The optimization happens at the GPU level, not the file level. |
+
+The key insight: **the same model weights can exist in multiple formats.** SafeTensors for training and Python inference, GGUF for local C/C++ inference. The numbers are identical — only the container changes.
+
+---
+
+# Why First Break AI starts with pure C
+
+A natural question: why does Step 2 use a raw C binary instead of Python with HuggingFace?
+
+## The pedagogical argument
+
+When you run inference in Python:
+
+```python
+from transformers import AutoModelForCausalLM, AutoTokenizer
+model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen3-0.6B")
+output = model.generate(inputs, max_new_tokens=100)
+```
+
+Three lines. It works. But you have no idea what happened. The tokenizer, the attention mechanism, the KV cache, the sampling — all hidden behind `generate()`.
+
+When you run inference in C:
+
+```c
+float* logits = forward(transformer, token, pos);
+int next = sample(sampler, logits);
+```
+
+Every operation is visible. You can read `forward()` and see the matrix multiplications, the RMSNorm, the RoPE rotation, the softmax. There is no abstraction to hide behind.
+
+## What pure C forces you to learn
+
+Starting from C means you cannot skip understanding:
+
+- **Tokenization** — you see the BPE merge algorithm as a loop, not a library call
+- **Chat templates** — you see the exact string concatenation, the special token insertion
+- **Attention** — you see Q @ K^T, softmax, @ V as explicit matrix operations
+- **KV cache** — you see the cache arrays being filled and reused
+- **mmap** — you see how the file becomes pointers into weight arrays
+- **Sampling** — you see temperature scaling and top-p filtering as arithmetic
+
+Every concept lands differently when you have seen the code that implements it. When you later use HuggingFace, vLLM, or Unsloth, you know what they are abstracting over — because you built the raw version first.
+
+## The progression
+
+```{mermaid}
+flowchart LR
+    C["Step 2: Pure C\nSee every operation\nunderstand the math"] --> PY["Step 3: Python + engines\nvLLM, llama.cpp server\nunderstand the systems"]
+    PY --> OPT["Project Watch: Unsloth\nSee the optimizations\nunderstand WHY they're faster"]
+```
+
+C is the foundation. Once you understand what inference actually does at the lowest level, optimization and systems design make sense. If you start with `model.generate()`, you are building on sand — you do not know what you are optimizing or why.
+
+This is the same approach Karpathy uses in [llama2.c](https://github.com/karpathy/llama2.c) and [llm.c](https://github.com/karpathy/llm.c) — minimal C implementations that strip away all abstractions so you can see the math.
+
+---
+
+## Summary table
+
+| Format | Best for | Security | Quantization | Self-contained | Ecosystem |
+|---|---|---|---|---|---|
+| **SafeTensors** | Python ML workflows | Safe | External | No | HuggingFace, PyTorch, JAX |
+| **GGUF** | Local inference, C/C++ | Safe | Built-in | Yes | llama.cpp, Ollama, LM Studio |
+| **PyTorch .bin** | Legacy (avoid) | Unsafe (pickle) | External | No | PyTorch |
+
+The model weights are just numbers. The format is just the container. Understanding the container helps you move fluently between the training world (SafeTensors) and the inference world (GGUF) — which is exactly what you will do as you progress through the roadmap.
+
+---
+
+::: {.blog-back}
+[← Back to Blog](index.qmd) | [← Back to Roadmap](../roadmap.qmd)
+:::

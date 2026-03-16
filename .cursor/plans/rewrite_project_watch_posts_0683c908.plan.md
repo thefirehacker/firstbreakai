@@ -1,13 +1,19 @@
 ---
 name: Rewrite Project Watch Posts
-overview: Rewrite both Project Watch posts from encyclopedia-style summaries into lesson-based, code-tracing learning journeys that match the quality and structure of the Step 2 blog. Unsloth becomes a guided source-code reading journey; Autoresearch becomes a build-then-fork hands-on journey.
+overview: Rewrite both Project Watch posts as lesson-based learning journeys, and add an Office Hours section as a new top-level nav item with expanded write-ups of each session.
 todos:
   - id: rewrite-unsloth
     content: Full rewrite of project-watch/unsloth-monkey-patching.qmd as a lesson-based code-reading journey (Lessons 0-9)
-    status: pending
+    status: completed
   - id: rewrite-autoresearch
     content: Full rewrite of project-watch/autoresearch.qmd as a build-then-fork journey (Parts 1-3, Lessons 0-13)
-    status: pending
+    status: completed
+  - id: office-hours-setup
+    content: "Create office-hours/ directory: index.qmd (card layout), add navbar item and render rule in _quarto.yml, add CSS variant in styles/blog.css"
+    status: completed
+  - id: office-hours-mar13
+    content: "Create office-hours/2026-03-13.qmd -- expanded write-up of 4 topics: Git PR/conflicts/rebase, Qwen3 inference concepts, cohort-based learning, Unsloth efficiency"
+    status: completed
 isProject: false
 ---
 
@@ -121,16 +127,94 @@ All of this should be woven into lessons, not dumped as reference sections.
 
 ---
 
+---
+
+## Office Hours Section (new top-level nav)
+
+A new `office-hours/` section with its own navbar item. Each session gets an expanded write-up -- not raw meeting notes, but a mini blog post for each topic discussed, with explanations, context, and links to relevant roadmap/blog/project-watch content.
+
+### Setup
+
+**Files to create/modify:**
+
+- `office-hours/index.qmd` -- index page with card layout (reusing `.blog-cards` / `.blog-card` CSS classes). Each card shows date, title, topic count, and a link to the full session post.
+- `_quarto.yml` -- add `office-hours/index.qmd` to navbar (after "Project Watch"), add `"office-hours/*.qmd"` to render list.
+- `styles/blog.css` -- add `.blog-card-oh` color variant (e.g. warm amber `#b8860b` or similar).
+
+### Session 1: 13 March 2026
+
+**File:** `office-hours/2026-03-13.qmd`
+
+**Structure:**
+
+- Front matter: title "Office Hours -- 13 March 2026", description, date, categories
+- Opening summary: "What we covered" with a quick TOC of the 4 topics
+
+**Topic 1: GitHub Collaboration -- PRs, Conflicts, and Rebasing**
+
+Expanded write-up covering:
+
+- Creating a Pull Request -- the workflow (branch, commit, push, open PR, review, merge)
+- What happens when multiple contributors push to main -- merge conflicts
+- The recommended approach: pull changes from main and resolve conflicts locally (preferred over rebase)
+- When to use rebase vs merge -- practical guidance
+- How real multi-contributor projects manage this (branch protection, review requirements, CI checks)
+- Links to: Step 1 in the roadmap (GitHub basics)
+- Include a Mermaid diagram showing the PR + conflict resolution flow
+
+**Topic 2: Qwen3 Inference Concepts**
+
+Expanded write-up covering:
+
+- What is temperature? (connect to Step 2 blog Lesson 7: Temperature and Sampling)
+- What is a chat template? (connect to Step 2 blog Lesson 3)
+- Why tokenization is necessary (connect to Step 2 blog Lessons 2 and 4)
+- Special tokens like `<|im_start|>` -- what they do and why they exist
+- Speculative decoding -- the concept of "draft and verify"
+- Reframing LLMs: not intelligence, but autoregressive probability machines that output a distribution over the entire vocabulary; what you see is top-K
+- Thinking of LLM capabilities as task-specific: coding, entity recognition, translation, summarization
+- Links to: Step 2 blog post, relevant lessons
+
+**Topic 3: Cohort-Based Community Learning**
+
+Expanded write-up covering:
+
+- What are office hours in a cohort setting -- synchronous Q&A, live debugging, group discussion
+- How cohort-based learning differs from self-paced (accountability, peer learning, shared timeline)
+- Reference to other cohorts like Scratch to Scale
+- How First Break AI structures office hours
+
+**Topic 4: Unsloth and LLM Efficiency**
+
+Expanded write-up covering:
+
+- Quick intro to what Unsloth does (link to the Project Watch deep dive)
+- How Daniel Han makes LLMs more efficient -- monkey patching + fused kernels (brief summary, deep dive lives in the Project Watch post)
+- Why this matters for learners: understanding optimization is understanding how production AI works
+- Links to: Project Watch Unsloth post
+
+---
+
 ## What does NOT change
 
 - [project-watch/index.qmd](project-watch/index.qmd) -- card layout stays the same
-- [styles/blog.css](styles/blog.css) -- styling stays the same
-- [_quarto.yml](_quarto.yml) -- no changes needed
 - Front matter format stays consistent (title, description, date, categories)
-- Roadmap connections table stays (but moves to a callout or top block, not a standalone section)
+- Roadmap connections table stays in Project Watch posts (but moves to a callout or top block, not a standalone section)
+
+## Files modified
+
+- [_quarto.yml](_quarto.yml) -- add Office Hours navbar item + render rule
+- [styles/blog.css](styles/blog.css) -- add `.blog-card-oh` color variant
+
+## Files created
+
+- `office-hours/index.qmd` -- Office Hours index page with card layout
+- `office-hours/2026-03-13.qmd` -- first session expanded write-up
 
 ## Estimated size
 
-- Unsloth post: ~800-1000 lines (comparable to Step 2's ~1300 lines, but denser since it's code reading not code writing)
-- Autoresearch post: ~900-1100 lines (Part 1 build-from-scratch is the longest section)
+- Unsloth post: ~800-1000 lines
+- Autoresearch post: ~900-1100 lines
+- Office Hours index: ~60 lines
+- Office Hours session 1: ~400-500 lines (expanded write-up of 4 topics)
 

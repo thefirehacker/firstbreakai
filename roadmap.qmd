@@ -57,7 +57,10 @@ Run a model locally using a basic inference setup (e.g. **llama.cpp** or another
 - Prompting basics, tags, and special tags
 - Tokenization
 
-**Guide:** [Run Qwen3 0.6B in pure C](blog/qwen3-run-locally.qmd) — inference from first principles (tokenization, chat templates, attention, KV cache).
+**Guides:**
+
+- [Run Qwen3 0.6B in pure C](blog/qwen3-run-locally.qmd) — inference from first principles (tokenization, chat templates, attention, KV cache).
+- [GGUF vs SafeTensors](blog/model-formats-gguf-safetensors.qmd) — model weight formats, security, quantization, and why we start with pure C.
 :::
 :::
 
@@ -159,7 +162,10 @@ Prove what you've learned. Pick one: build a capstone project or make a meaningf
 
 **Topics:** Basics of inference (decoding, KV cache) · Chat templates and system prompts · Prompting basics, tags, and special tags · Tokenization
 
-**Guide:** [Run Qwen3 0.6B in pure C](blog/qwen3-run-locally.qmd) — inference from first principles.
+**Guides:**
+
+- [Run Qwen3 0.6B in pure C](blog/qwen3-run-locally.qmd) — inference from first principles.
+- [GGUF vs SafeTensors](blog/model-formats-gguf-safetensors.qmd) — model weight formats, security, quantization, and why we start with pure C.
 :::
 
 ::: {.step-normal}

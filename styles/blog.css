@@ -87,12 +87,16 @@
   content: " →";
 }
 
-/* ── Project Watch card variants (legacy) ── */
+/* ── Project Watch card variants ── */
 .blog-card-pw-1 { border-top-color: #4a6741; }
 .blog-card-pw-2 { border-top-color: #3d5a80; }
 
 .blog-card-pw-1 .blog-card-label { color: #4a6741; }
 .blog-card-pw-2 .blog-card-label { color: #3d5a80; }
+
+/* ── Office Hours card variant ── */
+.blog-card-oh { border-top-color: #b8860b; }
+.blog-card-oh .blog-card-label { color: #b8860b; }
 
 /* ══════════════════════════════════════════
    GitHub repo-style cards

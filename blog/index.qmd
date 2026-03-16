@@ -35,6 +35,18 @@ Run Qwen3 0.6B in pure C. Tokens, BPE, chat templates, attention, KV cache — a
 [Read guide](qwen3-run-locally.qmd){.blog-card-link}
 ::::
 
+:::: {.blog-card .blog-card-step-2}
+[Step 2]{.blog-card-label}
+
+### GGUF vs SafeTensors
+
+::: {.blog-card-desc}
+Model weight formats compared. GGUF, SafeTensors, pickle security, quantization, mmap, and why we start with pure C.
+:::
+
+[Read guide](model-formats-gguf-safetensors.qmd){.blog-card-link}
+::::
+
 :::: {.blog-card .blog-card-step-3 .blog-card-no-post}
 [Step 3]{.blog-card-label}
 
