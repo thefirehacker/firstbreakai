@@ -31,14 +31,23 @@ Make sure you've completed the [Checklist](checklist.qmd) — set up your accoun
 
 Set up a **Quarto blog** and host it on GitHub with an about-me page, blog posts, "Today I learned," and other pages.
 
-1. Set up the project locally, link it to a GitHub repo, and configure GitHub Pages for deployment.
-2. Use your AI-based IDE to complete this setup.
+<details>
+<summary><strong>Show details ↓</strong></summary>
 
-**You will learn:**
+<p><strong>Tasks:</strong></p>
+<ol>
+<li>Set up the project locally, link it to a GitHub repo, and configure GitHub Pages for deployment.</li>
+<li>Use your AI-based IDE to complete this setup.</li>
+</ol>
 
-- GitHub basics refresher
-- Setting up a personal and blogging website
-- How coding tools and SWE / AI agents work
+<p><strong>You will learn:</strong></p>
+<ul>
+<li>GitHub basics refresher — branches, commits, PRs, merge conflicts</li>
+<li>Setting up a personal and blogging website with Quarto</li>
+<li>How AI coding tools and SWE agents work in practice</li>
+</ul>
+
+</details>
 :::
 :::
 
@@ -48,19 +57,36 @@ Set up a **Quarto blog** and host it on GitHub with an about-me page, blog posts
 
 ### Run a model locally
 
-Run a model locally using a basic inference setup (e.g. **llama.cpp** or another minimal setup).
+Run Qwen3 0.6B locally in pure C — trace every operation from tokenization to token output.
 
-**You will learn:**
+<details>
+<summary><strong>Show details ↓</strong></summary>
 
-- Basics of inference: decoding, KV cache
-- Chat templates and system prompts
-- Prompting basics, tags, and special tags
-- Tokenization
+<p><strong>You will learn:</strong></p>
+<ul>
+<li>Basics of inference: decoding, KV cache, sampling</li>
+<li>Chat templates and system prompts (ChatML format, special tokens)</li>
+<li>Tokenization — why subword units, vocabulary size trade-offs</li>
+<li>Temperature, top-p, and how they control output randomness</li>
+<li>GGUF vs SafeTensors — model file formats and quantization</li>
+<li>Transformer architecture: self-attention, MHA, positional encoding, decoder-only design</li>
+</ul>
 
-**Guides:**
+<p><strong>Guides:</strong></p>
+<ul>
+<li><a href="blog/qwen3-run-locally.qmd">Run Qwen3 0.6B in pure C</a> — inference from first principles (tokenization, chat templates, attention, KV cache).</li>
+<li><a href="blog/model-formats-gguf-safetensors.qmd">GGUF vs SafeTensors</a> — model weight formats, security, quantization, and why we start with pure C.</li>
+</ul>
 
-- [Run Qwen3 0.6B in pure C](blog/qwen3-run-locally.qmd) — inference from first principles (tokenization, chat templates, attention, KV cache).
-- [GGUF vs SafeTensors](blog/model-formats-gguf-safetensors.qmd) — model weight formats, security, quantization, and why we start with pure C.
+<p><strong>Learning resources</strong> — follow in this order:</p>
+<ol>
+<li><a href="https://www.youtube.com/watch?v=80bIUggRJf4&amp;t=38s" target="_blank"><strong>KV Cache explained</strong> (video, ~10 min)</a> — start here. Visual walkthrough of why the KV cache exists, how it grows with context length, and what practical models do to keep it small. Directly answers why GPU memory is the bottleneck in inference.</li>
+<li><a href="https://jalammar.github.io/illustrated-transformer/" target="_blank"><strong>The Illustrated Transformer</strong> — Jay Alammar</a> — the most referenced visual guide to transformer architecture. Covers embeddings, self-attention, multi-head attention, and positional encoding with animated diagrams. Read this before the paper — it will make the paper feel simple.</li>
+<li><a href="https://arxiv.org/abs/1706.03762" target="_blank"><strong>Attention Is All You Need</strong> (2017 paper)</a> — the original transformer paper. After reading the Alammar blog, this is approachable. The key contributions: removal of recurrence, self-attention as a core operator, multi-head attention, positional encoding. Shorter than you expect (~15 pages).</li>
+<li><a href="https://x.com/JustinLin610/status/2037116325210829168" target="_blank"><strong>Agentic models are the future</strong> — Junyang Lin</a> — former Qwen team lead on why reasoning/thinking models are a stepping stone, and why agentic models (RL-trained, tool-using, multi-step) are where the field is heading. Read this last — it gives you a mental map of where everything you are learning is going.</li>
+</ol>
+
+</details>
 :::
 :::
 
@@ -70,15 +96,22 @@ Run a model locally using a basic inference setup (e.g. **llama.cpp** or another
 
 ### Inference deep dive
 
-Go beyond running a model — understand how inference works under the hood and how to serve models.
+Go beyond running a model — understand how inference works under the hood and how to serve models at scale.
 
-**You will learn:**
+<details>
+<summary><strong>Show details ↓</strong></summary>
 
-- Inference engines and runtimes (vLLM, TGI, llama.cpp server)
-- Batching, continuous batching, and throughput vs. latency
-- Quantization (GGUF, GPTQ, AWQ) and when to use each
-- Structured output, function calling, and tool use
-- Serving and API design for inference endpoints
+<p><strong>You will learn:</strong></p>
+<ul>
+<li>Inference engines and runtimes (vLLM, TGI, llama.cpp server)</li>
+<li>Batching, continuous batching, and throughput vs. latency trade-offs</li>
+<li>Quantization (GGUF, GPTQ, AWQ) and when to use each format</li>
+<li>Speculative decoding — how draft models speed up large model inference</li>
+<li>Structured output, function calling, and tool use</li>
+<li>Serving and API design for inference endpoints</li>
+</ul>
+
+</details>
 :::
 :::
 
@@ -88,16 +121,29 @@ Go beyond running a model — understand how inference works under the hood and 
 
 ### Training fundamentals
 
-Build the foundations to train and fine-tune models from scratch.
+Build the foundations to train and fine-tune models from scratch — from a single GPU to distributed multi-node setups.
 
-**You will learn:**
+<details>
+<summary><strong>Show details ↓</strong></summary>
 
-- PyTorch fundamentals: tensors, autograd, training loops
-- Modelling: architectures (transformers, attention, MLP), building blocks
-- Data pipelines: datasets, dataloaders, preprocessing
-- Fine-tuning: LoRA, QLoRA, full fine-tune, adapters
-- Distributed training: DDP, FSDP, multi-GPU and multi-node setups
-- Experiment tracking and evaluation
+<p><strong>You will learn:</strong></p>
+<ul>
+<li>PyTorch fundamentals: tensors, autograd, training loops</li>
+<li>Modelling: architectures (transformers, attention, MLP), building blocks from scratch</li>
+<li>Data pipelines: datasets, dataloaders, preprocessing, tokenization at scale</li>
+<li>Fine-tuning: LoRA, QLoRA, full fine-tune, adapters — when to use each</li>
+<li>Distributed training: DDP, FSDP, multi-GPU and multi-node setups</li>
+<li>Experiment tracking and evaluation (Weights &amp; Biases, validation loss curves)</li>
+<li>Parallelism strategies: tensor parallelism, pipeline parallelism, expert parallelism</li>
+</ul>
+
+<p><strong>Projects you'll be ready for:</strong></p>
+<ul>
+<li>nanoGPT speedrun — train GPT-2 scale to a target validation loss as fast as possible</li>
+<li>Megatron / Picotron — read and understand production-grade distributed training code</li>
+</ul>
+
+</details>
 :::
 :::
 
@@ -107,14 +153,20 @@ Build the foundations to train and fine-tune models from scratch.
 
 ### Build an AI product
 
-Ship an AI-powered product end to end.
+Ship an AI-powered product end to end — from idea to deployed, monitored application.
 
-**You will learn:**
+<details>
+<summary><strong>Show details ↓</strong></summary>
 
-- Product thinking: problem → solution → users
-- Building with APIs, RAG, agents, and tool use
-- Frontend/backend integration for AI features
-- Deployment, monitoring, and iteration
+<p><strong>You will learn:</strong></p>
+<ul>
+<li>Product thinking: problem → solution → users — scoping a project that can be shipped</li>
+<li>Building with APIs, RAG, agents, and tool use</li>
+<li>Frontend/backend integration for AI features</li>
+<li>Deployment, monitoring, and iteration — keeping it running after launch</li>
+</ul>
+
+</details>
 :::
 :::
 
@@ -124,15 +176,21 @@ Ship an AI-powered product end to end.
 
 ### Capstone project or open-source contribution
 
-Prove what you've learned. Pick one: build a capstone project or make a meaningful contribution to an open-source AI project.
+Prove what you've learned. Pick one: ship a capstone project or make a meaningful contribution to an open-source AI project.
 
-**Options:**
+<details>
+<summary><strong>Show details ↓</strong></summary>
 
-- **Capstone:** End-to-end project combining inference, training, or product skills — deployed, documented, and added to your public portfolio
-- **Open-source contribution:** Submit a PR to an AI repo (model, library, dataset, docs) — get reviewed, merged, and credited
-- Present your work to the cohort; get peer feedback
+<p><strong>Options:</strong></p>
+<ul>
+<li><strong>Capstone:</strong> End-to-end project combining inference, training, or product skills — deployed, documented, and added to your public portfolio</li>
+<li><strong>Open-source contribution:</strong> Submit a PR to an AI repo (model, library, dataset, docs) — get reviewed, merged, and credited</li>
+<li>Present your work to the cohort; get peer feedback</li>
+</ul>
 
-**Why it matters:** A shipped project or merged PR is the strongest signal on your profile when applying for your first AI role.
+<p><strong>Why it matters:</strong> A shipped project or merged PR is the strongest signal on your profile when applying for your first AI role.</p>
+
+</details>
 :::
 :::
 
@@ -158,14 +216,21 @@ Prove what you've learned. Pick one: build a capstone project or make a meaningf
 ::: {.step-normal}
 ### Step 2: Run a model locally — Basic inference setup
 
-**Goal:** Run a model locally using a basic inference setup (e.g. **llama.cpp** or another minimal setup).
+**Goal:** Run Qwen3 0.6B locally in pure C — trace every operation from tokenization to token output.
 
-**Topics:** Basics of inference (decoding, KV cache) · Chat templates and system prompts · Prompting basics, tags, and special tags · Tokenization
+**Topics:** Basics of inference (decoding, KV cache) · Chat templates and system prompts · Tokenization · Temperature and sampling · GGUF vs SafeTensors · Transformer architecture (self-attention, MHA, positional encoding, decoder-only design)
 
 **Guides:**
 
 - [Run Qwen3 0.6B in pure C](blog/qwen3-run-locally.qmd) — inference from first principles.
 - [GGUF vs SafeTensors](blog/model-formats-gguf-safetensors.qmd) — model weight formats, security, quantization, and why we start with pure C.
+
+**Learning resources** — follow in this order:
+
+1. [**KV Cache explained** (video, ~10 min)](https://www.youtube.com/watch?v=80bIUggRJf4&t=38s) — why the KV cache exists, how it grows with context length, and what practical models do to keep it small.
+2. [**The Illustrated Transformer** — Jay Alammar](https://jalammar.github.io/illustrated-transformer/) — the most referenced visual guide to transformer architecture. Read before the paper.
+3. [**Attention Is All You Need** (2017 paper)](https://arxiv.org/abs/1706.03762) — the original transformer paper. Approachable after the Alammar blog.
+4. [**Agentic models are the future** — Junyang Lin](https://x.com/JustinLin610/status/2037116325210829168) — former Qwen team lead on why agentic models (not just thinking models) are where the field is heading.
 :::
 
 ::: {.step-normal}

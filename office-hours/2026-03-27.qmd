@@ -1,0 +1,426 @@
+---
+title: "Office Hours — 27 March 2026"
+description: "Transformer architecture deep dive — why attention replaced sequential models, self-attention and multi-head attention, decoder-only LLMs, model taxonomy (dense vs MoE, precision, thinking vs agentic), benchmarking, the three pillars of model development, data parallelism, and Project Watch candidates: Speedrun and Auto Research GPT."
+date: 2026-03-27
+categories: [office-hours, transformers, attention, architecture, parallelism, training, benchmarking]
+css: ../styles/blog.css
+---
+
+> **First Break AI — Office Hours**
+>
+> Session 2 — 27 March 2026. A deep dive into the "Attention Is All You Need" paper — why sequential models broke down, what transformers solved, and how modern LLMs are built and trained.
+
+---
+
+## What we covered
+
+| # | Topic | Roadmap link |
+|---|---|---|
+| 1 | [Why attention? — LSTM and RNN limitations](#topic-1-why-attention-lstm-and-rnn-limitations) | [Step 2](../roadmap.qmd#run-a-model-locally) |
+| 2 | [Transformer breakthroughs — parallelism, self-attention, MHA, positional encoding](#topic-2-transformer-architecture-breakthroughs) | [Step 2](../roadmap.qmd#run-a-model-locally) |
+| 3 | [Decoder-only architecture in modern LLMs](#topic-3-decoder-only-architecture-in-modern-llms) | [Step 2](../roadmap.qmd#run-a-model-locally) |
+| 4 | [Model taxonomy — dense vs MoE, precision, thinking vs agentic](#topic-4-model-taxonomy) | [Step 2](../roadmap.qmd#run-a-model-locally) / [Project Watch](../project-watch/index.qmd) |
+| 5 | [Benchmarking in AI](#topic-5-benchmarking-in-ai) | — |
+| 6 | [The three pillars of model development](#topic-6-the-three-pillars-of-model-development) | [Step 3+](../roadmap.qmd#inference-deep-dive) |
+| 7 | [Data parallelism (DDP) and the parallelism ladder](#topic-7-data-parallelism-and-the-parallelism-ladder) | [Step 3+](../roadmap.qmd#inference-deep-dive) |
+| 8 | [Project Watch — Speedrun and Auto Research GPT](#topic-8-project-watch-speedrun-and-auto-research-gpt) | [Project Watch](../project-watch/index.qmd) |
+
+---
+
+# Topic 1: Why attention? LSTM and RNN limitations {#topic-1-why-attention-lstm-and-rnn-limitations}
+
+**Roadmap connection:** [Step 2 — Run a model locally](../roadmap.qmd)
+
+We started from first principles: why did the field move away from recurrent networks and towards transformers? The "Attention Is All You Need" paper (Vaswani et al., 2017) was motivated by real engineering problems with the dominant architectures of the time.
+
+## Sequential models and what they were used for
+
+Before transformers, the primary tools for sequence tasks were **Recurrent Neural Networks (RNNs)** and their improved variant **Long Short-Term Memory (LSTM)** networks. Their main use cases were:
+
+- **Text translation** — e.g. German to English, English to German (mostly Roman-script languages because the training data existed)
+- **Object detection** — Convolutional Neural Networks (CNNs) for image tasks; AlexNet (2012) was the landmark model
+
+LSTMs worked by maintaining a hidden state that was passed from one step to the next. Each token you process updates that hidden state and passes it forward:
+
+```{mermaid}
+flowchart LR
+    H0["h₀\nhidden state"] --> LSTM1["LSTM cell\ntoken 1"]
+    LSTM1 --> H1["h₁"]
+    H1 --> LSTM2["LSTM cell\ntoken 2"]
+    LSTM2 --> H2["h₂"]
+    H2 --> LSTM3["LSTM cell\ntoken 3"]
+    LSTM3 --> H3["h₃\n→ output"]
+```
+
+## Why LSTMs broke down
+
+Three problems drove the move to transformers:
+
+1. **Lost in long sequences** — when sequences got very long, the hidden state could not carry all the relevant information from early tokens to late ones. The model would "get lost."
+
+2. **Cannot parallelize** — each LSTM step depends on the previous hidden state. Step 3 cannot start until step 2 finishes. You are forced to process tokens one at a time, which is a fundamental bottleneck on GPU hardware that is designed for parallel work.
+
+3. **Memory and compute costs** — backpropagation through long sequences requires storing activations for every step and computing gradients all the way back. For very long sequences this becomes expensive and unstable.
+
+Convolutional networks (CNNs) had shown that parallel processing could work well — they process all pixels in an image simultaneously. The transformer authors took that lesson and asked: can we build sequence models that work the same way?
+
+---
+
+# Topic 2: Transformer architecture breakthroughs {#topic-2-transformer-architecture-breakthroughs}
+
+The transformer paper introduced several design choices that together solved the problems above.
+
+## Removal of recurrence
+
+The most important change: **no hidden state passed step by step.** All tokens in a sequence are processed at the same time, in the same layer. This eliminates the sequential bottleneck entirely.
+
+```{mermaid}
+flowchart TD
+    subgraph LSTM ["Sequential (LSTM)"]
+        direction LR
+        T1[token 1] --> S1[step 1] --> S2[step 2] --> S3[step 3] --> OUT1[output]
+    end
+    subgraph TFMR ["Parallel (Transformer layer)"]
+        direction LR
+        T2[token 1] & T3[token 2] & T4[token 3] --> ATTN[attention\nall at once] --> OUT2[output]
+    end
+```
+
+Tokens in a layer are processed simultaneously, which maps naturally to GPU hardware. This is why scaling transformers on GPUs has been so successful — the architecture respects the hardware.
+
+## Self-attention as a core operator
+
+Self-attention is the engine that lets tokens talk to each other. For every token, the model computes how much attention to pay to every other token in the sequence. This creates an **attention map** — a matrix showing which tokens are most relevant to each other.
+
+The computation uses three learned vectors per token — **Query (Q)**, **Key (K)**, and **Value (V)**:
+
+```
+Attention(Q, K, V) = softmax(QKᵀ / √d_k) · V
+```
+
+What this means:
+- Q is "what am I looking for?"
+- K is "what do I contain?"
+- V is "what do I contribute if selected?"
+
+The dot product of Q and K measures relevance. Softmax converts those scores to weights. V is the weighted sum that gets passed forward.
+
+Self-attention gives the model an engine to capture connections between tokens that no previous architecture had. Earlier models had no way to directly model that "cat" and "mouse" in the same sentence are related — they had to infer this indirectly through the hidden state.
+
+## Multi-head attention (MHA)
+
+Single self-attention limits what the model can represent. **Multi-head attention** runs multiple attention heads in parallel, each learning to attend to different aspects of the sequence — different types of relationships, different semantic dimensions.
+
+If self-attention is one pair of eyes looking at the sequence, multi-head attention is 16 or 32 pairs of eyes, each noticing different things. The outputs are concatenated and projected. This is the primary reason the 2017 paper was so impactful — MHA dramatically increased the expressive power of the model.
+
+A Qwen3 model config will show something like `num_attention_heads: 16` or `32`. These are the MHA heads.
+
+## Positional encoding
+
+Because the transformer processes all tokens in parallel, it has no inherent sense of order. Token 1 and token 5 look identical to the attention mechanism unless you tell it otherwise.
+
+**Positional encoding** adds information about each token's position in the sequence. The original paper used sine and cosine functions of different frequencies. Modern models use learned positional embeddings or Rotary Position Embeddings (RoPE).
+
+The result: the model knows that "cat is chasing mouse" has a different token order than "mouse is chasing cat." Without positional encoding, both sentences would look identical.
+
+## Memory via interaction, not time
+
+LSTMs stored context by accumulating it in the hidden state over time — context was a function of how many steps had passed.
+
+Transformers process the **entire sequence at once**. Context is computed by directly attending to all tokens simultaneously. The model does not need to "remember" early tokens — it can attend to them directly at any layer.
+
+This is what enables the massive context lengths in modern models. The basic context is 4,096 tokens. Recent models support 32K, 128K, even 1 million tokens. DeepSeek V3 supports 128K; MiniMax-01 supports 4 million. The attention mechanism scales to any context length you give it compute for.
+
+---
+
+# Topic 3: Decoder-only architecture in modern LLMs {#topic-3-decoder-only-architecture-in-modern-llms}
+
+The original transformer paper (2017) used an **encoder-decoder** architecture:
+
+- **Encoder** — reads the input sequence and produces a rich feature representation
+- **Decoder** — takes the encoder output and generates the output sequence token by token
+
+This made sense for translation: encoder reads German, decoder writes English.
+
+## Why modern LLMs dropped the encoder
+
+Every major LLM today — GPT, Qwen, DeepSeek, Llama — uses a **decoder-only** architecture. The encoder is gone.
+
+Why?
+
+1. **Our goal is autoregressive generation** — we want a model that keeps producing the next token, indefinitely. Code, essays, conversations. The decoder's autoregressive nature is exactly what we need. The encoder was a feature extractor for a fixed input — not useful when we want open-ended generation.
+
+2. **The encoder's job is done by the decoder's attention** — with enough layers and compute, the decoder's attention mechanism is powerful enough to do its own feature extraction. You do not need a separate encoder when you are already giving the attention layers enormous compute budgets.
+
+3. **Simpler architecture, easier to scale** — one component instead of two. All the research and engineering effort goes into making the decoder better.
+
+```{mermaid}
+flowchart LR
+    subgraph Original ["Original Transformer (2017)"]
+        ENC[Encoder\nreads input] --> DEC[Decoder\ngenerates output]
+    end
+    subgraph Modern ["Modern LLM (GPT, Qwen, DeepSeek)"]
+        DEC2[Decoder only\nreads + generates]
+    end
+```
+
+The decoder-only model is **autoregressive** — given a prompt, it samples the next token, appends it, samples the next token, appends it, and repeats. This is exactly what you observed when you ran Qwen3 0.6B locally: one token printed at a time.
+
+---
+
+# Topic 4: Model taxonomy {#topic-4-model-taxonomy}
+
+We mapped out the key dimensions you need to understand when evaluating any modern LLM. These are the axes along which every model paper reports its design.
+
+## Dense vs Mixture of Experts (MoE)
+
+**Dense** models activate all parameters for every token. Qwen3 0.6B is dense — every one of its 600 million parameters participates in every forward pass.
+
+**Mixture of Experts (MoE)** introduces sparsity. A router at the start of each transformer block decides which "expert" sub-networks to activate for a given token. Only a fraction of the total parameters are used for any single input.
+
+```{mermaid}
+flowchart TD
+    TOKEN[Input token] --> ROUTER[Router\ndecides which experts]
+    ROUTER --> E1[Expert 1]
+    ROUTER --> E2[Expert 2]
+    ROUTER --> EN[Expert N]
+    E1 & E2 & EN --> OUT[Output\nonly 2-3 experts active]
+```
+
+Example: DeepSeek V3 has 236 billion total parameters but only 21 billion **active parameters** per token. The model is enormous in total but computationally similar to a 21B dense model at inference time. NVIDIA's hardware is increasingly optimized for MoE — their latest clusters are designed to route efficiently across experts.
+
+The training challenge: you want all experts to be used, not just one or two. Training logs for MoE models monitor expert utilization — an unbalanced model where only a few experts ever activate is wasteful.
+
+## Precision
+
+We revisited precision (introduced in Session 1) in the context of training. The new development: models like NVIDIA's Minitron/Nemotron are being **trained** at lower precision (FP4, FP8) rather than just quantized after training. This is a significant shift.
+
+| Precision | Bits | Notes |
+|---|---|---|
+| FP32 | 32 | Full precision — what we use in Step 2 (Qwen3 0.6B) |
+| BF16 | 16 | Standard training precision for most current LLMs |
+| FP8 | 8 | Increasingly used for training large models |
+| FP4 | 4 | Emerging — Nemotron is trained at FP4 |
+
+**Consumer perspective on quantization:** you pick the lowest quantization that gives stable output. Start low, step up until the model behaves. For Qwen3 0.6B we used FP32 because it is small enough to fit in full precision.
+
+## Thinking vs non-thinking vs agentic
+
+Most modern models support a **thinking mode** (also called reasoning or chain-of-thought mode) that can be toggled:
+
+- **Non-thinking** — immediate response, fast, lower quality on complex tasks
+- **Thinking** — the model generates internal reasoning steps before the final answer, slower but more accurate on hard problems
+
+The more important distinction raised by Junyang Lin (former Qwen team lead): **thinking models are not the future — agentic models are.**
+
+A thinking model reasons about one problem. An agentic model takes sequences of actions — calling tools, running code, browsing the web, coordinating with other models — to accomplish multi-step goals. The training methodology for agentic models uses reinforcement learning (RL) to optimize for successful task completion rather than just next-token prediction.
+
+---
+
+# Topic 5: Benchmarking in AI {#topic-5-benchmarking-in-ai}
+
+Every model paper reports against benchmarks. Understanding what they measure is essential for evaluating claims.
+
+## How it started: BLEU and WMT 2014
+
+In 2017, the two primary benchmarks were:
+
+- **BLEU score** — measures translation quality by comparing a model's output to human reference translations. A higher BLEU means the output is closer to what a human translator produced.
+- **WMT 2014** — the Workshop on Machine Translation 2014 dataset, the standard evaluation set for English-German and English-French translation at the time.
+
+The original transformer paper reported that their model exceeded all previous RNN-based systems on both.
+
+## Modern benchmark suites
+
+Current models are evaluated across many dimensions:
+
+| Category | Example benchmarks |
+|---|---|
+| Common reasoning | HellaSwag, WinoGrande, ARC |
+| Coding | HumanEval, MBPP, SWE-bench |
+| Math | MATH, GSM8K, AIME |
+| Science | GPQA, MMLU |
+| Long-context | RULER, HELMET |
+| Agentic | GAIA, SWE-bench Verified |
+
+The statement made in session: **to succeed in AI, you should either be good at kernels or good at benchmarking.** Kernels means writing GPU-level optimized code. Benchmarking means building evaluation pipelines that rigorously measure what a model can actually do. Both are high-value skills.
+
+## Benchmark reference — what each one actually tests
+
+The table below gives you a working definition of every benchmark you will encounter in model papers, with a sample task and the major models that reported against it.
+
+| Benchmark | Category | What it measures | Sample task | Notable models reported |
+|---|---|---|---|---|
+| **MMLU** | Science / knowledge | 57-subject multiple-choice covering STEM, law, medicine, history | *"Which of the following is a property of an ideal gas?"* (4 choices) | Qwen3, DeepSeek-V3, Llama 3, GPT-4o |
+| **GPQA** | Science (expert) | PhD-level questions in biology, chemistry, physics — hard enough to fool non-experts | *"What is the oxidation state of Mn in KMnO₄?"* | Qwen3-235B, DeepSeek-R1, Claude 3.5 Sonnet |
+| **HellaSwag** | Common reasoning | Pick the most plausible continuation of a short paragraph | *"A woman is outside with a bucket and a dog. The dog is running around trying to avoid a bath…"* → choose what happens next | Qwen3, Llama 3, DeepSeek-V2 |
+| **ARC-Challenge** | Common reasoning | Grade-school science questions; the hard subset that bag-of-words models fail | *"Which property of a metal spoon changes when the spoon is placed in a hot liquid?"* | Qwen3, Mistral, DeepSeek |
+| **GSM8K** | Math | 8,500 grade-school word problems requiring multi-step arithmetic | *"Janet's ducks lay 16 eggs per day. She eats 3 for breakfast. How many does she sell if eggs are $2 each?"* | Qwen3, DeepSeek-R1, GPT-4o, Kimi K2 |
+| **MATH** | Math (hard) | 12,500 competition-level problems (AMC, AIME, Olympiad) across 7 subjects | *"Find all real solutions to x⁴ − 5x² + 4 = 0."* | Qwen3-235B, DeepSeek-R1, o3 |
+| **AIME** | Math (elite) | American Invitational Mathematics Examination — top 5% of high-school math | 15 problems per exam, integer answers 0–999 | Qwen3-235B, DeepSeek-R1, o3, Gemini 2.0 |
+| **HumanEval** | Coding | 164 Python function completion problems with unit tests | Write a function `def sort_numbers(numbers: str) -> str` that sorts spelled-out numbers | Qwen3, DeepSeek-V3, GPT-4o, Codestral |
+| **MBPP** | Coding | 374 crowd-sourced Python programming tasks | *"Write a function to find the maximum element in a list."* | Qwen3, DeepSeek-Coder, StarCoder2 |
+| **SWE-bench Verified** | Coding / agentic | 500 real GitHub issues from Python OSS repos; model must produce a passing patch | Fix a bug in `pytest`, `astropy`, or `sympy` from the issue description and repo context | Qwen3-235B (Agent), Kimi K2, Claude 3.5 Sonnet, SWE-agent |
+| **GAIA** | Agentic | Real-world assistant tasks requiring web search, file reading, multi-step reasoning | *"What is the total number of parameters in the model described in this PDF?"* (agent must open file, read, compute) | GPT-4o + tools, Qwen-Agent, Gemini 1.5 Pro |
+| **RULER** | Long-context | Tests retrieval and reasoning over sequences up to 128K tokens | Retrieve a specific sentence buried in a 100K-token document | Qwen3, Kimi K2, Gemini 1.5 Pro |
+| **LiveCodeBench** | Coding (live) | Continuously updated with new competitive programming problems to prevent data contamination | Solve a LeetCode-style problem released *after* the model's training cutoff | Qwen3, DeepSeek-V3, o3-mini |
+
+## How model creators use these benchmarks
+
+When a model paper is published, the authors include a results table comparing their model against competitors on a standard set of benchmarks. Here is a simplified version of what the Qwen3 technical report showed:
+
+| Model | MMLU | MATH | HumanEval | GPQA | SWE-bench |
+|---|---|---|---|---|---|
+| Qwen3-235B-A22B | 87.6 | 85.7 | 92.7 | 59.1 | 57.6 |
+| DeepSeek-V3 | 88.5 | 87.1 | 91.7 | 59.1 | 42.0 |
+| Llama 3.1 405B | 85.2 | 73.8 | 89.0 | 50.7 | — |
+| GPT-4o | 87.2 | 76.6 | 90.2 | 53.6 | 33.2 |
+| Kimi K2 | 87.3 | 79.6 | 89.0 | 54.1 | 65.8 |
+
+Numbers are approximate — check the original technical reports for exact figures. The point is the pattern: coding-focused models (Kimi K2, DeepSeek-V3) score higher on SWE-bench; reasoning-focused models (Qwen3-235B, DeepSeek-R1) dominate MATH and AIME.
+
+**What to look for when reading a model paper:**
+
+- Does the benchmark suite match what you care about? (If you want a coding assistant, SWE-bench matters more than HellaSwag.)
+- Are the comparison baselines fair? (Same model size? Same inference compute?)
+- Is the benchmark contaminated? (Was this data in the model's training set?) LiveCodeBench was built specifically to prevent this.
+- Does the model report with or without tools/agents for agentic benchmarks?
+
+---
+
+# Topic 6: The three pillars of model development {#topic-6-the-three-pillars-of-model-development}
+
+We zoomed out to map the entire landscape of LLM development into three areas:
+
+```{mermaid}
+flowchart TD
+    subgraph P1 ["Pillar 1: Distribution & Inference Pipeline"]
+        A1[Parallelism strategies\nDDP, Tensor, Expert, Context]
+        A2[Hardware selection\nGPU memory, interconnect]
+        A3[Inference engines\nvLLM, llama.cpp, TensorRT]
+    end
+    subgraph P2 ["Pillar 2: Modeling"]
+        B1[Architecture\ndense vs MoE, attention type]
+        B2[Context length\nRoPE, attention variants]
+        B3[Training stages\npre-train, mid-train, post-train, RL]
+    end
+    subgraph P3 ["Pillar 3: Training Pipeline"]
+        C1[Dataset curation\nquality, scale, domain mix]
+        C2[Scaling laws\nChinchilla: model size × token count]
+        C3[Checkpointing\nW&B logs, validation loss curves]
+    end
+```
+
+## Pillar 1: Distribution and inference pipeline
+
+How you move data through hardware efficiently. This includes parallelism strategies (covered in Topic 7) and the tools that implement them: Megatron-LM (NVIDIA's training library) and Picotron (a learning-oriented re-implementation of Megatron).
+
+## Pillar 2: Modeling
+
+The architecture decisions: what kind of attention, how many heads, what context length, dense or MoE, and what training stages you run. Pre-training builds the base model. Mid-training specializes it (e.g. more coding data if you want a coding model). Post-training aligns it (instruction following, RLHF). Reinforcement learning creates thinking and agentic behaviour.
+
+## Pillar 3: Training pipeline
+
+Data curation and compute budgeting. Scaling laws (originally Chinchilla scaling) give you the formula: for a model of N parameters, you need approximately 20N tokens of training data for optimal compute efficiency. A 7B model trained on 140B tokens is approximately Chinchilla-optimal; training longer still improves the model but at diminishing returns.
+
+Modern models far exceed Chinchilla-optimal token counts because you want a smaller model that performs better at inference time, not one that was maximally efficient to train.
+
+---
+
+# Topic 7: Data parallelism and the parallelism ladder {#topic-7-data-parallelism-and-the-parallelism-ladder}
+
+Training large models requires spreading work across many GPUs. There is a ladder of parallelism strategies, each addressing a different bottleneck.
+
+## Data Parallelism (DDP) — the baseline
+
+The simplest strategy: put a full copy of the model on each GPU, then split the dataset across GPUs and train in parallel.
+
+```{mermaid}
+flowchart TD
+    DATASET[Full dataset\n20B tokens] --> SPLIT[Split into N shards]
+    SPLIT --> GPU1["GPU 1\nModel copy\nShard 1"]
+    SPLIT --> GPU2["GPU 2\nModel copy\nShard 2"]
+    SPLIT --> GPU3["GPU 3\nModel copy\nShard 3"]
+    SPLIT --> GPU4["GPU 4\nModel copy\nShard 4"]
+    GPU1 & GPU2 & GPU3 & GPU4 --> SYNC[Sync gradients\nall-reduce]
+    SYNC --> UPDATE[Update weights]
+```
+
+With 4 GPUs, you theoretically process the dataset in one quarter the time. At the end of each batch, gradients are synchronized across all GPUs (all-reduce) so every copy stays in sync.
+
+The nanoGPT training script we use in the roadmap implements DDP. It is the starting point.
+
+## The parallelism ladder
+
+DDP works when the model fits on a single GPU. For large models (70B+), it does not — the model itself is too big. This requires additional strategies:
+
+| Strategy | What it splits | When you need it |
+|---|---|---|
+| **Data Parallelism (DDP)** | Dataset | Always — the baseline |
+| **Tensor Parallelism (TP)** | Individual weight matrices across GPUs | Model too large for one GPU |
+| **Expert Parallelism (EP)** | MoE experts across GPUs | MoE models |
+| **Context Parallelism (CP)** | Long sequences across GPUs | Very long context windows |
+| **Pipeline Parallelism (PP)** | Model layers across GPUs | Very deep models |
+| **4D / 5D Parallelism** | All of the above simultaneously | Frontier-scale training |
+
+Megatron-LM (NVIDIA) and Picotron implement these strategies. The "4D parallelism" mentioned in session refers to combining DP + TP + EP + PP simultaneously. This is what Megatron calls "4D" and what is used to train models at the scale of Llama, Qwen, and DeepSeek.
+
+## Nemotron Coalition — NVIDIA's open training initiative
+
+NVIDIA's **Nemotron** is both a model family and an open-source coalition of companies and researchers committed to fully open LLM training. The idea goes beyond releasing just weights — every member of the coalition releases the full training recipe: dataset, training script, checkpoints at every stage of training, and evaluation results. The goal is to make it possible for anyone to reproduce, audit, or extend the training process from scratch.
+
+**Why the Nemotron Coalition matters for learners:**
+
+- **Full transparency** — you are not just getting a finished model. You get logs, loss curves (via Weights & Biases), and intermediate checkpoints so you can see exactly how the model improved over training.
+- **Lower hardware barrier** — Nemotron models are trained at **FP4 or FP8 precision** rather than the standard BF16. Training at FP4 means the memory footprint per parameter is 8× smaller than FP32. If the quality holds (still being evaluated), this opens frontier-scale training recipes to researchers with smaller GPU clusters.
+- **Reference implementation** — the coalition provides the training script, data pipeline, and parallelism configuration as a reference. You do not need to start from zero if you want to train your own model at scale.
+- **Benchmark against a known baseline** — because Nemotron releases its full training run, you can compare your own experiments directly against a documented baseline rather than guessing what the original team did.
+
+**The three tools in this ecosystem:**
+
+[**Megatron-LM**](https://github.com/NVIDIA/Megatron-LM) — NVIDIA's production-grade library for training large language models. Implements all parallelism strategies (DP, TP, PP, EP, CP) and is what real frontier training runs use. The codebase is large and production-hardened — powerful but not easy to read for learning purposes.
+
+[**Picotron**](https://github.com/huggingface/picotron) (by Elie Bakouch at HuggingFace) — a minimal, clean re-implementation of Megatron designed specifically for learning. The same 4D parallelism concepts in code you can actually read and follow. If you want to understand what Megatron is doing without fighting a production codebase, start here.
+
+[**Heiretsu**](https://github.com/ChinmayK0607/heiretsu) (by Chinmay Khandekar) — a noteworthy community project in the same spirit as Picotron. A from-scratch implementation of distributed LLM training with clean, well-commented code. Worth reading alongside Picotron as another perspective on how to implement these ideas from first principles.
+
+---
+
+# Topic 8: Project Watch — Speedrun and Auto Research GPT {#topic-8-project-watch-speedrun-and-auto-research-gpt}
+
+We introduced two projects that are candidates for the Project Watch section.
+
+## Speedrun
+
+**Goal:** train a GPT-2-scale model to reach a validation loss of 3.28 as fast as possible, using 8 × H100 GPUs.
+
+The project is a leaderboard. Contributors start with a baseline nanoGPT training script, then make architectural and optimization changes to reduce the time-to-target. The timeline has gone from ~8 hours when the project started to under 2 minutes for the current record holder.
+
+The changes that produce speedups include:
+- Better data ordering and curriculum
+- Architecture improvements (attention variants, normalization choices)
+- Training precision changes
+- Optimizer improvements
+
+Why this matters for learners: this is the clearest example of how each incremental improvement in training efficiency actually shows up in measured numbers. Every change is documented in the leaderboard changelog.
+
+## Auto Research GPT
+
+A related project: use an AI coding agent (Cursor, Claude) to **automatically propose and apply architectural changes** to the nanoGPT training script, then measure whether the validation loss improves.
+
+The workflow:
+1. Start with nanoGPT as the baseline
+2. Give the agent the current architecture and the target metric
+3. The agent suggests a change (e.g. replace LayerNorm with RMSNorm)
+4. Apply the change, run training, measure
+5. Repeat
+
+This is early-stage automated research — the agent is not doing frontier work, but it demonstrates how AI tools can accelerate the research iteration loop.
+
+Both projects will be added to the Project Watch section of the roadmap. They sit in the same space as Unsloth: real production projects that teach you something concrete about how LLM training works.
+
+---
+
+::: {.blog-back}
+[← Back to Office Hours](index.qmd) | [← Back to Roadmap](../roadmap.qmd)
+:::
