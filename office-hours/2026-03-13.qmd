@@ -16,10 +16,10 @@ css: ../styles/blog.css
 
 | # | Topic | Roadmap link |
 |---|---|---|
-| 1 | [GitHub collaboration: PRs, conflicts, rebasing](#topic-1-github-collaboration) | Step 1 |
-| 2 | [Qwen3 inference concepts](#topic-2-qwen3-inference-concepts) (temperature, chat templates, tokenization, speculative decoding, GGUF vs SafeTensors, quantization/precision, why pure C) | Step 2 |
+| 1 | [GitHub collaboration: PRs, conflicts, rebasing](#topic-1-github-collaboration) | [Step 1](../roadmap.qmd#first-use-of-ai-for-coding) |
+| 2 | [Qwen3 inference concepts](#topic-2-qwen3-inference-concepts) (temperature, chat templates, tokenization, speculative decoding, GGUF vs SafeTensors, quantization/precision, why pure C) | [Step 2](../roadmap.qmd#run-a-model-locally) |
 | 3 | [Cohort-based community learning](#topic-3-cohort-based-community-learning) | — |
-| 4 | [Unsloth and LLM efficiency](#topic-4-unsloth-and-llm-efficiency) | Project Watch |
+| 4 | [Unsloth and LLM efficiency](#topic-4-unsloth-and-llm-efficiency) | [Project Watch](../project-watch/index.qmd) |
 
 ---
 

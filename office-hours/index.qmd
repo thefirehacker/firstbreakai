@@ -23,6 +23,18 @@ GitHub collaboration (PRs, conflicts, rebasing), Qwen3 inference concepts (tempe
 [Read session notes](2026-03-13.qmd){.blog-card-link}
 ::::
 
+:::: {.blog-card .blog-card-oh}
+[Office Hours]{.blog-card-label}
+
+### 27 March 2026
+
+::: {.blog-card-desc}
+Transformer architecture deep dive — why attention replaced LSTMs, self-attention and multi-head attention, decoder-only LLMs, dense vs MoE models, benchmarking, the three pillars of model development, data parallelism (DDP), and Project Watch: Speedrun and Auto Research GPT.
+:::
+
+[Read session notes](2026-03-27.qmd){.blog-card-link}
+::::
+
 :::
 
 ::: {.blog-back}
