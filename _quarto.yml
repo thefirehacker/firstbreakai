@@ -59,5 +59,6 @@ format:
     include-after-body:
       - includes/mermaid-zoom.html
       - includes/github-card.html
+      - includes/fetchlens.html
     mermaid:
       theme: neutral
