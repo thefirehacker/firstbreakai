@@ -47,6 +47,12 @@ Set up a **Quarto blog** and host it on GitHub with an about-me page, blog posts
 <li>How AI coding tools and SWE agents work in practice</li>
 </ul>
 
+<p><strong>Office Hours sessions:</strong></p>
+<ul>
+<li><a href="office-hours/2026-03-13.qmd#topic-1-github-collaboration">GitHub collaboration — PRs, conflicts, rebasing</a> (13 Mar)</li>
+<li><a href="office-hours/2026-04-10.qmd#topic-2-claude-code-harness-leak">Claude Code harness — skills, sub-agents, safe learning</a> (10 Apr)</li>
+</ul>
+
 </details>
 :::
 :::
@@ -86,6 +92,18 @@ Run Qwen3 0.6B locally in pure C — trace every operation from tokenization to 
 <li><a href="https://x.com/JustinLin610/status/2037116325210829168" target="_blank"><strong>Agentic models are the future</strong> — Junyang Lin</a> — former Qwen team lead on why reasoning/thinking models are a stepping stone, and why agentic models (RL-trained, tool-using, multi-step) are where the field is heading. Read this last — it gives you a mental map of where everything you are learning is going.</li>
 </ol>
 
+<p><strong>Office Hours sessions:</strong></p>
+<ul>
+<li><a href="office-hours/2026-03-13.qmd#topic-2-qwen3-inference-concepts">Qwen3 inference concepts — temperature, chat templates, speculative decoding</a> (13 Mar)</li>
+<li><a href="office-hours/2026-03-27.qmd#topic-1-why-attention-lstm-and-rnn-limitations">Why attention? LSTM and RNN limitations</a> (27 Mar)</li>
+<li><a href="office-hours/2026-03-27.qmd#topic-2-transformer-architecture-breakthroughs">Transformer breakthroughs — self-attention, MHA, positional encoding</a> (27 Mar)</li>
+<li><a href="office-hours/2026-03-27.qmd#topic-3-decoder-only-architecture-in-modern-llms">Decoder-only architecture in modern LLMs</a> (27 Mar)</li>
+<li><a href="office-hours/2026-03-27.qmd#topic-4-model-taxonomy">Model taxonomy — dense vs MoE, precision, thinking vs agentic</a> (27 Mar)</li>
+<li><a href="office-hours/2026-04-10.qmd#topic-3-kv-cache-caveats">KV cache — caveats after the explainer</a> (10 Apr)</li>
+<li><a href="office-hours/2026-04-10.qmd#topic-4-benchmark-literacy">Benchmark literacy — reading model cards</a> (10 Apr)</li>
+<li><a href="office-hours/2026-04-10.qmd#topic-10-rope-and-training-script">RoPE in practice — RoFormer paper and code</a> (10 Apr)</li>
+</ul>
+
 </details>
 :::
 :::
@@ -111,13 +129,20 @@ Go beyond running a model — understand how inference works under the hood and 
 <li>Serving and API design for inference endpoints</li>
 </ul>
 
+<p><strong>Office Hours sessions:</strong></p>
+<ul>
+<li><a href="office-hours/2026-03-13.qmd#topic-4-unsloth-and-llm-efficiency">Unsloth and LLM efficiency</a> (13 Mar)</li>
+<li><a href="office-hours/2026-03-27.qmd#topic-5-benchmarking-in-ai">Benchmarking in AI</a> (27 Mar)</li>
+<li><a href="office-hours/2026-03-27.qmd#topic-6-the-three-pillars-of-model-development">The three pillars of model development</a> (27 Mar)</li>
+</ul>
+
 </details>
 :::
 :::
 
-::: {.timeline-step .coming-soon data-step="4"}
+::: {.timeline-step data-step="4"}
 ::: {.step-card}
-[Step 4 — coming soon]{.step-label}
+[Step 4]{.step-label}
 
 ### Training fundamentals
 
@@ -143,6 +168,17 @@ Build the foundations to train and fine-tune models from scratch — from a sing
 <li>Megatron / Picotron — read and understand production-grade distributed training code</li>
 </ul>
 
+<p><strong>Office Hours sessions:</strong></p>
+<ul>
+<li><a href="office-hours/2026-03-27.qmd#topic-7-data-parallelism-and-the-parallelism-ladder">DDP and the parallelism ladder</a> (27 Mar)</li>
+<li><a href="office-hours/2026-03-27.qmd#topic-8-project-watch-speedrun-and-auto-research-gpt">Speedrun and Auto Research GPT</a> (27 Mar)</li>
+<li><a href="office-hours/2026-04-10.qmd#topic-6-speedrun-nanogpt">Speedrun — nanoGPT, target loss, Tyler Romero's worklog</a> (10 Apr)</li>
+<li><a href="office-hours/2026-04-10.qmd#topic-7-ddp">DDP — gradients and all-reduce</a> (10 Apr)</li>
+<li><a href="office-hours/2026-04-10.qmd#topic-8-communication-and-deepseek">Communication bubble, NVLink, DeepSeek-style constraints</a> (10 Apr)</li>
+<li><a href="office-hours/2026-04-10.qmd#topic-9-muon-optimizer">Muon optimizer — from contest to production</a> (10 Apr)</li>
+<li><a href="office-hours/2026-04-10.qmd#topic-10-rope-and-training-script">Training script walkthrough — ranks, loops, collectives</a> (10 Apr)</li>
+</ul>
+
 </details>
 :::
 :::
@@ -164,6 +200,11 @@ Ship an AI-powered product end to end — from idea to deployed, monitored appli
 <li>Building with APIs, RAG, agents, and tool use</li>
 <li>Frontend/backend integration for AI features</li>
 <li>Deployment, monitoring, and iteration — keeping it running after launch</li>
+</ul>
+
+<p><strong>Office Hours sessions:</strong></p>
+<ul>
+<li><a href="office-hours/2026-04-10.qmd#topic-1-learner-project-lan-stock-game">Learner project — LAN stock game (scope and shipping)</a> (10 Apr)</li>
 </ul>
 
 </details>
@@ -211,6 +252,11 @@ Prove what you've learned. Pick one: ship a capstone project or make a meaningfu
 2. Use your AI-based IDE to complete this setup.
 
 **Learning objectives:** GitHub basics refresher · Setting up a personal and blogging website · Understanding how coding tools or SWE / AI agents work
+
+**Office Hours sessions:**
+
+- [GitHub collaboration — PRs, conflicts, rebasing](office-hours/2026-03-13.qmd#topic-1-github-collaboration) (13 Mar)
+- [Claude Code harness — skills, sub-agents, safe learning](office-hours/2026-04-10.qmd#topic-2-claude-code-harness-leak) (10 Apr)
 :::
 
 ::: {.step-normal}
@@ -231,6 +277,17 @@ Prove what you've learned. Pick one: ship a capstone project or make a meaningfu
 2. [**The Illustrated Transformer** — Jay Alammar](https://jalammar.github.io/illustrated-transformer/) — the most referenced visual guide to transformer architecture. Read before the paper.
 3. [**Attention Is All You Need** (2017 paper)](https://arxiv.org/abs/1706.03762) — the original transformer paper. Approachable after the Alammar blog.
 4. [**Agentic models are the future** — Junyang Lin](https://x.com/JustinLin610/status/2037116325210829168) — former Qwen team lead on why agentic models (not just thinking models) are where the field is heading.
+
+**Office Hours sessions:**
+
+- [Qwen3 inference concepts — temperature, chat templates, speculative decoding](office-hours/2026-03-13.qmd#topic-2-qwen3-inference-concepts) (13 Mar)
+- [Why attention? LSTM and RNN limitations](office-hours/2026-03-27.qmd#topic-1-why-attention-lstm-and-rnn-limitations) (27 Mar)
+- [Transformer breakthroughs — self-attention, MHA, positional encoding](office-hours/2026-03-27.qmd#topic-2-transformer-architecture-breakthroughs) (27 Mar)
+- [Decoder-only architecture in modern LLMs](office-hours/2026-03-27.qmd#topic-3-decoder-only-architecture-in-modern-llms) (27 Mar)
+- [Model taxonomy — dense vs MoE, precision, thinking vs agentic](office-hours/2026-03-27.qmd#topic-4-model-taxonomy) (27 Mar)
+- [KV cache — caveats after the explainer](office-hours/2026-04-10.qmd#topic-3-kv-cache-caveats) (10 Apr)
+- [Benchmark literacy — reading model cards](office-hours/2026-04-10.qmd#topic-4-benchmark-literacy) (10 Apr)
+- [RoPE in practice — RoFormer paper and code](office-hours/2026-04-10.qmd#topic-10-rope-and-training-script) (10 Apr)
 :::
 
 ::: {.step-normal}
@@ -239,14 +296,30 @@ Prove what you've learned. Pick one: ship a capstone project or make a meaningfu
 **Goal:** Go beyond running a model — understand how inference works under the hood and how to serve models.
 
 **Topics:** Inference engines and runtimes (vLLM, TGI, llama.cpp server) · Batching and continuous batching · Quantization (GGUF, GPTQ, AWQ) · Structured output, function calling, and tool use · Serving and API design for inference endpoints
+
+**Office Hours sessions:**
+
+- [Unsloth and LLM efficiency](office-hours/2026-03-13.qmd#topic-4-unsloth-and-llm-efficiency) (13 Mar)
+- [Benchmarking in AI](office-hours/2026-03-27.qmd#topic-5-benchmarking-in-ai) (27 Mar)
+- [The three pillars of model development](office-hours/2026-03-27.qmd#topic-6-the-three-pillars-of-model-development) (27 Mar)
 :::
 
 ::: {.step-normal}
-### Step 4: Training fundamentals (coming soon)
+### Step 4: Training fundamentals
 
 **Goal:** Build the foundations to train and fine-tune models from scratch.
 
 **Topics:** PyTorch fundamentals (tensors, autograd, training loops) · Modelling (transformers, attention, MLP) · Data pipelines · Fine-tuning (LoRA, QLoRA, full fine-tune, adapters) · Distributed training (DDP, FSDP, multi-GPU) · Experiment tracking and evaluation
+
+**Office Hours sessions:**
+
+- [DDP and the parallelism ladder](office-hours/2026-03-27.qmd#topic-7-data-parallelism-and-the-parallelism-ladder) (27 Mar)
+- [Speedrun and Auto Research GPT](office-hours/2026-03-27.qmd#topic-8-project-watch-speedrun-and-auto-research-gpt) (27 Mar)
+- [Speedrun — nanoGPT, target loss, Tyler Romero's worklog](office-hours/2026-04-10.qmd#topic-6-speedrun-nanogpt) (10 Apr)
+- [DDP — gradients and all-reduce](office-hours/2026-04-10.qmd#topic-7-ddp) (10 Apr)
+- [Communication bubble, NVLink, DeepSeek-style constraints](office-hours/2026-04-10.qmd#topic-8-communication-and-deepseek) (10 Apr)
+- [Muon optimizer — from contest to production](office-hours/2026-04-10.qmd#topic-9-muon-optimizer) (10 Apr)
+- [Training script walkthrough — ranks, loops, collectives](office-hours/2026-04-10.qmd#topic-10-rope-and-training-script) (10 Apr)
 :::
 
 ::: {.step-normal}
@@ -255,6 +328,10 @@ Prove what you've learned. Pick one: ship a capstone project or make a meaningfu
 **Goal:** Ship an AI-powered product end to end.
 
 **Topics:** Product thinking · Building with APIs, RAG, agents, and tool use · Frontend/backend integration · Deployment, monitoring, and iteration
+
+**Office Hours sessions:**
+
+- [Learner project — LAN stock game (scope and shipping)](office-hours/2026-04-10.qmd#topic-1-learner-project-lan-stock-game) (10 Apr)
 :::
 
 ::: {.step-normal}

@@ -1,6 +1,6 @@
 ---
 title: "Checklist — Get Ready for the Cohort"
-description: "Get ready for First Break AI: create accounts on Hugging Face, GitHub, BubblSpace, and Google Colab, join the Discord, and follow the cohort lead."
+description: "Get ready for First Break AI: create accounts on Hugging Face, GitHub, Fetchlens.ai, and Google Colab, join the Discord, and follow the cohort lead."
 css: styles/checklist.css
 ---
 
@@ -29,7 +29,7 @@ These accounts are required for the cohort. Set them up now so you're ready to g
 |----------|------|
 | **Hugging Face** | [huggingface.co](https://huggingface.co/) |
 | **GitHub** | [github.com](https://github.com/) |
-| **BubblSpace** | [timecapsule.bubblspace.com](https://timecapsule.bubblspace.com/) — our product; sign in for now |
+| **Fetchlens.ai** | [fetchlens.ai](https://fetchlens.ai/) — our product; sign in for now |
 | **Google Colab** (free) | [colab.research.google.com](https://colab.research.google.com/) |
 
 :::

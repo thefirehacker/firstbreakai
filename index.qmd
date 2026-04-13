@@ -44,7 +44,7 @@ This is a free, community-driven cohort. To join, sign up on Discord — that's 
 | Section | Description |
 |--------|--------------|
 | [Roadmap](roadmap.qmd) | Learning path: Quarto blog, local inference, training, and beyond |
-| [Checklist](checklist.qmd) | Accounts to create (Hugging Face, GitHub, BubblSpace, Colab) and who to follow |
+| [Checklist](checklist.qmd) | Accounts to create (Hugging Face, GitHub, Fetchlens.ai, Colab) and who to follow |
 | [AI Setup](setup.qmd) | AI-based IDE (Cursor / Claude Code), ChatGPT, Open Router |
 
 :::
