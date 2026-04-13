@@ -7,12 +7,16 @@ css: ../styles/blog.css
 
 Office Hours are live cohort sessions where we go deeper on roadmap topics, debug together, and discuss what learners are working on. Each session is documented here as an expanded write-up — not just meeting notes, but context and explanations you can reference later.
 
+**To join office hours:** join the [BubblSpace Discord server](https://discord.gg/QZuBvfcj) — that's where we share the meeting link, time, and reminders.
+
 ## Sessions
+
+The sessions below are **pre-cohort** (the cohort starts **1 May 2026**). They're kept here as reference; the same roadmap topics apply when you follow along later.
 
 ::: {.blog-cards}
 
 :::: {.blog-card .blog-card-oh}
-[Office Hours]{.blog-card-label}
+[Pre-cohort · Office Hours]{.blog-card-label}
 
 ### 13 March 2026
 
@@ -24,7 +28,7 @@ GitHub collaboration (PRs, conflicts, rebasing), Qwen3 inference concepts (tempe
 ::::
 
 :::: {.blog-card .blog-card-oh}
-[Office Hours]{.blog-card-label}
+[Pre-cohort · Office Hours]{.blog-card-label}
 
 ### 27 March 2026
 
