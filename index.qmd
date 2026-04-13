@@ -20,7 +20,7 @@ css: styles/home.css
 
 ::: {.content-section}
 
-**Cohort: 8 March 2026 — 7 June 2026 (3 months)**
+**Cohort: 1 May 2026 — 30 June 2026 (2 months)**
 
 First Break AI is a free, community-driven cohort for anyone who wants their first break in AI. It doesn't matter what you studied or where you work — what matters is that you're ready to learn by doing. We focus on what matters: running and training models, understanding inference, and shipping AI-powered products. Most learning is self-directed and peer-supported; the roadmap, checklist, and resources live in the open so you can contribute and others can follow. The goal is simple: **upskill, build, showcase** — and get that first role or first break in AI.
 
