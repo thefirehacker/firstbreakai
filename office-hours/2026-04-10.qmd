@@ -1,0 +1,238 @@
+---
+title: "Office Hours — 10 April 2026"
+description: "Learner project (LAN stock game), Claude Code harness leak and safe learning, benchmarking literacy, Gemma and Matryoshka architectures, nanoGPT speedrun and Tyler Romero's worklog, DDP and GPU collectives, DeepSeek-style low-level optimization, RoPE/RoFormer in code, and walking through a distributed training script."
+date: 2026-04-10
+categories: [office-hours, training, ddp, rope, speedrun, distributed-training, benchmarking, claude-code]
+css: ../styles/blog.css
+---
+
+> **First Break AI — Office Hours**
+>
+> Session 3 — 10 April 2026 (Cohort 01). From a learner's shipped web game to the internals of distributed training: why DDP works, what RoPE does in a real speedrun commit, and how to read a training script end to end.
+
+---
+
+## What we covered
+
+| # | Topic | Roadmap link |
+|---|---|---|
+| 1 | [Learner project — LAN multiplayer stock game](#topic-1-learner-project-lan-stock-game) | [Step 5 — Build an AI product](../roadmap.qmd#build-an-ai-product) |
+| 2 | [Claude Code harness leak — skills, sub-agents, and safe learning](#topic-2-claude-code-harness-leak) | [Step 1](../roadmap.qmd#first-use-of-ai-for-coding) |
+| 3 | [KV cache video — caveats after the explainer](#topic-3-kv-cache-caveats) | [Step 2](../roadmap.qmd#run-a-model-locally) |
+| 4 | [Benchmark literacy — reading model cards](#topic-4-benchmark-literacy) | [Step 2–3](../roadmap.qmd) |
+| 5 | [Gemma 4 and Matryoshka-style sparsity](#topic-5-gemma-and-matryoshka) | — |
+| 6 | [Speedrun — nanoGPT, target loss, Tyler Romero's worklog](#topic-6-speedrun-nanogpt) | [Step 4](../roadmap.qmd#training-fundamentals) · [Project Watch](../project-watch/index.qmd) |
+| 7 | [Distributed Data Parallelism (DDP) — gradients and all-reduce](#topic-7-ddp) | [Step 4](../roadmap.qmd#training-fundamentals) |
+| 8 | [Communication bubble, NVLink, and DeepSeek-style constraints](#topic-8-communication-and-deepseek) | [Step 4](../roadmap.qmd#training-fundamentals) |
+| 9 | [Muon optimizer — from speedrun contest to production models](#topic-9-muon-optimizer) | [Step 4](../roadmap.qmd#training-fundamentals) |
+| 10 | [RoPE in practice — RoFormer, Tyler's commits, training script walkthrough](#topic-10-rope-and-training-script) | [Step 2](../roadmap.qmd#run-a-model-locally) · [Step 4](../roadmap.qmd#training-fundamentals) |
+
+---
+
+# Topic 1: Learner project — LAN multiplayer stock game {#topic-1-learner-project-lan-stock-game}
+
+**Roadmap connection:** [Step 5 — Build an AI product](../roadmap.qmd) (product thinking, scoping, iteration)
+
+We started with a learner walkthrough of a **web-based, multiplayer stock-market-style game** they had already deployed.
+
+## Design choices
+
+- **Web first** — easier for user testing and feedback than a native app early on; an app build remains a possible later step.
+- **No traditional backend** — no always-on database. Sessions are **LAN / room–code based**: one machine hosts; others join with a code. When the host closes the window, session state is cleared (intentionally simple operationally).
+- **Gameplay** — inspired by a physical board game: listed companies, moving prices, cards per player, power cards (e.g. debenture, freeze), and reading what opponents buy to inform strategy.
+- **Future direction** — a **peer-to-peer** pattern (similar in spirit to small-group mobile games that use a local hotspot as the "parent" network) with **temporary nicknames** instead of a full account system, to keep friction low for playtests with friends.
+
+**Takeaway:** the discussion was not "which framework is trendy" but **what to ship first** — web, minimal persistence, and honest scope — so you can learn from real users before investing in infra.
+
+---
+
+# Topic 2: Claude Code harness leak — skills, sub-agents, and safe learning {#topic-2-claude-code-harness-leak}
+
+**Roadmap connection:** [Step 1 — First use of AI for coding](../roadmap.qmd)
+
+There was active discussion of **public posts and repositories** that surfaced internal details of how **Claude Code** (Anthropic's coding harness) is structured — described in session as a major leak of "nuts and bolts": how context is **compacted**, how **skills** and **sub-agents** are orchestrated, and how multiple agents can work **in parallel** (e.g. inspecting different codebases and merging insights).
+
+## Why it matters for learners
+
+- Understanding **harness design** (memory, tooling, parallelism) is part of modern AI-assisted development — not just the model weights.
+- Reports suggest **tiered models**: heavier models for hard reasoning steps and **smaller models** for lighter sub-tasks to preserve context budget and token spend (exact behavior depends on product settings).
+
+## Safety note
+
+The same moment produced many **third-party repos** claiming to replicate or port leaked internals. **Treat unknown scripts as untrusted** — malware has appeared in this wave. Prefer learning from **descriptions of the official product behavior**, primary docs, and code you can audit — not opaque "drop-in" ports from strangers.
+
+---
+
+# Topic 3: KV cache — caveats after the explainer {#topic-3-kv-cache-caveats}
+
+**Roadmap connection:** [Step 2 — Run a model locally](../roadmap.qmd)
+
+We reinforced a point from the roadmap's **KV cache** explainer (video linked in [Step 2](../roadmap.qmd)):
+
+- The **memory formula** in many explainers is a useful upper-bound mental model; **real KV memory** depends on **attention variant**, **precision**, **GQA/MQA**, and other architecture choices — so measured footprint is often **smaller** than the worst-case story.
+- The **Illustrated Transformer** and **Attention Is All You Need** remain the conceptual backbone; newer models add layers (e.g. different position handling, sliding windows) on top.
+
+---
+
+# Topic 4: Benchmark literacy — reading model cards {#topic-4-benchmark-literacy}
+
+**Roadmap connection:** [Step 2–3](../roadmap.qmd)
+
+Model launches advertise **benchmark scores**; the cohort roadmap includes a **reverse mapping**: for major benchmarks, **what is being measured** and **what a sample task looks like**.
+
+Examples called out in session:
+
+| Benchmark | What it tends to measure | Flavor of task |
+|---|---|---|
+| **HellaSwag** | Commonsense / plausible continuation | Pick the most plausible next sentence for a short paragraph |
+| **ARC (Challenge)** | Reasoning | Multi-step reasoning items |
+| **GSM8K** | Math word problems | Grade-school style math |
+| **SWE-bench** | Software engineering | Realistic coding / repair tasks |
+
+**How to use this:** when you read a README for a new checkpoint, you can ask: *which of these suites align with what I care about?* A model can be strong on one axis (e.g. images) and middling on another (general reasoning benchmarks) — **scores are not one number to rule them all**.
+
+---
+
+# Topic 5: Gemma 4 and Matryoshka-style sparsity {#topic-5-gemma-and-matryoshka}
+
+**Context:** brief discussion of **Gemma 4** reception (benchmarks vs. strengths in areas like image generation) and Google's broader model line (general vs. science/coding-focused variants).
+
+**Matryoshka-style idea (as discussed):** some architectures pack **nested or sparse structure** so you can run a **smaller effective model** from the same family without always resorting to post-hoc quantization alone — useful when you care about **cost–latency tradeoffs** at serving time.
+
+*(Exact Gemma 4 specs evolve; treat papers and model cards as the source of truth.)*
+
+---
+
+# Topic 6: Speedrun — nanoGPT, target loss, Tyler Romero's worklog {#topic-6-speedrun-nanogpt}
+
+**Roadmap connection:** [Step 4 — Training fundamentals](../roadmap.qmd) · [Project Watch](../project-watch/index.qmd)
+
+We connected back to **Session 2** ([27 March](2026-03-27.qmd)) and went deeper on the **nanoGPT / modded-nanogpt "speedrun"** challenge.
+
+## The challenge
+
+- Train a **small GPT-2–scale** model on a **standard dataset** until **validation loss** hits a **fixed target** (discussed in session: **~3.28** on the agreed task — a bar derived from strong public baselines).
+- Measure **time to target** on a fixed hardware class (e.g. **8 × H100** for leaderboard entries).
+- The **leaderboard** has pushed wall-clock times from **many hours** down to **minutes** — a live demonstration that **training engineering** matters as much as "big model" narratives.
+
+## Why run a toy job on serious GPUs?
+
+- A **short multi-GPU run** (minutes to a couple of hours) is **cheap enough to iterate** compared with training a **1B+ parameter** model for many hours or days.
+- Cloud **starter credits** often cover many experiments at this scale — making it a **pedagogical sandbox** for real distributed training.
+
+## Tyler Romero's worklog
+
+We used **[Tyler Romero's NanoGPT speedrun worklog](https://www.tylerromero.com/posts/nanogpt-speedrun-worklog/)** and the **[tyler-romero/nanogpt-speedrun](https://github.com/tyler-romero/nanogpt-speedrun)** repo as concrete artifacts: baseline times, commits, and architectural tweaks documented in the open.
+
+The related community project **[KellerJordan/modded-nanogpt](https://github.com/KellerJordan/modded-nanogpt)** tracks the evolving record times and changes.
+
+---
+
+# Topic 7: Distributed Data Parallelism (DDP) — gradients and all-reduce {#topic-7-ddp}
+
+**Roadmap connection:** [Step 4 — Training fundamentals](../roadmap.qmd)
+
+**DDP** is the first distributed strategy most learners meet: **replicate the full model on each GPU** and **split the batch** across devices.
+
+## Mental model
+
+```{mermaid}
+flowchart TD
+    subgraph GPUs ["Same model copy on each GPU"]
+        G0["GPU 0 — batch shard A"]
+        G1["GPU 1 — batch shard B"]
+    end
+    G0 --> F["Forward + backward → local gradients"]
+    G1 --> F
+    F --> AR["All-reduce: sum gradients, divide by world size"]
+    AR --> U["Optimizer step → same new weights everywhere"]
+    U --> N["Next minibatch"]
+```
+
+1. Each rank runs **forward** and **backward** on its **shard** of the data.
+2. Gradients are **aggregated** across ranks — typically **all-reduce** (sum then divide by **world size**) so every rank holds the **average gradient**.
+3. The **optimizer** updates weights; **all ranks** stay in **lockstep** with the **same** parameters before the next step.
+
+**Why average?** Each GPU only saw part of the data; averaging combines evidence from all shards into **one** update rule consistent with a larger global batch.
+
+**Global vs local batch:**  
+`global_batch_size ≈ local_batch_size × num_gpus × gradient_accumulation_steps` (exact layout depends on your script).
+
+---
+
+# Topic 8: Communication bubble, NVLink, and DeepSeek-style constraints {#topic-8-communication-and-deepseek}
+
+**Roadmap connection:** [Step 4](../roadmap.qmd#training-fundamentals)
+
+## The bubble
+
+If **networking between GPUs is slow** (or misconfigured), ranks **wait** on collectives (**all-reduce**, **broadcast**, etc.). **Idle GPU time** is the real "loss" — not numerical error in the collective itself.
+
+That is why serious multi-GPU rentals are sold as **pre-wired nodes** with **NVLink / NVSwitch** — you cannot always stitch arbitrary single-GPU instances into a high-bandwidth cluster.
+
+## DeepSeek under hardware pressure (teaching story)
+
+Export controls and hardware limits pushed teams to **optimize communication paths**, **pipeline schedules**, **mixed precision**, and even **low-level GPU instructions** — not only "more FLOPs."
+
+A readable starting point on the engineering story: **[DeepSeek's Low Level Hardware Magic](https://research.meekolab.com/deepseeks-low-level-hardware-magic)** (and related analyses). Themes relevant to training at scale:
+
+- **Bi-directional pipeline scheduling** (reduce idle "bubbles")
+- **Mixed precision** to fit more work in memory
+- **Custom kernels** and **GEMM fusion** — fusing operations (e.g. matmul chains) to keep SMs fed
+- **PTX-level** discoveries (instruction-level behavior) — illustrative of how far optimization can go
+
+**Parallelism beyond DDP:** when the **model does not fit one GPU**, you need **tensor**, **pipeline**, **expert** (for MoE), or **context** parallelism — often **combined** ("4D / 5D" training). **MoE** routes tokens to experts and leans heavily on **all-to-all** communication patterns.
+
+---
+
+# Topic 9: Muon optimizer — from speedrun contest to production models {#topic-9-muon-optimizer}
+
+**Roadmap connection:** [Step 4](../roadmap.qmd#training-fundamentals)
+
+The speedrun ecosystem produced **Muon** — an optimizer variant that escaped the leaderboard into **real checkpoints**. In session we noted examples cited in passing (**Kimi K2**, **GLM 4.5** — verify on each model card).
+
+**Takeaway:** small, reproducible contests are where **optimizer and architecture ideas** get battle-tested before wide adoption.
+
+---
+
+# Topic 10: RoPE in practice — RoFormer, Tyler's commits, training script walkthrough {#topic-10-rope-and-training-script}
+
+**Roadmap connection:** [Step 2](../roadmap.qmd#run-a-model-locally) · [Step 4](../roadmap.qmd#training-fundamentals)
+
+## Absolute vs rotary position embeddings
+
+Classic setups **add** a learned or sinusoidal **position vector to token embeddings**. **Rotary Position Embedding (RoPE)** — see **RoFormer** / **[RoPE paper](https://arxiv.org/abs/2104.09864)** — **injects relative position by rotating** **Q** and **K** in attention instead of adding a separate position vector to the residual stream. Benefits discussed include **relative distance** behavior and efficiency when implemented with caching.
+
+## What changed in Tyler's speedrun experiment (session summary)
+
+Walking the **diff / blog** (not line-by-line in notes): adding **RoPE**, tuning **learning-rate schedule** (e.g. trapezoidal / warmup), adjusting **batching** and **gradient accumulation**, and removing or changing **gradient clipping** — together moved a reported baseline on the order of **~8.3 hours** toward **~7.5 hours** while also affecting **token efficiency** (exact numbers: see Tyler's posts and commits).
+
+## Hyperparameters vs parameters
+
+- **Hyperparameters** — set before/during the run: learning rate schedule, batch sizes, sequence length, warmup steps, accumulation steps, etc.
+- **Parameters** — learned weights of the model.
+
+**Warmup steps** — early training often uses **lower LR** so optimization is stable while random initialization noise settles (exact schedule is experiment-specific).
+
+## Reading one DDP script
+
+We stepped through a **minimal DDP-style script** (pattern common in nanoGPT-style code):
+
+- **`rank` / `local_rank` / `world_size`** — which process this is in the cluster.
+- **`DistributedSampler`** — each rank receives its slice of the dataset.
+- **Loop** — forward, backward, **gradient accumulation** windows, then **all-reduce** of gradients, **optimizer.step()**, logging to **Weights & Biases** (or similar), **validation loss** check, stop when target hit.
+
+**Collectives vocabulary** (for later reading): **all-reduce**, **all-gather**, **reduce-scatter**, **broadcast**, **all-to-all** — different patterns appear as you move from DDP to MoE and large-scale parallelism.
+
+---
+
+## Follow-ups mentioned in session
+
+- A **deeper write-up on RoPE** and the **forward pass** of the speedrun script — to be added to the First Break AI site as the material matures.
+- Learner to read **RoFormer / RoPE** with the cohort's primer first to avoid getting lost in notation.
+
+---
+
+::: {.blog-back}
+[← Back to Office Hours](index.qmd) | [← Back to Roadmap](../roadmap.qmd)
+:::
