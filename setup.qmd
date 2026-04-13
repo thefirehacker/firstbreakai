@@ -1,6 +1,6 @@
 ---
 title: "AI Setup — Tools for the Cohort"
-description: "AI tools for the First Break AI cohort: Cursor IDE, Claude Code, ChatGPT, and Open Router. Start with free tiers and upgrade as you grow."
+description: "AI tools for the First Break AI cohort: Cursor IDE, Claude Code, ChatGPT, Open Router, Modal, E2E Networks, and Weights & Biases. Start with free tiers and upgrade as you grow."
 ---
 
 Tools you’ll use during the cohort. Start with the free tiers; upgrade as you grow.
@@ -18,3 +18,30 @@ You can start with the free tier. As your skills grow, a minimum ~$20/month subs
 ## Open Router
 
 [Open Router](https://openrouter.ai/) gives you a single API to many models. Check whether signup gives you free credits and use it for experimentation.
+
+## GPU Compute for Training
+
+When you reach [Step 4 — Training fundamentals](roadmap.qmd), you'll need GPU access to run distributed training jobs (DDP, nanoGPT speedrun, fine-tuning). Two options:
+
+### Modal (highly recommended)
+
+[Modal](https://modal.com/) lets you run GPU workloads from pure Python — no Docker, no YAML, no cloud console. Define your function, decorate it, and Modal handles the infra. Sub-second cold starts, instant autoscaling, and scale-to-zero billing.
+
+- **Free tier:** check whether signup gives you free credits — useful for initial experiments.
+- **GPU access:** H100, A100, A10G, and more — no reservations or quotas.
+- **Why we recommend it:** the fastest path from "I have a training script" to "it's running on 8 GPUs." The developer experience is outstanding.
+
+### E2E Networks
+
+[E2E Networks](https://www.e2enetworks.com/) is an India-based cloud with competitive GPU pricing. Useful if you want dedicated instances, longer training runs, or prefer a more traditional VM-style setup.
+
+- GPU instances (A100, H100) available on-demand or reserved.
+- Good option if you're based in India and want low-latency access and INR billing.
+
+## Weights & Biases (W&B)
+
+[Weights & Biases](https://wandb.ai/) is the standard tool for **experiment tracking** during model training. Log loss curves, hyperparameters, system metrics, and compare runs — all from a single dashboard.
+
+- **Free tier:** generous for individual use and small teams.
+- **Why it matters:** when you're doing speedrun experiments or fine-tuning, you need to see what changed between runs. W&B makes this effortless.
+- The nanoGPT speedrun scripts and Nemotron training recipes log directly to W&B.

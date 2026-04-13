@@ -7,7 +7,7 @@ css: ../styles/blog.css
 
 Office Hours are live cohort sessions where we go deeper on roadmap topics, debug together, and discuss what learners are working on. Each session is documented here as an expanded write-up — not just meeting notes, but context and explanations you can reference later.
 
-**To join office hours:** join the [BubblSpace Discord server](https://discord.gg/QZuBvfcj) — that's where we share the meeting link, time, and reminders.
+**To join office hours:** join the [Fetchlens.ai Discord server](https://discord.gg/QZuBvfcj) — that's where we share the meeting link, time, and reminders.
 
 ## Sessions
 
@@ -37,6 +37,18 @@ Transformer architecture deep dive — why attention replaced LSTMs, self-attent
 :::
 
 [Read session notes](2026-03-27.qmd){.blog-card-link}
+::::
+
+:::: {.blog-card .blog-card-oh}
+[Pre-cohort · Office Hours]{.blog-card-label}
+
+### 10 April 2026
+
+::: {.blog-card-desc}
+Learner LAN stock game (scope and shipping), Claude Code harness leak and safe learning, KV cache caveats, benchmark literacy, Gemma / Matryoshka, nanoGPT speedrun and Tyler Romero's worklog, DDP and all-reduce, NVLink and DeepSeek-style optimization, Muon optimizer, RoPE/RoFormer in code, and walking through a distributed training script.
+:::
+
+[Read session notes](2026-04-10.qmd){.blog-card-link}
 ::::
 
 :::
