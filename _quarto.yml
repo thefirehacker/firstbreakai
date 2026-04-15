@@ -63,6 +63,5 @@ format:
       - includes/mermaid-zoom.html
       - includes/github-card.html
       - includes/journey-player.html
-      - includes/fetchlens.html
     mermaid:
       theme: neutral
