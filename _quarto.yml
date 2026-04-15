@@ -14,7 +14,7 @@ project:
 website:
   title: "First Break AI"
   description: "A narrative-driven AI cohort — scroll through an immersive storyboard from first commit to capstone. Free, open, guided by AI podcast. Get your first break in AI."
-  site-url: "https://thefirehacker.github.io/firstbreakai/"
+  site-url: "https://cohort.bubblnet.com/"
   favicon: public/images/favicon_io/favicon.ico
   google-analytics: "G-V1B8R98P79"
   repo-url: "https://github.com/thefirehacker/firstbreakai"
