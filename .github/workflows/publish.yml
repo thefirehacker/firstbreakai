@@ -2,10 +2,10 @@ on:
   push:
     branches: [main]
 
-name: Render and publish to GitHub Pages
+name: Render and deploy
 
 jobs:
-  build-deploy:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -23,13 +23,19 @@ jobs:
       - name: Render site
         run: quarto render
 
-      - name: Upload artifact (site output)
+      - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: docs
 
-  deploy:
-    needs: build-deploy
+      - name: Upload Cloudflare artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloudflare-deploy
+          path: docs
+
+  deploy-github:
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -42,3 +48,21 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deploy
         uses: actions/deploy-pages@v4
+
+  deploy-cloudflare:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cloudflare-deploy
+          path: _cf_deploy
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy _cf_deploy --project-name=firstbreakai
