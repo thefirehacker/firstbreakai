@@ -11,9 +11,39 @@ css: styles/home.css
   <div class="hero-overlay">
     <div class="hero-text">
       <h1 class="hero-title">First Break AI</h1>
-      <p class="hero-tagline">Your first break in AI</p>
+      <p class="hero-tagline">Your first break in AI — a guided journey from first commit to capstone</p>
       <p class="hero-sub">Free, open cohort to upskill in training, inference, and AI product building.</p>
+      <a href="journey/" class="hero-journey-btn">Start the Journey &#9654;</a>
     </div>
+  </div>
+</div>
+
+<div class="journey-preview">
+  <div class="journey-preview-track">
+    <a href="journey/#scene-1" class="journey-preview-card">
+      <span class="journey-preview-num">1</span>
+      <span class="journey-preview-label">Ship something real</span>
+    </a>
+    <a href="journey/#scene-2" class="journey-preview-card">
+      <span class="journey-preview-num">2</span>
+      <span class="journey-preview-label">See inside the machine</span>
+    </a>
+    <a href="journey/#scene-3" class="journey-preview-card">
+      <span class="journey-preview-num">3</span>
+      <span class="journey-preview-label">Think at production scale</span>
+    </a>
+    <a href="journey/#scene-4" class="journey-preview-card">
+      <span class="journey-preview-num">4</span>
+      <span class="journey-preview-label">Train your own</span>
+    </a>
+    <a href="journey/#scene-5" class="journey-preview-card">
+      <span class="journey-preview-num">5</span>
+      <span class="journey-preview-label">Ship a product</span>
+    </a>
+    <a href="journey/#scene-6" class="journey-preview-card">
+      <span class="journey-preview-num">6</span>
+      <span class="journey-preview-label">Prove it</span>
+    </a>
   </div>
 </div>
 ```
@@ -46,6 +76,10 @@ This is a free, community-driven cohort. To join, sign up on Discord — that's 
 | [Roadmap](roadmap.qmd) | Learning path: Quarto blog, local inference, training, and beyond |
 | [Checklist](checklist.qmd) | Accounts to create (Hugging Face, GitHub, Fetchlens.ai, Colab) and who to follow |
 | [AI Setup](setup.qmd) | AI-based IDE (Cursor / Claude Code), ChatGPT, Open Router |
+
+::: {.ai-content-notice}
+**About AI-generated content:** Office hours transcripts and cohort material are used to create AI-generated podcast lessons, summaries, and other learning resources published on this site and [The Journey](journey/). All learner names are anonymized — no real names are used. By participating in office hours, you consent to your contributions being used in this way.
+:::
 
 :::
 

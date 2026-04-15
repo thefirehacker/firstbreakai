@@ -1,0 +1,199 @@
+<script>
+(function() {
+  var gate = document.getElementById('journeyGate');
+  if (!gate) return; // Only run on the journey page
+  var gateBtn = document.getElementById('journeyGateBtn');
+  var progress = document.getElementById('journeyProgress');
+  var progressFill = document.getElementById('journeyProgressFill');
+  var player = document.getElementById('journeyPlayer');
+  var playerSceneLabel = document.getElementById('playerSceneLabel');
+  var playerTitle = document.getElementById('playerTitle');
+  var playPauseBtn = document.getElementById('playerPlayPause');
+  var playIcon = playPauseBtn.querySelector('.play-icon');
+  var pauseIcon = playPauseBtn.querySelector('.pause-icon');
+  var seekBar = document.getElementById('playerSeek');
+  var timeDisplay = document.getElementById('playerTime');
+  var dots = document.querySelectorAll('.journey-progress-dot');
+  var scenes = document.querySelectorAll('.journey-scene');
+
+  var currentScene = null;
+  var currentAudio = null;
+  var audioUnlocked = false;
+  var seekDragging = false;
+
+  var sceneTitles = {
+    '1': 'Ship something real',
+    '2': 'See inside the machine',
+    '3': 'Think at production scale',
+    '4': 'Train your own',
+    '5': 'Ship a product',
+    '6': 'Prove it'
+  };
+
+  // Deep-link support: ?scene=N
+  function getSceneFromURL() {
+    var params = new URLSearchParams(window.location.search);
+    var s = params.get('scene');
+    return s && document.getElementById('scene-' + s) ? parseInt(s) : null;
+  }
+
+  // Gate: tap to begin
+  gateBtn.addEventListener('click', function() {
+    audioUnlocked = true;
+    gate.classList.add('hidden');
+    setTimeout(function() { gate.style.display = 'none'; }, 400);
+    progress.classList.add('visible');
+    player.classList.add('visible');
+
+    var target = getSceneFromURL();
+    if (target) {
+      var el = document.getElementById('scene-' + target);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+
+  // Format time as m:ss
+  function formatTime(sec) {
+    if (!sec || isNaN(sec)) return '0:00';
+    var m = Math.floor(sec / 60);
+    var s = Math.floor(sec % 60);
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  // Update player UI
+  function updatePlayerUI(sceneNum, playing) {
+    playerSceneLabel.textContent = 'Scene ' + sceneNum;
+    playerTitle.textContent = sceneTitles[sceneNum] || '';
+    playIcon.style.display = playing ? 'none' : 'inline';
+    pauseIcon.style.display = playing ? 'inline' : 'none';
+
+    dots.forEach(function(d) {
+      d.classList.toggle('active', d.dataset.scene === String(sceneNum));
+    });
+
+    var idx = parseInt(sceneNum) - 1;
+    var pct = ((idx + 1) / scenes.length) * 100;
+    progressFill.style.height = pct + '%';
+  }
+
+  // Play audio for a scene
+  function playScene(sceneNum) {
+    var scene = document.getElementById('scene-' + sceneNum);
+    if (!scene) return;
+
+    var audio = scene.querySelector('audio');
+
+    if (currentAudio && currentAudio !== audio) {
+      currentAudio.pause();
+    }
+
+    currentScene = sceneNum;
+    currentAudio = audio;
+    updatePlayerUI(sceneNum, false);
+
+    if (audio && audioUnlocked) {
+      audio.play().then(function() {
+        updatePlayerUI(sceneNum, true);
+      }).catch(function() {
+        updatePlayerUI(sceneNum, false);
+      });
+    }
+  }
+
+  // Pause current audio
+  function pauseCurrent() {
+    if (currentAudio) {
+      currentAudio.pause();
+      if (currentScene) updatePlayerUI(currentScene, false);
+    }
+  }
+
+  // Play/pause toggle
+  playPauseBtn.addEventListener('click', function() {
+    if (!currentAudio) return;
+    if (currentAudio.paused) {
+      currentAudio.play().then(function() {
+        updatePlayerUI(currentScene, true);
+      }).catch(function() {});
+    } else {
+      currentAudio.pause();
+      updatePlayerUI(currentScene, false);
+    }
+  });
+
+  // Seek bar interaction
+  seekBar.addEventListener('input', function() {
+    seekDragging = true;
+    if (currentAudio && currentAudio.duration) {
+      currentAudio.currentTime = (seekBar.value / 100) * currentAudio.duration;
+    }
+  });
+  seekBar.addEventListener('change', function() {
+    seekDragging = false;
+  });
+
+  // Update seek bar and time display
+  function tickPlayer() {
+    if (currentAudio && !seekDragging) {
+      var dur = currentAudio.duration || 0;
+      var cur = currentAudio.currentTime || 0;
+      seekBar.value = dur ? (cur / dur) * 100 : 0;
+      timeDisplay.textContent = formatTime(cur) + ' / ' + formatTime(dur);
+    }
+    requestAnimationFrame(tickPlayer);
+  }
+  requestAnimationFrame(tickPlayer);
+
+  // Dot navigation
+  dots.forEach(function(dot) {
+    dot.addEventListener('click', function() {
+      var num = dot.dataset.scene;
+      var el = document.getElementById('scene-' + num);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+
+  // IntersectionObserver for scroll-driven playback + fade-in
+  var activeSceneNum = null;
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      var el = entry.target;
+      var sceneNum = el.dataset.scene;
+
+      // Fade-in animation
+      if (entry.isIntersecting) {
+        el.classList.add('visible');
+      }
+
+      // Audio playback trigger at >50% visibility
+      if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+        if (sceneNum !== activeSceneNum) {
+          activeSceneNum = sceneNum;
+          playScene(sceneNum);
+        }
+      }
+    });
+  }, {
+    threshold: [0.1, 0.5]
+  });
+
+  scenes.forEach(function(s) {
+    observer.observe(s);
+  });
+
+  // Keyboard: Escape to close gate
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && gate.style.display !== 'none') {
+      gateBtn.click();
+    }
+  });
+
+  // Clean ?scene= from URL after load
+  var sceneParam = getSceneFromURL();
+  if (sceneParam) {
+    history.replaceState(null, '', window.location.pathname);
+  }
+})();
+</script>

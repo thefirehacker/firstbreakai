@@ -9,3 +9,7 @@ docs/
 
 # # temp files 
 # temp/*
+
+
+# Audio Transcripts
+audio-transcripts/*
