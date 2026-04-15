@@ -4,10 +4,12 @@ Free, open cohort for your first break in AI. Live site: [cohort.bubblnet.com](h
 
 ## Deploying the site
 
-Built with [Quarto](https://quarto.org/); the `publish.yml` workflow renders and deploys on push to `main`. Local preview:
+Built with [Quarto](https://quarto.org/) and deployed to **Cloudflare Pages**. The `publish.yml` workflow renders the site and deploys on push to `main`.
+
+Local preview:
 
 ```bash
-quarto preview --port 4200
+quarto preview --port 5942
 ```
 
 Using a fixed port keeps the R2 CORS policy stable (see below).
@@ -93,11 +95,17 @@ Replace every `N` with the scene number (e.g. `transcriptToggle2`, `sceneTranscr
 - [ ] Upload `.json` transcript to R2 (if applicable)
 - [ ] Add/update `<audio>` in `journey/index.qmd` with `data-r2`, `data-chapters`, `data-transcript`
 - [ ] Add transcript panel HTML with matching IDs (`transcriptToggleN`, `sceneTranscriptN`)
-- [ ] Preview locally with `quarto preview --port 4200`
+- [ ] Preview locally with `quarto preview --port 5942`
 
 ### CORS
 
-The R2 bucket CORS policy must allow the origins that serve the site. The current policy uses `"*"` for allowed origins. If you switch to explicit origins, include `http://localhost:4200` for local development and your GitHub Pages domain for production.
+The R2 bucket CORS policy allows specific origins to fetch audio and transcript files:
+
+- `https://cohort.bubblnet.com` — production site
+- `https://firstbreakai.pages.dev` — Cloudflare Pages default domain
+- `http://localhost:5942` — local Quarto preview
+
+Update the policy via **Cloudflare Dashboard → R2 → bucket → Settings → CORS Policy**.
 
 ## Contributing
 
