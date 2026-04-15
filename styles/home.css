@@ -30,8 +30,8 @@ header#title-block-header {
   z-index: 1;
   text-align: center;
   width: 100%;
-  background: linear-gradient(to top, rgba(20, 18, 14, 0.7) 0%, rgba(20, 18, 14, 0.4) 60%, transparent 100%);
-  padding: 2rem 1.5rem 1.25rem;
+  background: linear-gradient(to top, rgba(20, 18, 14, 0.88) 0%, rgba(20, 18, 14, 0.7) 50%, rgba(20, 18, 14, 0.3) 80%, transparent 100%);
+  padding: 2.5rem 1.5rem 1.5rem;
 }
 .hero-text {
   max-width: 700px;
@@ -42,24 +42,115 @@ header#title-block-header {
   font-size: 2.4rem;
   font-weight: 800;
   letter-spacing: -0.03em;
-  margin: 0 0 0.15rem;
-  text-shadow: 0 2px 16px rgba(0,0,0,0.5), 0 1px 4px rgba(0,0,0,0.3);
+  margin: 0 0 0.25rem;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.7), 0 1px 6px rgba(0,0,0,0.5);
 }
 .hero-tagline {
   color: #f0ebe1;
   font-size: 1.15rem;
-  font-weight: 400;
-  margin: 0 0 0.4rem;
+  font-weight: 500;
+  margin: 0 0 0.5rem;
   letter-spacing: 0.02em;
-  text-shadow: 0 1px 8px rgba(0,0,0,0.4);
+  text-shadow: 0 2px 12px rgba(0,0,0,0.6), 0 1px 4px rgba(0,0,0,0.4);
 }
 .hero-sub {
-  color: rgba(240,235,225,0.9);
+  color: rgba(240,235,225,0.95);
   font-size: 0.95rem;
   max-width: 520px;
   margin: 0 auto;
   line-height: 1.5;
-  text-shadow: 0 1px 6px rgba(0,0,0,0.4);
+  text-shadow: 0 2px 10px rgba(0,0,0,0.6), 0 1px 4px rgba(0,0,0,0.4);
+}
+
+/* ── Hero journey CTA button ── */
+.hero-journey-btn {
+  display: inline-block;
+  margin-top: 0.85rem;
+  background: #d4a74a;
+  color: #1a1510;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.65rem 1.75rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 16px rgba(212, 167, 74, 0.3);
+}
+.hero-journey-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(212, 167, 74, 0.45);
+  color: #1a1510;
+  text-decoration: none;
+}
+
+/* ── Journey preview strip ── */
+.journey-preview {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  background: #2c2417;
+  padding: 1.25rem 1.5rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.journey-preview-track {
+  display: flex;
+  gap: 0.75rem;
+  max-width: 900px;
+  margin: 0 auto;
+  justify-content: center;
+}
+.journey-preview-card {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(240, 235, 225, 0.08);
+  border: 1px solid rgba(240, 235, 225, 0.12);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.85rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.journey-preview-card:hover {
+  background: rgba(212, 167, 74, 0.15);
+  border-color: rgba(212, 167, 74, 0.4);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+.journey-preview-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: #d4a74a;
+  color: #1a1510;
+  font-size: 0.7rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.journey-preview-label {
+  color: #f0ebe1;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ── AI content notice ── */
+.ai-content-notice {
+  margin-top: 2rem;
+  padding: 1rem 1.25rem;
+  background: rgba(122, 85, 24, 0.06);
+  border-left: 3px solid #b8a88a;
+  border-radius: 0 0.4rem 0.4rem 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: #3d3428;
+}
+.ai-content-notice strong {
+  color: #1a1510;
 }
 
 /* ── Content section ── */
@@ -127,6 +218,10 @@ header#title-block-header {
   .hero-title { font-size: 1.8rem; }
   .hero-tagline { font-size: 1rem; }
   .hero-sub { font-size: 0.85rem; }
+  .hero-journey-btn { font-size: 0.9rem; padding: 0.55rem 1.25rem; }
+
+  .journey-preview { padding: 1rem; }
+  .journey-preview-track { justify-content: flex-start; }
 
   .content-section { padding: 1.5rem 1rem 2rem; }
 
@@ -140,4 +235,7 @@ header#title-block-header {
   .hero-title { font-size: 1.4rem; }
   .hero-tagline { font-size: 0.9rem; }
   .hero-sub { font-size: 0.8rem; }
+  .hero-journey-btn { font-size: 0.85rem; padding: 0.5rem 1rem; }
+
+  .journey-preview-label { font-size: 0.7rem; }
 }
