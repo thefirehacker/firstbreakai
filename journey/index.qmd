@@ -6,6 +6,9 @@ css: ../styles/journey.css
 ---
 
 ```{=html}
+<!-- R2 audio base URL — update this after creating your Cloudflare R2 bucket -->
+<script>var AUDIO_BASE = 'https://firstbreakai.bubblnet.com';</script>
+
 <!-- Tap-to-begin gate for mobile autoplay -->
 <div class="journey-gate" id="journeyGate">
   <div class="journey-gate-content">
@@ -35,18 +38,42 @@ css: ../styles/journey.css
 
 <!-- Sticky mini-player -->
 <div class="journey-player" id="journeyPlayer">
-  <div class="journey-player-inner">
-    <span class="journey-player-scene" id="playerSceneLabel">Scene 1</span>
-    <span class="journey-player-title" id="playerTitle">Ship something real</span>
-    <button class="journey-player-btn" id="playerPlayPause" aria-label="Play/Pause">
-      <span class="play-icon">&#9654;</span>
-      <span class="pause-icon" style="display:none">&#10074;&#10074;</span>
-    </button>
-    <div class="journey-player-seek">
-      <input type="range" min="0" max="100" value="0" id="playerSeek" aria-label="Seek">
+  <!-- Chapter list dropdown (opens above player) -->
+  <div class="player-chapter-list" id="playerChapterList"></div>
+
+  <!-- Row 1: Seek bar -->
+  <div class="player-seek-row">
+    <span class="player-time" id="playerTimeCurrent">0:00</span>
+    <div class="player-seek-track" id="playerSeekTrack">
+      <div class="player-seek-buffered" id="playerSeekBuffered"></div>
+      <div class="player-seek-filled" id="playerSeekFilled"></div>
+      <div class="player-seek-markers" id="playerSeekMarkers"></div>
+      <div class="player-seek-thumb" id="playerSeekThumb"></div>
     </div>
-    <span class="journey-player-time" id="playerTime">0:00</span>
+    <span class="player-time" id="playerTimeDuration">0:00</span>
   </div>
+
+  <!-- Row 2: Info + Controls + Chapter -->
+  <div class="player-controls-row">
+    <div class="player-info">
+      <span class="player-scene-label" id="playerSceneLabel">Scene 1</span>
+      <span class="player-scene-title" id="playerTitle">Ship something real</span>
+    </div>
+    <div class="player-controls">
+      <button class="player-btn player-skip-btn" id="playerSkipBack" aria-label="Back 15s" title="Back 15s">-15</button>
+      <button class="player-btn player-play-btn" id="playerPlayPause" aria-label="Play/Pause">
+        <span class="play-icon">&#9654;</span>
+        <span class="pause-icon" style="display:none">&#10074;&#10074;</span>
+      </button>
+      <button class="player-btn player-skip-btn" id="playerSkipFwd" aria-label="Forward 15s" title="Forward 15s">+15</button>
+    </div>
+    <div class="player-right">
+      <span class="player-chapter-title" id="playerChapterTitle"></span>
+      <button class="player-btn player-chapters-toggle" id="playerChapterBtn" aria-label="Chapters" title="Show chapters">&#9776; Chapters</button>
+    </div>
+  </div>
+
+  <input type="hidden" id="playerSeek" value="0">
 </div>
 
 <!-- ═══════════════ SCENE 1 ═══════════════ -->
@@ -65,9 +92,28 @@ css: ../styles/journey.css
       <a href="../roadmap.qmd">Roadmap — Step 1</a>
       <a href="../office-hours/2026-03-13.qmd#topic-1-github-collaboration">GitHub collaboration (Office Hours)</a>
     </div>
-    <audio preload="metadata" data-scene="1">
-      <source src="../public/audio/scene-1.mp3" type="audio/mpeg">
+    <audio preload="auto" data-scene="1"
+      data-transcript="scene-1_eng.json"
+      data-chapters='[
+        {"t": 0, "title": "Intro: The rigorous AI cohort"},
+        {"t": 46, "title": "Ship something real"},
+        {"t": 110, "title": "The core deliverable"},
+        {"t": 129, "title": "Why Quarto isn't WordPress"},
+        {"t": 240, "title": "GitHub and PR workflow"},
+        {"t": 316, "title": "Merge conflicts and rebase"},
+        {"t": 498, "title": "AI IDEs: Cursor vs Claude Code"},
+        {"t": 655, "title": "Claude Code architecture leak"},
+        {"t": 811, "title": "Supply chain security"},
+        {"t": 915, "title": "Why cohorts beat self-paced"},
+        {"t": 1066, "title": "The foundation you have built"},
+        {"t": 1113, "title": "What is next: Pure C inference"}
+      ]'>
+      <source data-r2="scene-1.mp3" src="../public/audio/scene-1.mp3" type="audio/mpeg">
     </audio>
+    <div class="scene-transcript-wrap">
+      <button class="transcript-toggle" type="button" id="transcriptToggle1">Show Transcript</button>
+      <div class="scene-transcript" id="sceneTranscript1"></div>
+    </div>
   </div>
 </section>
 
@@ -88,8 +134,8 @@ css: ../styles/journey.css
       <a href="../blog/model-formats-gguf-safetensors.qmd">GGUF vs SafeTensors</a>
       <a href="../office-hours/2026-03-27.qmd#topic-2-transformer-architecture-breakthroughs">Transformer breakthroughs (Office Hours)</a>
     </div>
-    <audio preload="metadata" data-scene="2">
-      <source src="../public/audio/scene-2.mp3" type="audio/mpeg">
+    <audio preload="auto" data-scene="2">
+      <source data-r2="scene-2.mp3" src="../public/audio/scene-2.mp3" type="audio/mpeg">
     </audio>
   </div>
 </section>
@@ -111,8 +157,8 @@ css: ../styles/journey.css
       <a href="../office-hours/2026-03-27.qmd#topic-6-the-three-pillars-of-model-development">Three pillars of model development (Office Hours)</a>
       <a href="../project-watch/unsloth-monkey-patching.qmd">Project Watch: Unsloth</a>
     </div>
-    <audio preload="metadata" data-scene="3">
-      <source src="../public/audio/scene-3.mp3" type="audio/mpeg">
+    <audio preload="auto" data-scene="3">
+      <source data-r2="scene-3.mp3" src="../public/audio/scene-3.mp3" type="audio/mpeg">
     </audio>
   </div>
 </section>
@@ -134,8 +180,8 @@ css: ../styles/journey.css
       <a href="../office-hours/2026-04-10.qmd#topic-6-speedrun-nanogpt">Speedrun — nanoGPT (Office Hours)</a>
       <a href="../project-watch/autoresearch.qmd">Project Watch: Auto Research GPT</a>
     </div>
-    <audio preload="metadata" data-scene="4">
-      <source src="../public/audio/scene-4.mp3" type="audio/mpeg">
+    <audio preload="auto" data-scene="4">
+      <source data-r2="scene-4.mp3" src="../public/audio/scene-4.mp3" type="audio/mpeg">
     </audio>
   </div>
 </section>

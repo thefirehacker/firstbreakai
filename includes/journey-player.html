@@ -1,7 +1,7 @@
 <script>
 (function() {
   var gate = document.getElementById('journeyGate');
-  if (!gate) return; // Only run on the journey page
+  if (!gate) return;
   var gateBtn = document.getElementById('journeyGateBtn');
   var progress = document.getElementById('journeyProgress');
   var progressFill = document.getElementById('journeyProgressFill');
@@ -11,15 +11,31 @@
   var playPauseBtn = document.getElementById('playerPlayPause');
   var playIcon = playPauseBtn.querySelector('.play-icon');
   var pauseIcon = playPauseBtn.querySelector('.pause-icon');
-  var seekBar = document.getElementById('playerSeek');
-  var timeDisplay = document.getElementById('playerTime');
+  var seekTrack = document.getElementById('playerSeekTrack');
+  var seekFilled = document.getElementById('playerSeekFilled');
+  var seekBuffered = document.getElementById('playerSeekBuffered');
+  var seekThumb = document.getElementById('playerSeekThumb');
+  var seekMarkers = document.getElementById('playerSeekMarkers');
+  var timeCurrent = document.getElementById('playerTimeCurrent');
+  var timeDuration = document.getElementById('playerTimeDuration');
+  var chapterBtn = document.getElementById('playerChapterBtn');
+  var chapterList = document.getElementById('playerChapterList');
+  var chapterTitle = document.getElementById('playerChapterTitle');
+  var skipBackBtn = document.getElementById('playerSkipBack');
+  var skipFwdBtn = document.getElementById('playerSkipFwd');
   var dots = document.querySelectorAll('.journey-progress-dot');
   var scenes = document.querySelectorAll('.journey-scene');
 
+  var audioBase = window.AUDIO_BASE || '';
   var currentScene = null;
   var currentAudio = null;
+  var currentChapters = [];
   var audioUnlocked = false;
   var seekDragging = false;
+  var chapterListOpen = false;
+  var transcriptSegments = [];
+  var transcriptPanel = null;
+  var activeTranscriptIdx = -1;
 
   var sceneTitles = {
     '1': 'Ship something real',
@@ -30,21 +46,27 @@
     '6': 'Prove it'
   };
 
-  // Deep-link support: ?scene=N
+  // Rewrite audio sources to use R2 if base URL is configured
+  if (audioBase) {
+    document.querySelectorAll('source[data-r2]').forEach(function(src) {
+      src.setAttribute('src', audioBase + '/' + src.dataset.r2);
+      var audio = src.parentElement;
+      if (audio && audio.tagName === 'AUDIO') audio.load();
+    });
+  }
+
   function getSceneFromURL() {
     var params = new URLSearchParams(window.location.search);
     var s = params.get('scene');
     return s && document.getElementById('scene-' + s) ? parseInt(s) : null;
   }
 
-  // Gate: tap to begin
   gateBtn.addEventListener('click', function() {
     audioUnlocked = true;
     gate.classList.add('hidden');
     setTimeout(function() { gate.style.display = 'none'; }, 400);
     progress.classList.add('visible');
     player.classList.add('visible');
-
     var target = getSceneFromURL();
     if (target) {
       var el = document.getElementById('scene-' + target);
@@ -52,7 +74,6 @@
     }
   });
 
-  // Format time as m:ss
   function formatTime(sec) {
     if (!sec || isNaN(sec)) return '0:00';
     var m = Math.floor(sec / 60);
@@ -60,85 +81,332 @@
     return m + ':' + (s < 10 ? '0' : '') + s;
   }
 
-  // Update player UI
-  function updatePlayerUI(sceneNum, playing) {
-    playerSceneLabel.textContent = 'Scene ' + sceneNum;
-    playerTitle.textContent = sceneTitles[sceneNum] || '';
+  function getChapters(audio) {
+    if (!audio) return [];
+    var raw = audio.getAttribute('data-chapters');
+    if (!raw) return [];
+    try { return JSON.parse(raw); } catch(e) { return []; }
+  }
+
+  function getCurrentChapter(chapters, time) {
+    if (!chapters.length) return null;
+    for (var i = chapters.length - 1; i >= 0; i--) {
+      if (time >= chapters[i].t) return { index: i, chapter: chapters[i] };
+    }
+    return { index: 0, chapter: chapters[0] };
+  }
+
+  function renderSeekMarkers(chapters, duration) {
+    seekMarkers.innerHTML = '';
+    if (!chapters.length || !duration) return;
+    chapters.forEach(function(ch) {
+      if (ch.t <= 0) return;
+      var pct = (ch.t / duration) * 100;
+      var marker = document.createElement('div');
+      marker.className = 'seek-marker';
+      marker.style.left = pct + '%';
+      marker.title = formatTime(ch.t) + ' — ' + ch.title;
+      seekMarkers.appendChild(marker);
+    });
+  }
+
+  function renderChapterList(chapters) {
+    chapterList.innerHTML = '';
+    if (!chapters.length) {
+      chapterBtn.style.display = 'none';
+      return;
+    }
+    chapterBtn.style.display = '';
+    chapters.forEach(function(ch, i) {
+      var item = document.createElement('button');
+      item.className = 'chapter-item';
+      item.setAttribute('type', 'button');
+      item.dataset.index = i;
+      item.innerHTML = '<span class="chapter-time">' + formatTime(ch.t) + '</span>' +
+                        '<span class="chapter-name">' + ch.title + '</span>';
+      item.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (currentAudio) {
+          currentAudio.currentTime = ch.t;
+          if (currentAudio.paused && audioUnlocked) {
+            currentAudio.play().then(function() {
+              updatePlayButton(true);
+            }).catch(function() {});
+          }
+        }
+        toggleChapterList(false);
+      });
+      chapterList.appendChild(item);
+    });
+  }
+
+  function highlightActiveChapter(index) {
+    var items = chapterList.querySelectorAll('.chapter-item');
+    items.forEach(function(item, i) {
+      item.classList.toggle('active', i === index);
+    });
+  }
+
+  function toggleChapterList(forceState) {
+    chapterListOpen = forceState !== undefined ? forceState : !chapterListOpen;
+    chapterList.classList.toggle('visible', chapterListOpen);
+    chapterBtn.classList.toggle('active', chapterListOpen);
+  }
+
+  function updatePlayButton(playing) {
     playIcon.style.display = playing ? 'none' : 'inline';
     pauseIcon.style.display = playing ? 'inline' : 'none';
+  }
 
+  function updatePlayerUI(sceneNum) {
+    playerSceneLabel.textContent = 'Scene ' + sceneNum;
+    playerTitle.textContent = sceneTitles[sceneNum] || '';
     dots.forEach(function(d) {
       d.classList.toggle('active', d.dataset.scene === String(sceneNum));
     });
-
     var idx = parseInt(sceneNum) - 1;
     var pct = ((idx + 1) / scenes.length) * 100;
     progressFill.style.height = pct + '%';
   }
 
-  // Play audio for a scene
-  function playScene(sceneNum) {
+  // --- Interactive transcript ---
+
+  function loadTranscript(sceneNum, audio) {
+    var transcriptFile = audio ? audio.getAttribute('data-transcript') : null;
+    transcriptPanel = document.getElementById('sceneTranscript' + sceneNum);
+    var toggleBtn = document.getElementById('transcriptToggle' + sceneNum);
+    transcriptSegments = [];
+    activeTranscriptIdx = -1;
+
+    if (!transcriptFile || !transcriptPanel) return;
+
+    // Wire toggle button
+    if (toggleBtn && !toggleBtn.dataset.wired) {
+      toggleBtn.dataset.wired = '1';
+      toggleBtn.addEventListener('click', function() {
+        var open = transcriptPanel.classList.toggle('visible');
+        toggleBtn.classList.toggle('active', open);
+        toggleBtn.textContent = open ? 'Hide Transcript' : 'Show Transcript';
+      });
+    }
+
+    if (transcriptPanel.dataset.loaded) {
+      transcriptSegments = JSON.parse(transcriptPanel.dataset.segments || '[]');
+      return;
+    }
+
+    var jsonUrl = (audioBase || '../public/audio') + '/' + transcriptFile;
+    fetch(jsonUrl).then(function(r) { return r.json(); }).then(function(data) {
+      transcriptSegments = data.segments || [];
+      transcriptPanel.innerHTML = '';
+      transcriptSegments.forEach(function(seg, i) {
+        var div = document.createElement('div');
+        div.className = 'transcript-seg ' + (seg.speaker ? seg.speaker.id.replace('speaker_', 'speaker-') : '');
+        div.dataset.idx = i;
+        div.dataset.start = seg.start_time;
+        div.dataset.end = seg.end_time;
+        var speakerLabel = seg.speaker && seg.speaker.id === 'speaker_0' ? 'A' : 'B';
+        div.innerHTML =
+          '<span class="transcript-time">' + formatTime(seg.start_time) + '</span>' +
+          '<span class="transcript-speaker">' + speakerLabel + '</span>' +
+          '<span class="transcript-text">' + seg.text.trim() + '</span>';
+        div.addEventListener('click', function() {
+          if (currentAudio) {
+            currentAudio.currentTime = seg.start_time;
+            if (currentAudio.paused && audioUnlocked) {
+              currentAudio.play().then(function() {
+                updatePlayButton(true);
+              }).catch(function() {});
+            }
+          }
+        });
+        transcriptPanel.appendChild(div);
+      });
+      transcriptPanel.dataset.loaded = '1';
+      transcriptPanel.dataset.segments = JSON.stringify(transcriptSegments.map(function(s) {
+        return { start_time: s.start_time, end_time: s.end_time };
+      }));
+    }).catch(function(err) {
+      transcriptPanel.innerHTML = '<p style="color:#999;font-size:0.8rem;">Transcript not available.</p>';
+    });
+  }
+
+  function updateTranscriptHighlight(time) {
+    if (!transcriptPanel || !transcriptSegments.length) return;
+    var newIdx = -1;
+    for (var i = transcriptSegments.length - 1; i >= 0; i--) {
+      var seg = transcriptSegments[i];
+      var start = typeof seg === 'object' && seg.start_time !== undefined ? seg.start_time : seg;
+      if (time >= start) { newIdx = i; break; }
+    }
+    if (newIdx === activeTranscriptIdx) return;
+    activeTranscriptIdx = newIdx;
+    var items = transcriptPanel.querySelectorAll('.transcript-seg');
+    items.forEach(function(el, i) {
+      var isActive = i === newIdx;
+      el.classList.toggle('active', isActive);
+      if (isActive && transcriptPanel.classList.contains('visible')) {
+        el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      }
+    });
+  }
+
+  // --- Scene switching ---
+
+  function switchToScene(sceneNum) {
     var scene = document.getElementById('scene-' + sceneNum);
     if (!scene) return;
-
     var audio = scene.querySelector('audio');
+
+    currentScene = sceneNum;
+    updatePlayerUI(sceneNum);
+
+    if (!audio) {
+      renderChapterList([]);
+      chapterTitle.textContent = '';
+      transcriptPanel = null;
+      transcriptSegments = [];
+      return;
+    }
 
     if (currentAudio && currentAudio !== audio) {
       currentAudio.pause();
     }
 
-    currentScene = sceneNum;
     currentAudio = audio;
-    updatePlayerUI(sceneNum, false);
+    currentChapters = getChapters(audio);
+    renderChapterList(currentChapters);
+    updatePlayButton(!audio.paused);
+    loadTranscript(sceneNum, audio);
 
-    if (audio && audioUnlocked) {
+    if (audio.duration) {
+      renderSeekMarkers(currentChapters, audio.duration);
+      timeDuration.textContent = formatTime(audio.duration);
+    } else {
+      audio.addEventListener('loadedmetadata', function onMeta() {
+        renderSeekMarkers(currentChapters, audio.duration);
+        timeDuration.textContent = formatTime(audio.duration);
+        audio.removeEventListener('loadedmetadata', onMeta);
+      });
+    }
+
+    if (audioUnlocked) {
       audio.play().then(function() {
-        updatePlayerUI(sceneNum, true);
+        updatePlayButton(true);
       }).catch(function() {
-        updatePlayerUI(sceneNum, false);
+        updatePlayButton(false);
       });
     }
   }
 
-  // Pause current audio
-  function pauseCurrent() {
-    if (currentAudio) {
-      currentAudio.pause();
-      if (currentScene) updatePlayerUI(currentScene, false);
-    }
-  }
-
-  // Play/pause toggle
+  // Play/pause
   playPauseBtn.addEventListener('click', function() {
     if (!currentAudio) return;
     if (currentAudio.paused) {
       currentAudio.play().then(function() {
-        updatePlayerUI(currentScene, true);
+        updatePlayButton(true);
       }).catch(function() {});
     } else {
       currentAudio.pause();
-      updatePlayerUI(currentScene, false);
+      updatePlayButton(false);
     }
   });
 
-  // Seek bar interaction
-  seekBar.addEventListener('input', function() {
-    seekDragging = true;
+  skipBackBtn.addEventListener('click', function() {
+    if (currentAudio) currentAudio.currentTime = Math.max(0, currentAudio.currentTime - 15);
+  });
+
+  skipFwdBtn.addEventListener('click', function() {
     if (currentAudio && currentAudio.duration) {
-      currentAudio.currentTime = (seekBar.value / 100) * currentAudio.duration;
+      currentAudio.currentTime = Math.min(currentAudio.duration, currentAudio.currentTime + 15);
     }
   });
-  seekBar.addEventListener('change', function() {
-    seekDragging = false;
+
+  chapterBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    toggleChapterList();
   });
 
-  // Update seek bar and time display
+  document.addEventListener('click', function(e) {
+    if (chapterListOpen && !chapterList.contains(e.target) && e.target !== chapterBtn) {
+      toggleChapterList(false);
+    }
+  });
+
+  // Seek bar
+  function seekFromEvent(e) {
+    if (!currentAudio || !currentAudio.duration) return;
+    var rect = seekTrack.getBoundingClientRect();
+    var pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    currentAudio.currentTime = pct * currentAudio.duration;
+  }
+
+  seekTrack.addEventListener('mousedown', function(e) {
+    seekDragging = true;
+    seekTrack.classList.add('dragging');
+    seekFromEvent(e);
+  });
+  document.addEventListener('mousemove', function(e) {
+    if (seekDragging) seekFromEvent(e);
+  });
+  document.addEventListener('mouseup', function() {
+    if (seekDragging) {
+      seekDragging = false;
+      seekTrack.classList.remove('dragging');
+    }
+  });
+  seekTrack.addEventListener('touchstart', function(e) {
+    seekDragging = true;
+    seekTrack.classList.add('dragging');
+    seekFromEvent(e.touches[0]);
+  }, { passive: true });
+  document.addEventListener('touchmove', function(e) {
+    if (seekDragging) seekFromEvent(e.touches[0]);
+  }, { passive: true });
+  document.addEventListener('touchend', function() {
+    if (seekDragging) {
+      seekDragging = false;
+      seekTrack.classList.remove('dragging');
+    }
+  });
+
+  // Tick: seek bar, time, chapter, buffered, transcript
   function tickPlayer() {
-    if (currentAudio && !seekDragging) {
+    if (currentAudio) {
       var dur = currentAudio.duration || 0;
       var cur = currentAudio.currentTime || 0;
-      seekBar.value = dur ? (cur / dur) * 100 : 0;
-      timeDisplay.textContent = formatTime(cur) + ' / ' + formatTime(dur);
+      var pct = dur ? (cur / dur) * 100 : 0;
+
+      if (!seekDragging) {
+        seekFilled.style.width = pct + '%';
+        seekThumb.style.left = pct + '%';
+      }
+
+      // Buffered range
+      if (dur && currentAudio.buffered && currentAudio.buffered.length > 0) {
+        var buffEnd = currentAudio.buffered.end(currentAudio.buffered.length - 1);
+        seekBuffered.style.width = (buffEnd / dur) * 100 + '%';
+      }
+
+      timeCurrent.textContent = formatTime(cur);
+      if (dur) timeDuration.textContent = formatTime(dur);
+
+      updatePlayButton(!currentAudio.paused);
+
+      if (currentChapters.length) {
+        var info = getCurrentChapter(currentChapters, cur);
+        if (info) {
+          chapterTitle.textContent = info.chapter.title;
+          chapterTitle.style.display = '';
+          highlightActiveChapter(info.index);
+        }
+      } else {
+        chapterTitle.textContent = '';
+        chapterTitle.style.display = 'none';
+      }
+
+      updateTranscriptHighlight(cur);
     }
     requestAnimationFrame(tickPlayer);
   }
@@ -149,48 +417,46 @@
     dot.addEventListener('click', function() {
       var num = dot.dataset.scene;
       var el = document.getElementById('scene-' + num);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
-      }
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
     });
   });
 
-  // IntersectionObserver for scroll-driven playback + fade-in
+  // IntersectionObserver
   var activeSceneNum = null;
   var observer = new IntersectionObserver(function(entries) {
     entries.forEach(function(entry) {
       var el = entry.target;
       var sceneNum = el.dataset.scene;
-
-      // Fade-in animation
-      if (entry.isIntersecting) {
-        el.classList.add('visible');
-      }
-
-      // Audio playback trigger at >50% visibility
+      if (entry.isIntersecting) el.classList.add('visible');
       if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
         if (sceneNum !== activeSceneNum) {
           activeSceneNum = sceneNum;
-          playScene(sceneNum);
+          switchToScene(sceneNum);
         }
       }
     });
-  }, {
-    threshold: [0.1, 0.5]
-  });
+  }, { threshold: [0.1, 0.5] });
+  scenes.forEach(function(s) { observer.observe(s); });
 
-  scenes.forEach(function(s) {
-    observer.observe(s);
-  });
-
-  // Keyboard: Escape to close gate
+  // Keyboard shortcuts
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && gate.style.display !== 'none') {
-      gateBtn.click();
+    if (e.key === 'Escape') {
+      if (chapterListOpen) { toggleChapterList(false); return; }
+      if (gate.style.display !== 'none') { gateBtn.click(); return; }
+    }
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === ' ' || e.key === 'k') {
+      e.preventDefault();
+      playPauseBtn.click();
+    } else if (e.key === 'ArrowLeft' || e.key === 'j') {
+      if (currentAudio) currentAudio.currentTime = Math.max(0, currentAudio.currentTime - 15);
+    } else if (e.key === 'ArrowRight' || e.key === 'l') {
+      if (currentAudio && currentAudio.duration) {
+        currentAudio.currentTime = Math.min(currentAudio.duration, currentAudio.currentTime + 15);
+      }
     }
   });
 
-  // Clean ?scene= from URL after load
   var sceneParam = getSceneFromURL();
   if (sceneParam) {
     history.replaceState(null, '', window.location.pathname);

@@ -13,3 +13,6 @@ docs/
 
 # Audio Transcripts
 audio-transcripts/*
+
+# Large audio files (hosted on Cloudflare R2)
+public/audio/*.mp3
