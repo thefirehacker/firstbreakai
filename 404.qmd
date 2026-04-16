@@ -1,0 +1,6 @@
+---
+title: "Page Not Found"
+pagetitle: "404 — First Break AI"
+---
+
+This page doesn't exist. Go back to the [Roadmap](roadmap.qmd) or [Home](index.qmd).
