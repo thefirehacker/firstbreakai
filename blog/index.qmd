@@ -59,6 +59,18 @@ vLLM, quantization, batching, APIs.
 [See Roadmap](../roadmap.qmd){.blog-card-link}
 ::::
 
+:::: {.blog-card .blog-card-step-4}
+[Step 4]{.blog-card-label}
+
+### Reading the Curves (LLM training)
+
+::: {.blog-card-desc}
+W&B checklists, tokens vs steps, OLMo checkpoints, Marin 32B and QK-Norm warm-start—how real LLMs learn, spike, and stabilize.
+:::
+
+[Read guide](reading-the-curves-llm-training.qmd){.blog-card-link}
+::::
+
 :::
 
 ::: {.blog-back}

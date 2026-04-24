@@ -1,0 +1,269 @@
+---
+title: "Office Hours — 24 April 2026"
+description: "NanoGPT speedrun infrastructure: modded-nanogpt repo walkthrough, 8x H100 cost and cloud GPU options, Modal for containerized training, Accelerate and DDP vs FSDP, sharding explained, training script demo, HF and W&B secrets setup, and troubleshooting pip/PATH issues on Windows."
+date: 2026-04-24
+categories: [office-hours, training, nanogpt, speedrun, modal, ddp, fsdp, distributed-training]
+css: ../styles/blog.css
+---
+
+> **First Break AI — Office Hours**
+>
+> Session 4 — 24 April 2026 (Cohort 01). From repo structure to a live speedrun: setting up the infrastructure to train a 124M GPT on 8x H100s, understanding DDP vs FSDP, and debugging the first-time setup on a learner's machine.
+
+---
+
+## What we covered
+
+| # | Topic | Roadmap link |
+|---|---|---|
+| 1 | [Repository overview — modded-nanogpt as a container repo](#topic-1-repository-overview) | [Step 4](../roadmap.qmd#training-fundamentals) |
+| 2 | [Infrastructure and cost — 8x H100, cloud pricing](#topic-2-infrastructure-and-cost) | [Step 4](../roadmap.qmd#training-fundamentals) |
+| 3 | [Modal as a training platform](#topic-3-modal-as-a-training-platform) | [Step 4](../roadmap.qmd#training-fundamentals) |
+| 4 | [Accelerate library — DDP, FSDP, DeepSpeed Zero](#topic-4-accelerate-library) | [Step 4](../roadmap.qmd#training-fundamentals) |
+| 5 | [Sharding explained — parameters, gradients, optimizer states](#topic-5-sharding-explained) | [Step 4](../roadmap.qmd#training-fundamentals) |
+| 6 | [Training script demo — speedrun execution and loss target](#topic-6-training-script-demo) | [Step 4](../roadmap.qmd#training-fundamentals) |
+| 7 | [Setup prerequisites — HF token, W&B secret, Modal secrets](#topic-7-setup-prerequisites) | [Step 4](../roadmap.qmd#training-fundamentals) |
+| 8 | [Troubleshooting — pip install, PATH issues, UV tool](#topic-8-troubleshooting) | [Step 1](../roadmap.qmd#first-use-of-ai-for-coding) |
+
+---
+
+# Topic 1: Repository overview — modded-nanogpt as a container repo {#topic-1-repository-overview}
+
+**Roadmap connection:** [Step 4 — Training fundamentals](../roadmap.qmd)
+
+We walked through the private repository `modded-nanog`, which acts as a **container repo** for several sub-repos:
+
+- **[modded-nanogpt](https://github.com/KellerJordan/modded-nanogpt)** — the official speedrun repository, based on Keller Jordan's work. This is the benchmark that has been optimized from a baseline of **~45 minutes** down to approximately **1.4 minutes**.
+- **nanogpt-speedrun** — related speedrun experiments
+
+The goal: work with the speedrun and a minimal PyTorch framework to train a small **124M parameter** GPT-2-scale model — small enough to iterate quickly, large enough to teach real distributed training concepts.
+
+---
+
+# Topic 2: Infrastructure and cost — 8x H100, cloud pricing {#topic-2-infrastructure-and-cost}
+
+**Roadmap connection:** [Step 4 — Training fundamentals](../roadmap.qmd)
+
+The training script is designed to run on **eight Nvidia H100 GPUs**. Key cost context:
+
+| Factor | Detail |
+|---|---|
+| **Bare-metal cost** | $200–500 per GPU per hour (varies by provider and contract) |
+| **Approximate hourly** | ~4,000–5,000 INR per hour for 8x H100, excluding data transfer |
+| **Run time** | Under 2–3 minutes for the optimized speedrun |
+| **Per-run cost** | Minimal — a few minutes of GPU time at cloud rates |
+
+**Why 8x H100?** While the run *can* complete on fewer GPUs, 8x H100 is the **meaningful minimum** for this speedrun framework. It is also the standard hardware class for leaderboard entries, so your results are directly comparable.
+
+**Takeaway:** cloud starter credits from providers often cover many experiments at this scale. A short multi-GPU run (minutes) is **cheap enough to iterate** compared with training a 1B+ parameter model for hours or days.
+
+---
+
+# Topic 3: Modal as a training platform {#topic-3-modal-as-a-training-platform}
+
+**Roadmap connection:** [Step 4 — Training fundamentals](../roadmap.qmd)
+
+[Modal](https://modal.com) simplifies the process of running multi-GPU training jobs by providing a **containerized, plug-and-play** environment. Instead of manually SSH-ing into an 8-GPU machine, configuring CUDA, installing dependencies, and setting up networking:
+
+- Modal provides **pre-built containers** with the right CUDA/PyTorch versions
+- The training script (`train_gpt.py`) runs via a **wrapper command** (`modal run`) that handles image setup, environment variables, and GPU allocation
+- Secrets (API keys) are injected into the container at runtime
+
+```bash
+# Typical execution flow
+cd modded-nanogpt
+modal run wrapper_script.py    # launches 8x H100, runs training
+```
+
+The wrapper handles: spinning up the container → mounting the repo → injecting secrets → launching the distributed training script → logging results to W&B.
+
+**Why Modal for learners:** the infrastructure complexity of "get 8 GPUs talking to each other" is collapsed into a single command. You focus on the training script and the curves, not on DevOps.
+
+---
+
+# Topic 4: Accelerate library — DDP, FSDP, DeepSpeed Zero {#topic-4-accelerate-library}
+
+**Roadmap connection:** [Step 4 — Training fundamentals](../roadmap.qmd)
+
+The **[Accelerate](https://huggingface.co/docs/accelerate)** library helps achieve greater parallelism and simplifies multi-GPU and multi-node setups by eliminating boilerplate code.
+
+## The learning progression
+
+The cohort's strategy is to start with the simpler approach and build up:
+
+```text
+DDP (start here)
+ ↓  understand gradient all-reduce, batch splitting
+FSDP / DeepSpeed Zero
+ ↓  understand sharding, memory savings
+Advanced (pipeline, tensor, expert parallelism)
+```
+
+## What Accelerate supports
+
+| Strategy | What it does | When you need it |
+|---|---|---|
+| **DDP** (Distributed Data Parallel) | Replicates model on each GPU, splits batch, all-reduces gradients | Model fits on one GPU; you want to scale batch size |
+| **FSDP** (Fully Sharded Data Parallel) | Shards model parameters across GPUs, gathers on demand | Model is too large for one GPU's memory |
+| **DeepSpeed Zero 1/2/3** | Progressive sharding of optimizer states, gradients, and parameters | Similar to FSDP with different trade-offs and configuration |
+
+**For the speedrun (124M model on 8x H100):** DDP is sufficient — the model easily fits on one GPU. The value is learning the *pattern* (all-reduce, world size, rank) before hitting problems that require FSDP.
+
+---
+
+# Topic 5: Sharding explained — parameters, gradients, optimizer states {#topic-5-sharding-explained}
+
+**Roadmap connection:** [Step 4 — Training fundamentals](../roadmap.qmd)
+
+**Sharding** is breaking down components of a model to reduce the **memory footprint per GPU**. This is crucial when the model does not fit on a single device.
+
+## The three pillars of model memory
+
+```{mermaid}
+flowchart LR
+    subgraph Memory["What lives on each GPU"]
+        P["Model Parameters\n(weights)"]
+        G["Gradients\n(derivatives)"]
+        O["Optimizer States\n(Adam moments, etc.)"]
+    end
+```
+
+| Pillar | What it is | Memory cost (approximate for fp32) |
+|---|---|---|
+| **Parameters** | The model weights themselves | 4 bytes per parameter |
+| **Gradients** | Computed during backward pass | Same size as parameters |
+| **Optimizer states** | Adam's first and second moments | 2x parameter size (for Adam) |
+
+For a **32B parameter model in fp32**: parameters alone = ~128 GB. With gradients + Adam states, you need **~512 GB** — far more than one GPU.
+
+## How sharding strategies split these
+
+| Strategy | Parameters | Gradients | Optimizer | Complexity |
+|---|---|---|---|---|
+| **DDP** | Full copy | Full → all-reduced | Full copy | Lowest |
+| **Zero-1 / FSDP (stage 1)** | Full copy | Full → all-reduced | **Sharded** | Low |
+| **Zero-2** | Full copy | **Sharded** | **Sharded** | Medium |
+| **Zero-3 / Full FSDP** | **Sharded** | **Sharded** | **Sharded** | Highest |
+
+**The trade-off:** more sharding = less memory per GPU, but more **communication** (gathering parameters before each forward/backward). You pay in latency for memory savings.
+
+---
+
+# Topic 6: Training script demo — speedrun execution and loss target {#topic-6-speedrun-nanogpt}
+
+**Roadmap connection:** [Step 4 — Training fundamentals](../roadmap.qmd)
+
+We watched a live execution of the speedrun training script. The current script includes architectural improvements over the original nanoGPT — rotary embeddings, optimized attention, Muon/Neon optimizer variants — and completes in **under 2–3 minutes** on 8x H100 (compared to the original ~45 minute baseline).
+
+## Execution flow
+
+```text
+modal run wrapper.py
+  → Container spins up with 8x H100
+  → Warm-up delay (CUDA/torch.compile)
+  → Training loop begins
+  → Loss checked each step against target (~3.28 val loss)
+  → Target hit → training stops → logs pushed to W&B
+```
+
+**What shows up in W&B after a run:**
+
+- `val_loss` declining toward target
+- `train_time_ms` (cumulative) — should be roughly linear
+- `step_avg_ms` — per-step wall time (spike at start from compilation, then settles)
+- Token efficiency metrics
+
+**Key learning:** the speedrun is not about "training a good model" — it is about **training engineering**: making the same learning happen in less wall-clock time. Reading these W&B curves is the same skill you need for reading a 32B pretrain.
+
+---
+
+# Topic 7: Setup prerequisites — HF token, W&B secret, Modal secrets {#topic-7-setup-prerequisites}
+
+**Roadmap connection:** [Step 4 — Training fundamentals](../roadmap.qmd)
+
+Before running the speedrun, two API keys must be created and stored as **Modal secrets**:
+
+### Step-by-step
+
+1. **Create a Hugging Face token:**
+   - Go to [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
+   - Create a token with **read access** to public/gated repos
+   - This avoids rate limiting when downloading models and datasets
+
+2. **Create a Weights & Biases API key:**
+   - Go to [wandb.ai/authorize](https://wandb.ai/authorize)
+   - Copy the API key
+
+3. **Store both as Modal secrets:**
+   - In the Modal dashboard, create two secrets:
+     - `HF_TOKEN` — your Hugging Face token
+     - `WANDB_SECRET` — your W&B API key
+   - The training wrapper injects these into the container at runtime
+
+4. **Clone the repository:**
+
+```bash
+git clone <repo-url>   # the modded-nanogpt container repo
+```
+
+5. **Install and authenticate Modal:**
+
+```bash
+pip install modal
+modal token new          # authenticates your local machine with Modal
+```
+
+After this setup, `modal run` will have access to both HF (for downloading tokenizers/data) and W&B (for logging training curves).
+
+---
+
+# Topic 8: Troubleshooting — pip install, PATH issues, UV tool {#topic-8-troubleshooting}
+
+**Roadmap connection:** [Step 1 — First use of AI for coding](../roadmap.qmd)
+
+A significant portion of the session was spent debugging a **Windows-specific** issue where `pip install modal` succeeded but the `modal` command was not recognized in the terminal.
+
+## The problem
+
+```text
+> pip install modal
+Successfully installed modal-0.x.x
+
+> modal token new
+The term 'modal' is not recognized as the name of a cmdlet...
+```
+
+## Common causes
+
+| Cause | Fix |
+|---|---|
+| **pip installs to a user directory not on PATH** | Add Python's `Scripts` directory to your system PATH |
+| **Multiple Python installations** | Check `where python` / `which python` to confirm which Python is active |
+| **Old pip version** | Run `pip install --upgrade pip` |
+| **Shell session not refreshed** | Close and reopen your terminal after installing |
+
+## Resolution steps tried
+
+1. Reinstalled `modal` with `pip install modal` — still not found
+2. Upgraded pip — still not found
+3. Investigated the `uv` tool as an alternative package manager — also hit recognition issues
+
+**Takeaway for learners:** PATH issues are one of the most common blockers in first-time setup, especially on Windows. Before concluding "the package is broken," always check:
+
+- `python -m modal` — does it work when invoked through Python directly?
+- `pip show modal` — where did pip install it?
+- Is that directory on your system PATH?
+
+---
+
+## Follow-ups from this session
+
+- Learner to complete the HF token, W&B key, and Modal secret setup
+- Investigate the PATH issue further (likely needs Python Scripts directory added to Windows PATH)
+- Once setup is complete: run the speedrun and read the W&B curves using the techniques from the [Reading the Curves](../blog/reading-the-curves-llm-training.qmd) blog post
+
+---
+
+::: {.blog-back}
+[← Back to Office Hours](index.qmd) | [← Back to Roadmap](../roadmap.qmd)
+:::

@@ -56,6 +56,18 @@ Learner LAN stock game (scope and shipping), Claude Code harness leak and safe l
 [Read session notes](2026-04-10.qmd){.blog-card-link}
 ::::
 
+:::: {.blog-card .blog-card-oh}
+[Pre-cohort · Office Hours]{.blog-card-label}
+
+### 24 April 2026
+
+::: {.blog-card-desc}
+NanoGPT speedrun infrastructure: modded-nanogpt repo walkthrough, 8x H100 cost and cloud GPU options, Modal for containerized training, Accelerate and DDP vs FSDP, sharding explained (parameters, gradients, optimizer states), training script demo, HF and W&B secrets setup, and troubleshooting pip/PATH issues on Windows.
+:::
+
+[Read session notes](2026-04-24.qmd){.blog-card-link}
+::::
+
 :::
 
 ::: {.blog-back}
