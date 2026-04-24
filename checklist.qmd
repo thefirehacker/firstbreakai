@@ -40,6 +40,7 @@ Follow on all platforms; we follow back.
 
 | Platform | Link |
 |----------|------|
+| **Personal site (blog, TIL)** | [thefirehacker.github.io](https://thefirehacker.github.io/) |
 | **Hugging Face** | [@TheFireHacker](https://huggingface.co/TheFireHacker) |
 | **GitHub** | [@thefirehacker](https://github.com/thefirehacker) |
 | **X (Twitter)** | [@thefirehacker](https://x.com/thefirehacker) |

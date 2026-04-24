@@ -58,6 +58,8 @@ First Break AI is a free, community-driven cohort for anyone who wants their fir
 
 You don't need a specific degree. You need a starting point. This cohort is for anyone — students, professionals, career switchers, the simply curious — who wants their first real break in AI. No applications, no prerequisites. Follow the roadmap, build in the open, and let your work speak for itself.
 
+**Cohort lead:** [FireHacker](https://thefirehacker.github.io/) (blog, TIL) · [GitHub @thefirehacker](https://github.com/thefirehacker) · [About](about.qmd)
+
 ::: {.cta-banner}
 ### Ready to start your journey?
 
