@@ -34,6 +34,8 @@ website:
     left:
       - href: index.qmd
         text: Home
+      - href: about.qmd
+        text: About
       - href: journey/index.qmd
         text: The Journey
       - href: roadmap.qmd

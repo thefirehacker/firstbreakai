@@ -1,0 +1,22 @@
+---
+title: "About"
+subtitle: "Founder and AI researcher at AIEDX. I run First Break AI and ship agentic AI products."
+---
+
+I’m **FireHacker**. At **AIEDX** I build **agentic AI products**—where agents, automation, and real infrastructure meet, not just demos. **[FetchLens.ai](https://fetchlens.ai)** is an example: it helps you see **AI agent traffic** to your site that **classic analytics often miss**, because many agents never run your front-end JavaScript.
+
+**First Break AI** is the free, open cohort we host on **[cohort.bubblnet.com](https://cohort.bubblnet.com/)**. Start from the [roadmap](roadmap.qmd), [checklist](checklist.qmd), [blog](blog/index.qmd), and [office hours](office-hours/index.qmd).
+
+**Blog, TIL, and code:** the table below points to my personal site, GitHub, and socials.
+
+## Links
+
+| Where | URL |
+|--------|-----|
+| **Blog & TIL (main site)** | [thefirehacker.github.io](https://thefirehacker.github.io/) |
+| **GitHub** | [@thefirehacker](https://github.com/thefirehacker) |
+| **Hugging Face** | [@TheFireHacker](https://huggingface.co/TheFireHacker) |
+| **X (Twitter)** | [@thefirehacker](https://x.com/thefirehacker) |
+| **LinkedIn** | [thefirehacker](https://www.linkedin.com/in/thefirehacker/) |
+
+[← Home](index.qmd) · [Checklist](checklist.qmd) · [Roadmap](roadmap.qmd)
