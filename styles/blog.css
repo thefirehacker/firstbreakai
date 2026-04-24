@@ -42,10 +42,12 @@
 .blog-card-step-1 { border-top-color: #8b6914; }
 .blog-card-step-2 { border-top-color: #6b5c4c; }
 .blog-card-step-3 { border-top-color: #7a5518; }
+.blog-card-step-4 { border-top-color: #5a6a4e; }
 
 .blog-card-step-1 .blog-card-label { color: #8b6914; }
 .blog-card-step-2 .blog-card-label { color: #6b5c4c; }
 .blog-card-step-3 .blog-card-label { color: #7a5518; }
+.blog-card-step-4 .blog-card-label { color: #5a6a4e; }
 
 /* Empty / no post yet — muted */
 .blog-card-no-post {

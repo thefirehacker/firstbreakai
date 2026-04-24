@@ -1,0 +1,781 @@
+---
+title: "Reading the Curves: How Real LLMs Learn, Spike, Recover, and Stabilize"
+subtitle: "A practical guide to training graphs using NanoGPT, OLMo, and Marin—Weights & Biases, data mix, and one real mid-training rescue."
+description: "A long-form guide to LLM training curves: W&B panels, loss shapes, good vs bad spikes, small-lab fork pitfalls, OLMo checkpoints and Dolma, Qwen3 pretraining stages, and the Marin 32B QK-Norm warm-start with primary-source links."
+date: 2026-04-25
+categories: [llm, training, weights-biases, olmo, nanogpt, marin, first-break-ai]
+---
+
+> **First Break AI — Step 4: Training fundamentals**
+>
+> This post is part of the [First Break AI](../index.qmd) cohort roadmap.
+> Step 4 is where you move from *running* models to *training* and to *reading* real runs: data pipelines, distributed training, and experiment tracking.
+> If you are coming from a modded [nanoGPT](https://github.com/karpathy/nanoGPT) or [Keller Jordan speedrun](https://github.com/KellerJordan/modded-nanogpt) context, you already know what a **val loss** line *feels* like. This post is about reading **industrial** runs the way teams do: multiple panels, multiple clocks, and primary sources.
+
+---
+
+::: {.callout-tip}
+## If you only read one part
+
+Skim the [Data pipeline section](#data-pipeline-and-data-mix-what-goes-in-matters), the [Weights & Biases checklists](#weights--biases-is-this-run-healthy), and the [Marin 32B case study](#case-study-marin-32b-the-full-timeline) — that combination is the closest thing to a “loss spike debugging course” in public writing. The rest of the post fills in *axes*, *shapes*, *hands-on code*, and *where to open the official reports* for Qwen3 and OLMo. This callout does **not** replace the other sections; they exist so you are not only pattern-matching one story.
+:::
+
+---
+
+## Navigate by roadmap
+
+| Step | Topic | This blog |
+|------|--------|-----------|
+| [Step 1](../roadmap.qmd) | First use of AI for coding | — |
+| [Step 2](../roadmap.qmd) | Run a model locally | [Qwen3 in C](qwen3-run-locally.qmd) · [GGUF vs SafeTensors](model-formats-gguf-safetensors.qmd) |
+| [Step 3](../roadmap.qmd) | Inference deep dive | — |
+| **Step 4** | **Training fundamentals** | **You are here** |
+| [Step 5+](../roadmap.qmd) | Product / capstone | — |
+
+[← Back to Roadmap](../roadmap.qmd)
+
+---
+
+## Table of contents
+
+- [The hook: loss is a fingerprint](#the-hook-loss-is-a-fingerprint-not-a-trophy)
+- [Axes and units: steps, tokens, wall clock](#axes-and-units-steps-tokens-wall-clock)
+- [Loss shapes: power laws, long tails, staircases, LR crossover](#loss-shapes-power-laws-long-tails-staircases-and-lr-crossover)
+- [Data pipeline and data mix: what goes in matters](#data-pipeline-and-data-mix-what-goes-in-matters)
+- [After a NanoGPT speedrun: small lab vs production](#after-a-nanogpt-speedrun-small-lab-vs-production)
+- [Weights & Biases: is this run healthy?](#weights--biases-is-this-run-healthy)
+- [Good spike vs bad spike (and the norm pipeline)](#good-spike-vs-bad-spike-and-the-norm-pipeline)
+- [Perfetto: systems-level exercise](#perfetto-systems-level-exercise)
+- [Where to learn aside from this post (resource map)](#where-to-learn-aside-from-this-post-resource-map)
+- [OLMo, Dolma, and checkpoints as time](#olmo-dolma-and-checkpoints-as-time)
+- [Qwen3: pretraining stages and where the curves live](#qwen3-pretraining-stages-and-where-the-curves-live)
+- [Case study: Marin 32B (the full timeline)](#case-study-marin-32b-the-full-timeline)
+- [Boring is beautiful: the philosophy of stable training](#boring-is-beautiful-the-philosophy-of-stable-training)
+- [QK-Norm in the wild (snapshot table)](#qk-norm-in-the-wild-snapshot-table)
+- [Takeaways and exercises](#takeaways-and-exercises)
+- [References](#references)
+
+---
+
+# Reading the Curves: How Real LLMs Learn, Spike, Recover, and Stabilize
+
+By the time you reach the [references](#references), you should be able to:
+
+- Pick **x-axis units** (steps vs tokens vs time) and know when each misleads
+- Read a **data mix table** and understand why mixture composition is the first decision in pretraining
+- Open a W&B run and read **loss next to** LR, grad/update norms, and throughput — metric by metric
+- Distinguish a **spiky but recoverable** run from a **worse-new-plateau** failure mode
+- Load **two OLMo checkpoints** in Python, compare weights and inference outputs, and understand what **2T tokens** of optimization changes
+- Walk through the **Marin 32B** story with real numbers from the official retrospective: architecture, data mix, mitigations, failed recovery, QK-Norm, warm-start, and benchmark results
+- Explain the **”boring is beautiful”** principle: why smooth, featureless loss curves signal healthy training
+
+---
+
+## The hook: loss is a fingerprint, not a trophy
+
+Training loss (usually cross-entropy on next-token prediction) is *not* a game score. It is a **fingerprint** of the whole stack working together:
+
+- **Data** — mixture, ordering, quality filters, and whether your **dataloader** is actually producing tokens
+- **Optimizer** — AdamW (or other), second moments, how clipping interacts with outlier batches
+- **Schedule** — warmup, hold, decay, and any **mid-run surgery** (new architecture, new LR re-warmup)
+- **Architecture** — depth, MHA/GQA, normalization choices, including attention stabilizers like **QK-Norm** when you use them
+- **Systems** — compile, comms, dataloader, checkpoint pauses, **gradient accumulation** changing effective batch
+
+If you only log a single scalar `loss` every step, you are flying with one instrument. Real teams also log things that *predict* whether `loss` is about to do something bad—**gradient norm**, **update norm**, and often **per-layer** or **eval** lines.
+
+---
+
+## Axes and units: steps, tokens, wall clock
+
+| Axis | Definition | Fails when |
+|------|------------|------------|
+| **Optimizer step** | One `optimizer.step()` after forward/backward (possibly on accumulated micro-batches) | You change **global batch** or **grad accumulation** between runs. Step counts are not magic comparable numbers unless the recipe is fixed. |
+| **Tokens trained** (cumulative) | Total tokens the model has *seen* for the current phase, in the run’s definition | Rarely: if **batch schedule** changes, two runs might change tokens/step. Still the default **science** x-axis for comparing “how much data.” |
+| **Wall clock** | Real time, including I/O, eval pauses, checkpoint, sync | Tells you **cost** and **straggler** pain. By itself it does *not* tell you if the *model* is good—only if the *cluster* is doing work. |
+
+### `train_time_ms` vs `step_avg_ms` (W&B / similar loggers)
+
+These show up in speedrun and research dashboards:
+
+- **`train_time_ms` (cumulative)** — should grow **roughly linearly** with step count. A bend, staircase, or flat region can mean: eval windows, **checkpointing**, a **dataloader** stall, or a rank that stopped progressing in **DDP** (look at per-rank logs, not the aggregate alone).
+- **`step_avg_ms` or per-step wall time** — your **kernels + Python + I/O** view. A tall spike at the very start is often **compile** / **cudnn benchmark** / **torch.compile** warmup. A slow *rise* over hours can be memory pressure, checkpoint growth, or contention.
+
+**NanoGPT speedrun** optimizes *time to target loss* under a fixed recipe. **Large LM pretrain** is usually reasoned in **tokens** and in **downstream or held-out eval**, not in “minutes to 3.28 val loss” alone.
+
+### Which axis to use when
+
+| Your question | Use this x-axis | Why |
+|---|---|---|
+| “Is this run learning at all?” | **Steps** | Fastest feedback loop — one point per optimizer update |
+| “How does this compare to another model's data efficiency?” | **Tokens** | Normalizes across batch sizes and accumulation settings |
+| “How much did this cost?” | **Wall clock** | Dollars = GPU-hours; this is the CFO axis |
+| “Did hardware change mid-run?” | **Both tokens AND wall clock** | A drop in tokens/sec with constant loss slope reveals hardware events (Marin switched from TPU v5p-512 to v4-2048 mid-training) |
+
+::: {.callout-tip}
+## Quick mental model
+**Steps** = your optimizer's heartbeat. **Tokens** = how much the model has read. **Wall clock** = how much you have paid. Never compare runs on steps alone unless the batch size is identical.
+:::
+
+---
+
+::: {.callout-important}
+## When the loss line lies
+
+Before you diagnose “the model can’t learn,” check: (1) **logging frequency** and averaging—raw step loss vs EMA. (2) **Eval metric** not accidentally computed on **train shards**. (3) **Token counter** in sync with the actual dataloader. (4) In **DDP**, that you are not plotting rank 0’s loss while another rank is stuck. A pretty curve with a **silent dataloader bug** is still a bug.
+:::
+
+---
+
+## Loss shapes: power laws, long tails, staircases, and LR crossover
+
+**Smooth decreasing loss** is the idealized picture, but the *shape* has structure:
+
+- **Steep early drop** — the model picks up unigram / local statistics quickly.
+- **Long flat tail** — the last few tenths of a **nats** of improvement can take a huge fraction of **tokens**; this is why teams talk about *scaling* and *data quality* in late pretrain.
+- **Staircase** — sometimes visible when you change **effective batch** (accumulation) or when eval/metrics are overlaid; can also be an artifact of **log compression** or **windowed** smoothing.
+- **LR crossover (two valid curves)** — with different peak learning rates, a **higher** LR can look better *early* and cross under a **lower** LR *later* on the same data budget. The lesson: **do not** crown a run from the first 5–10% of tokens unless your goal is only early convergence.
+
+A compact mental picture:
+
+```text
+High_LR:  \___
+Low_LR:     \_______   ← can win late
+
+Loss
+ | \___________
+ +---------------- tokens
+     long tail
+```
+
+This is the same “you cannot judge training quality *only* from early loss” point that shows up in serious scaling work; see also open reports on OLMo and Qwen3 for *their* multistage schedules (below).
+
+### Three phases of loss (with concrete numbers)
+
+Every pretrain curve has three regimes. The exact loss values depend on model size, data, and tokenizer, but the *shape* is universal:
+
+```text
+loss
+  |
+10| \
+  |  \            Phase 1: steep drop
+ 5|   \____
+  |        \___      Phase 2: slow decline
+ 3|            \__
+  |               \_    Phase 3: flattening
+  |____________________ tokens
+```
+
+| Phase | Loss range (indicative) | What the model is learning | Duration (% of total tokens) |
+|---|---|---|---|
+| **Steep drop** | ~10 → ~5 (small model) / ~2.7 → ~2.5 (large) | Token frequencies, syntax, local patterns. The “easy” statistics. | ~5–10% |
+| **Slow decline** | ~5 → ~3 / ~2.5 → ~2.35 | Long-range dependencies, semantic structure, early reasoning primitives. | ~40–60% |
+| **Flattening** | ~3 → ~2.8 / ~2.35 → ~2.30 | Rare patterns, refinement. Each tenth of a nat costs a huge fraction of remaining tokens. | ~30–50% |
+
+*Note: these numbers are illustrative. A 124M NanoGPT and a 32B Marin live in different loss ranges — the shape is what transfers.*
+
+::: {.callout-important}
+## The crossover trap
+Two runs with different peak learning rates can **cross**: the higher-LR run looks better at 5% of tokens but **loses** at 50%. This is documented in OLMo and Qwen3 reports. **Never crown a run from early loss** unless your goal is only early convergence.
+:::
+
+---
+
+## Data pipeline and data mix: what goes in matters
+
+Before you read any curve, you need to know what the model ate. Data mix is the **first decision** in pretraining — it determines what the loss curve even *means*.
+
+### The data pipeline
+
+```{mermaid}
+flowchart TD
+    A[Raw web crawl] --> B[Quality filtering]
+    B --> C[Deduplication]
+    C --> D[Tokenization]
+    D --> E[Mixing / weighting by source]
+    E --> F[Batching + shuffling]
+    F --> G[Dataloader]
+    G --> H[Model forward pass]
+```
+
+Each step can introduce bugs. A “learning” curve with a broken dataloader is not learning — it is fitting noise or seeing empty batches.
+
+### Reading a real data mix table: Marin 32B
+
+From the [Marin 32B retrospective](https://marin.readthedocs.io/en/latest/reports/marin-32b-retro/), the Phase 1–3 pretrain mix:
+
+| Source | Weight (%) | Role |
+|---|---|---|
+| **Nemotron-CC** (medium quality) | ~30.69 | Broad web coverage |
+| **Nemotron-CC** (HQ synthetic) | ~24.70 | Cleaned, synthetic-augmented web |
+| **Nemotron-CC** (medium-low) | ~13.98 | Lower-tier web |
+| **Nemotron-CC** (HQ actual) | ~8.30 | High-quality non-synthetic |
+| **Nemotron-CC** (other buckets) | ~19.56 combined | Various quality tiers |
+| **StarCoder** | ~2.27 | Code |
+| **Proofpile 2** | ~0.50 | Math / formal reasoning |
+
+**Total: Nemotron-CC dominates at ~91%.** This is *not* OLMo's Dolma — every project has its own mix. When you read *any* loss curve, your first question should be: **what data produced this?**
+
+### Why data mix changes between stages
+
+Pretraining is not one monolithic phase. Teams shift the mixture as training progresses:
+
+- **Stage 1 (broad coverage)** — heavy on web crawl for language fundamentals (Marin Phase 1, Qwen3 S1)
+- **Stage 2 (reasoning-heavy)** — increase STEM, code, math, synthetic reasoning (Qwen3 S2 adds ~5T tokens with higher reasoning share)
+- **Cooldown / midtraining** — curated, high-quality sources for final quality
+
+In Marin's Phase 4 Mantis cooldown (~1.074T tokens), the mix shifted dramatically: **MegaMath** (web, text, QA, translated code), **arxiv papers**, **finemath**, **StackExchange**, and **Wikipedia** were added. The Nemotron-CC share dropped from ~91% to ~68%. This is standard practice: late-stage training uses more targeted data.
+
+### Data mix pitfalls from real projects
+
+- **GSM8k cache contamination (Marin):** eval data leaked into training via a caching bug, inflating math benchmarks. The team caught it and replaced the contaminated source with clean **MegaMath** data in the Mantis revision.
+- **LCG shuffle issues (Marin):** a linear congruential generator shuffle did not properly randomize across data sources, creating batch-level distribution skew. Fixed by switching to a **Feistel shuffle** with much better mixing properties.
+- **Broken dataloader paths:** in NanoGPT forks, the dataloader path may point at nothing — your loss looks reasonable because the model is still fitting *something*, but it is not your data.
+
+::: {.callout-important}
+## The invisible bug
+If your loss curve looks “normal” but your dataloader is broken, you will not know until eval. Always verify: **(1)** the tokenized data path exists and has the expected byte count, **(2)** a sample batch decodes to readable text, **(3)** your eval split is disjoint from training shards.
+:::
+
+---
+
+## After a NanoGPT speedrun: small lab vs production
+
+A **modded** NanoGPT or speedrun build is a perfect **microscope**: tight code path, a target **validation loss**, and community recipes (e.g. [modded-nanogpt](https://github.com/KellerJordan/modded-nanogpt) derivatives). The jump to “reading real LLM pretraining” adds:
+
+- **Data mixture** and sometimes **mid-course** schedule changes, documented in reports—not in a single 200-line `train.py`
+- **Stability** telemetry beyond loss: **grad norm**, **update norm**, sometimes **z-loss** or **router** stats in MoE
+- **Checkpoints** as **time travel** in public hubs (OLMo) so you can *sample* the trajectory, not just the endpoint
+
+**Honest failure modes from learners (worth naming explicitly):**
+
+- A fork **vendors training** but not **data construction**; your `loss` is meaningless if the **path** in the dataloader does not point at real tokenized data on your machine.
+- **DDP** debugging often wants **traces** (NCCL, PyTorch profiler, Chrome trace). If the trace is missing, you still have W&B, `nvidia-smi`, and per-rank logs—but you cannot “optically” see the all-reduce bubble without a capture.
+- **ddp / traces not there** in a shared artifact means you fix **instrumentation** first, *then* interpret loss.
+
+> Rule: **if the chart moved but the data pipeline could not have produced that batch**, you do not have a “weird model”—you have a **logging** or **shard** issue.
+
+### Common pitfalls from learners (worth debugging before interpreting loss)
+
+1. **DDP traces not there:** many modded-nanogpt forks don't include profiling instrumentation. You cannot diagnose all-reduce bubbles or stragglers without a trace. Fix instrumentation first, then interpret loss.
+
+2. **Data loading script missing from forks:** a fork may vendor the training code but not the data construction pipeline. Your dataloader silently fails or reads a placeholder. Verify by decoding a batch.
+
+3. **Code bugs in modded-nanogpt variants:** community forks sometimes have subtle bugs — wrong accumulation count, mismatched tokenizer, eval on train split. Before diagnosing “weird model behavior,” diff your fork against the upstream commit you branched from.
+
+**Sanity check your dataloader (do this before every first run):**
+
+```python
+# Does your dataloader produce real tokens?
+batch = next(iter(train_loader))
+print(f”Batch shape: {batch.shape}”)                       # e.g. [B, seq_len]
+print(f”Token range: {batch.min()} to {batch.max()}”)      # should be 0..vocab_size-1
+print(f”Sample decode: {tokenizer.decode(batch[0][:50].tolist())}”)
+# If this prints garbage, all zeros, or empty strings, your pipeline is broken.
+# Fix the pipeline before reading loss.
+```
+
+---
+
+## Weights & Biases: is this run healthy?
+
+Open a new run. Before zooming in on a single line, set up a **default panel group** (names vary; concept does not):
+
+| Order | Panel | What you learn |
+|-------|--------|-----------------|
+| 1 | **Held-out loss / perplexity** (often `val_loss` or eval NLL) | *Generalization* to a fixed eval pipeline. If this diverges from train, stop and check eval data and leakage. |
+| 2 | **Train loss** | Optimization fit; can be *too* good relative to val. |
+| 3 | **Gradient norm (pre-clip)** and/or **clipped** stats | Are you *seeing* the spikes before the loss does? |
+| 4 | **Update norm** (post-Adam scaling) | How big is the *actual* step? Often a better lever than grad alone for “was this a wild step?”. |
+| 5 | **Learning rate** (and schedule phase) | Loss is not interpretable without “where in the schedule am I?”. |
+| 6 | **Throughput** (tokens/s or `step_avg_ms`) | If loss is beautiful and throughput is near zero, you are burning **money** or stuck on **I/O**. |
+| 7 | **Max grad / clip** settings if available | Tells you when a team *turned a knob* mid-run. |
+
+### Metric-by-metric: what each panel really tells you
+
+**val_loss — the most important single line.** It answers: *is the model generalizing?* Three phases to recognize:
+
+| Phase | val_loss range (indicative) | What the model is learning | What to watch for |
+|---|---|---|---|
+| Steep drop | ~10 → ~5 (small) / ~2.7 → ~2.5 (large) | Token frequencies, syntax | Should be fast; if flat here, check LR and data |
+| Slow decline | ~5 → ~3 / ~2.5 → ~2.35 | Long-range dependencies, semantics | The "working" phase; patience is correct here |
+| Flattening | ~3 → ~2.8 / ~2.35 → ~2.30 | Refinement, rare patterns | Diminishing returns; data quality dominates |
+
+**grad_norm and update_norm — your early warning system.** These are *leading indicators*. By the time loss spikes, the damage is already applied. Watching norms gives you 1–2 steps of warning:
+
+```{mermaid}
+flowchart LR
+    B[Bad batch or instability] --> G[grad_norm spikes]
+    G --> A[Adam scaling]
+    A --> U[update_norm spikes]
+    U --> L[Loss spike next step]
+    style G fill:#ff9
+    style U fill:#f96
+    style L fill:#f66
+```
+
+**throughput (tokens/s or step_avg_ms) — the money line.** If tokens/s drops by 20% and loss is unchanged, you are paying 25% more per unit of learning. Common causes: checkpoint I/O, eval pauses, a slow node in DDP, or a dataloader stall. In Marin's case, hardware transitions (TPU v5p-512 to v4-2048) changed throughput characteristics and required batch size adjustments.
+
+### Red and green flags (quick)
+
+| Pattern | Worry about |
+|---------|-------------|
+| Isolated or repeating **upward** spikes in train loss | Outliers, LR, instability, bad batch, or (at scale) **attention** numeric issues |
+| **Train down, val up** in late training | Overfit, wrong eval, contamination, or eval bug |
+| **Flat** loss early (after warmup) | LR too small, wrong init, **empty data**, frozen layers by mistake |
+| **Norms precede loss** in spikes (often) | Clipping and step-skip *limit damage*; they may not fix a **structural** issue |
+
+### Train vs val: three useful stories
+
+- **Both down** — the happy default for *pretrain* for a long time, modulo eval quality.
+- **Train down, val up** — classic overfit *or* **train/eval distribution mismatch** (or a bug). Check **eval** construction before you call it overfit.
+- **Staircase val** — sometimes an artifact of **less frequent eval** or **ema**; read the *trend* over multiple evals.
+
+### Staircase loss and accumulation
+
+With **gradient accumulation**, one “optimizer step” can span multiple microbatches. Plots of **per-microbatch** loss can look choppy; **per-step** averages look smoother. When comparing forks, be explicit: **which** loss (micro vs step) is on the plot?
+
+---
+
+::: {.callout-tip}
+## Monday checklist (new run)
+
+1. **Eval** frequency and the **exact** eval split.  
+2. **Tokens/step** and **global batch** written in config or W&B config panel.  
+3. **One** throughput line.  
+4. **Grad or update norm** (pick one, ideally both if your stack supports it).  
+5. **Git SHA** and data snapshot id if the team uses them.  
+
+If five is too many, do **(1) eval**, **(2) batch/tokens**, **(3) throughput** on day one, then add norms when something looks “spiky.”
+:::
+
+---
+
+## Good spike vs bad spike (and the norm pipeline)
+
+A **spike** is a short **increase** in training loss. Not every spike cancels a run.
+
+**Recoverable (often acceptable)**
+
+```text
+loss
+ |   /\
+ |__/  \_____  same band as before
+```
+
+**Bad: new, worse plateau**
+
+```text
+loss
+ |     /\
+ |____/  \________  settles higher; trajectory broke
+```
+
+**Four questions to ask (every time):**
+
+1. On **smoothed** and **unsmoothed** train loss, does the run **rejoin** the old trend band?
+2. What did **eval** do after the window—*same eval harness*?
+3. Do **update norms** and **grad norms** return to a typical band, or stay elevated (structural stress)?
+4. What **code / data / schedule** event happened at the same time (new shard, LR change, new clip)?
+
+**Precursor story (very common in practice):**
+
+```{mermaid}
+flowchart LR
+  g[High_grad_norm]
+  u[High_update_norm]
+  L[Loss_spike]
+  g --> u
+  u --> L
+```
+
+That is why teams watch **norms** *with* loss. The [Marin 32B](#case-study-marin-32b-the-full-timeline) retrospective is an extended worked example: clipping **softened** spikes until architecture changed.
+
+### Spike debugging flowchart
+
+When you see a spike, walk this decision tree:
+
+```{mermaid}
+flowchart TD
+    S[Loss spike observed] --> Q1{Did loss return to<br>pre-spike band?}
+    Q1 -->|Yes| R1[Recoverable spike — log it, monitor]
+    Q1 -->|No| Q2{Did eval loss also shift up?}
+    Q2 -->|No| R2[Possible logging artifact — check smoothing window]
+    Q2 -->|Yes| Q3{Did norms return to normal?}
+    Q3 -->|Yes| R3[Data event — check shard/batch at that step]
+    Q3 -->|No| R4[Structural instability — consider architecture or LR change]
+```
+
+### The Marin spike timeline (concrete worked example)
+
+This is the actual debugging timeline from the [Marin 32B retrospective](https://marin.readthedocs.io/en/latest/reports/marin-32b-retro/) — not a toy example:
+
+| Step | Event | Effect on spikes | Loss recovered? |
+|---|---|---|---|
+| 0–56k | Periodic spikes, all recovered | Elevated grad norms before each | Yes — team monitors |
+| **~56,400** | Tightened `max_grad_norm` from 1.0 → 0.2 | Softened spike amplitude | Partially |
+| **~72,233** | Added update-norm clipping (rolling mean + 2σ) | Further softened | Temporarily |
+| ~74k–80k | Update clipping **accidentally disabled** | Severe spikes returned | **No** — new worse plateau |
+| **80,000** | Decision: optimizer fixes are insufficient | N/A | Architecture change needed |
+
+**The lesson:** three progressively stronger optimizer-level mitigations (grad clip → update clip → skip bad steps) each *softened* spikes but none *removed* them. The root cause was in the **attention stack**, not the optimizer. This is the moment when the team pivoted to QK-Norm — see the [case study](#case-study-marin-32b-the-full-timeline).
+
+---
+
+## Perfetto: systems-level exercise
+
+When you are in **speedrun** land (Keller-style stacks, [Perfetto](https://ui.perfetto.dev/)) this is a tight loop. Perfetto shows you **time** — where GPU time goes, where CPU is idle, where communication happens. It does **not** show you model quality. It is the "plumbing" complement to W&B's "learning" view.
+
+### Your first trace analysis (expanded exercise)
+
+1. **Capture** a trace around 5–10 training steps:
+
+```python
+from torch.profiler import profile, ProfilerActivity
+
+with profile(
+    activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
+    with_stack=True,
+    record_shapes=True,
+) as prof:
+    for step in range(5):
+        train_step()  # your forward/backward/optimizer step
+
+prof.export_chrome_trace("trace.json")
+```
+
+2. **Open** the `trace.json` in [Perfetto UI](https://ui.perfetto.dev/). You will see horizontal bars: CPU on top, GPU kernels below.
+
+3. **Find three things:**
+   - The **longest single GPU kernel** — is it a matmul? An all-reduce? Something unexpected?
+   - The **longest CPU gap** between GPU kernel launches — this is your Python/dataloader overhead
+   - Any **GPU idle periods** longer than 1ms — these are bubble time (sync, launch latency, or data starvation)
+
+4. **Relate to W&B**: if `step_avg_ms` has a bump at step *t*, capture a trace around step *t*. Name the dominant stall in one sentence: *"Step t is slow because of [dataloader I/O / all-reduce / unexpected kernel X]."*
+
+::: {.callout-tip}
+## When traces are missing
+In many shared NanoGPT forks, profiling is not instrumented. If you do not have a trace, you still have: W&B step times, `nvidia-smi` output, and per-rank logs. But you cannot see the all-reduce bubble without a capture. Adding profiling is ~10 lines of code — do it for your fork.
+:::
+
+This does not replace the **data / bench** track (dataset quality, eval harness). Many teams have **one** person deep on **kernels** and **one** on **data**; both need to read the *same* loss, different sidecars.
+
+---
+
+## Where to learn aside from this post (resource map)
+
+| Resource | What it teaches | When to use it |
+|---|---|---|
+| **Smol Training Playbook** | Training stories, failure modes, “what we tried” | For intuition about *why* teams make decisions |
+| **UltraScale Playbook** | Distributed systems, parallelism, throughput | When you need to understand *infrastructure*, not model learning |
+| **OLMo checkpoints + W&B** | Actual loss dynamics, data mix, checkpoint evolution | Primary hands-on resource for this post's goals |
+| **Marin 32B retrospective** | Real postmortem: instability, mitigation, recovery | The best public “debugging story” at 32B scale |
+| **Qwen3 technical report** | Multi-stage pretraining, architecture, QK-Norm | For understanding *why* modern architectures look the way they do |
+| **Your own NanoGPT run** | End-to-end control, fastest iteration | Nothing replaces *your* W&B with *your* data |
+
+You still learn the most by: **(a)** a tiny run you control end-to-end, and **(b)** one public megaproject where you *verify claims* against the paper and the hub.
+
+---
+
+## OLMo, Dolma, and checkpoints as time
+
+[OLMo](https://allenai.org/olmo) is deliberately **open science**: model weights, **training code**, and for many releases **intermediate checkpoints** and **W&B** groups. The **Dolma** dataset (see [Dolma on Hugging Face](https://huggingface.co/datasets/allenai/dolma) and the OLMo paper) is the large-scale pretraining corpus behind early OLMo work—**always** read the **model card** for the *exact* build you are using, because the community ships multiple **generations** (e.g. April 2024 update, OLMo 2, later).
+
+### Pretraining vs later stages (scope of *this* post)
+
+This post focuses on **pretraining-scale** reading skills: *what* is in the base model and *how* the public record describes the **pretrain** phase. “Annealing,” “mid-train,” **SFT**, and **RL** are *different* products with different loss curves. The OLMo model cards often point to separate W&B *groups* for anneal vs pretrain; use the card, not a blog summary, for your checkpoint.
+
+**Industry context (do not conflate with OLMo’s recipe):** public **web-scale** builds (e.g. **FineWeb**-style corpora) are a **common** pattern in the field for broad coverage. OLMo’s own mixture is documented in **AI2** artifacts; saying “OLMo = FineWeb” would be *wrong* without a citation to a specific OLMo release that uses that blend.
+
+### OLMo data stages: what goes in at each phase
+
+OLMo’s training pipeline has distinct stages, each with different data composition and loss characteristics:
+
+```text
+[ Stage 1 ] General pretraining on Dolma (broad, noisy web data)
+   ↓         Loss: steep drop then slow decline
+[ Stage 2 ] Midtraining (better quality data mix)
+   ↓         Loss: may show a staircase at the transition
+[ Stage 3 ] Annealing (high-quality curated curriculum)
+   ↓         Loss: final refinement, small improvements
+[ Stage 4 ] Post-training / SFT / RL (out of scope for this post)
+```
+
+The loss curve looks different at each stage. A smooth decline in Stage 1 may show a staircase at the Stage 2 transition. **Always check which stage you are looking at** — a “spike” at a stage boundary is *intentional*, not a bug.
+
+### Hugging Face: revisions as time slices
+
+The [OLMo 7B April 2024 model card](https://huggingface.co/allenai/OLMo-7B-0424) documents intermediate checkpoints: naming like `step1000-tokens4B` (every 1000 steps) and the use of the `revision` argument. For current `transformers`, the card recommends the **`-hf`** model id.
+
+```python
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+# Prefer allenai/OLMo-7B-0424-hf for transformers >= 4.40 (per model card).
+model_id = "allenai/OLMo-7B-0424-hf"
+
+# Early checkpoint: tag pattern step{N}-tokens{T} (see model card; list_repo_refs for full set).
+early = AutoModelForCausalLM.from_pretrained(
+    model_id,
+    revision="step1000-tokens4B",
+    trust_remote_code=True,  # follow current model card; may be unnecessary on some revisions
+)
+
+# Endpoint / latest trained checkpoint: use default branch (omit revision) per your workflow
+tokenizer = AutoTokenizer.from_pretrained(model_id)
+```
+
+**Next step if you are blocked:** the card links `revisions.txt` and shows `huggingface_hub.list_repo_refs` to enumerate branches. Do that once so you *see* the real tag names for the repo you chose.
+
+### Hands-on: enumerate checkpoint tags
+
+```python
+from huggingface_hub import list_repo_refs
+
+refs = list_repo_refs("allenai/OLMo-7B-0424-hf")
+branches = [b.name for b in refs.branches if b.name.startswith("step")]
+print(f"Found {len(branches)} checkpoint branches")
+for tag in sorted(branches)[:10]:
+    print(f"  {tag}")
+# Pick two far apart for the comparison exercise below.
+```
+
+### Hands-on: compare inference at two checkpoints
+
+```python
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+model_id = "allenai/OLMo-7B-0424-hf"
+tokenizer = AutoTokenizer.from_pretrained(model_id)
+
+early = AutoModelForCausalLM.from_pretrained(
+    model_id, revision="step1000-tokens4B", trust_remote_code=True
+)
+late = AutoModelForCausalLM.from_pretrained(
+    model_id, trust_remote_code=True  # final / default branch
+)
+
+prompt = "The capital of France is"
+inputs = tokenizer(prompt, return_tensors="pt")
+
+print("Early (4B tokens):")
+print(tokenizer.decode(early.generate(**inputs, max_new_tokens=30)[0]))
+print("\nLate (2T tokens):")
+print(tokenizer.decode(late.generate(**inputs, max_new_tokens=30)[0]))
+# Early: expect repetition or incoherent continuation
+# Late: expect factual, structured output
+```
+
+You are not proving "the model is good" — you are *feeling* how **2T tokens** of optimization changes a fixed probe.
+
+### Hands-on: inspect how weights changed
+
+```python
+import torch
+from transformers import AutoModelForCausalLM
+
+model_id = "allenai/OLMo-7B-0424-hf"
+
+early = AutoModelForCausalLM.from_pretrained(
+    model_id, revision="step1000-tokens4B", trust_remote_code=True
+)
+late = AutoModelForCausalLM.from_pretrained(model_id, trust_remote_code=True)
+
+# How much did embeddings change?
+e_early = early.model.embed_tokens.weight.data
+e_late  = late.model.embed_tokens.weight.data
+diff = (e_late - e_early).norm() / e_early.norm()
+print(f"Relative embedding change: {diff:.4f}")
+# Typical result: a large number — the model's "vocabulary sense" changed substantially.
+```
+
+### Where the training story is published
+
+- **Paper:** [OLMo: Accelerating the Science of Language Models](https://arxiv.org/abs/2402.00838) (arXiv:2402.00838) — core scientific write-up.  
+- **W&B (example from model card):** [ai2-llm/OLMo-7B pretraining and anneal groups](https://wandb.ai/ai2-llm/OLMo-7B/groups) — *open* loss and eval over time. Open the **config** and **system** panels while you look at `train`/`val`.  
+- **Code entrypoint (historical OLMo):** `scripts/train.py` with YAML configs in the [OLMo](https://github.com/allenai/OLMo) repository — *engine + recipe*.
+
+### What to do with two checkpoints (exercise, pretrain-only)
+
+1. Load `step1000-tokens4B` and the **final** (default) weights.  
+2. Run the **same** prompt.  
+3. Log **perplexity** on a small held-out slice if you can—*same tokenizer*.  
+
+You are not proving “the model is good”; you are *feeling* how **2T tokens** of optimization changes a fixed probe.
+
+---
+
+## Qwen3: pretraining stages and where the curves live
+
+The **Qwen3 Technical Report** is [arXiv:2505.09388](https://arxiv.org/abs/2505.09388) ([HTML](https://arxiv.org/html/2505.09388v1), [PDF](https://arxiv.org/pdf/2505.09388)). It is the right first stop for *architecture* (including **QK-Norm** in attention for stability) and for **pretraining stages**.
+
+### Pretraining as three *stages* (Qwen3 report, Section 3.2)
+
+The report describes pretraining in **three** stages (paraphrased; read the table and prose for exact token budgets):
+
+- **General (S1)** — on the order of **tens of trillions** of tokens at **4,096** context, broad language and world knowledge.  
+- **Reasoning-leaning (S2)** — on the order of **~5T** more tokens with **higher** STEM / code / reasoning / synthetic *share*, still at 4,096—LR decay is **accelerated** in that phase.  
+- **Long context** — **hundreds of billions** of tokens at **32,768** context, with long-doc corpora; RoPE frequency and YARN/DCA-style techniques appear for length extension (see report).
+
+**What to look for in figures:** in large foundation reports, the **x-axis** is often **cumulative pretrain tokens** (sometimes per *stage*). When someone posts a single loss curve on Discord, your first questions are: **which stage?** **raw vs smoothed?** **train only or eval?**
+
+### W&B and published plots
+
+Qwen’s team publishes through **Hugging Face** ([Qwen org](https://huggingface.co/Qwen)), GitHub, and the **arXiv** report. This post does **not** embed their figures; open the PDF, search for “pre-training” / “loss,” and read the *caption* for **axes** and **stage** boundaries.
+
+---
+
+## Case study: Marin 32B (the full timeline)
+
+Everything in this section is anchored to the official **[Marin 32B Retrospective](https://marin.readthedocs.io/en/latest/reports/marin-32b-retro/)** (ReadTheDocs). If a forum post disagrees, trust the **report + code + data browser** first.
+
+**Why it matters to learners:** it is a **public**, **evidence-driven** walkthrough of *instability* → *optimizer and clipping mitigations* → *failed non-architectural recovery* → *QK-Norm* → *stabilized long run*. It is the closest you can get to a **postmortem** for a 32B-scale open recipe without joining the lab.
+
+### Phase overview (from the retrospective table)
+
+| Phase | Steps (approx.) | Tokens (T) | What changed |
+|-------|-----------------|-----------|--------------|
+| 1 | 0 → 80,000 | 2.679 | **Llama-style 32B** (no QK-Norm). Very spiky training loss. |
+| 2 | ~80,000 → ~82,000 (diagnostics) | ≈0.02 (excluded from cumulative; short bursts) | Necromancy / **Muon** and other *recovery* attempts; **not** the final long continuation |
+| 3 | 80,000 → 160,000 | 2.684 | **Qwen3 32B backbone** with **QK-Norm**, warm-start from 80k Llama checkpoint. |
+| 4+ | 160,000 → 192,000+ | e.g. **1.074** in “Mantis” cooldown in the table | **Cooldown / midtraining** quality passes (e.g. shuffle + math-mix issues resolved). |
+
+Total tokens in the *artifact* the report summarizes is on the order of **~6.4T** in their accounting—see the retrospective for the full breakdown. **This post** focuses on the **QK-Norm** transition (Phases 1–3) because that is the *graph-reading* story; Phase 4 is still worth reading for **data pipeline** lessons (GSM8k cache contamination, LCG shuffle issues—**not** the same as “the model can’t do math”).
+
+**HF base:** [marin-community/marin-32b-base](https://huggingface.co/marin-community/marin-32b-base) (linked in the report).
+
+#### Phase 1 — “Same 8B recipe, bigger world” (until ~70k felt OK-ish)
+
+- Started from the **8B** “Tootsie” playbook, **Nemotron-CC–centric** mix (see report’s *Data Mix* table) and **AdamW** schedule.  
+- For **~70k** steps, behavior was “as expected” *except* more **spikes** than 8B and some 70B trials. Community opinions split; the team’s first question was whether spikes **recovered** quickly without bending the *long* trajectory.  
+- **Instability** became severe around **70k–80k** steps; the report ties part of the worst window to a period where **update-norm clipping was briefly off** (≈ **74k–80k**).
+
+#### Mitigations in order (still Llama backbone)
+
+From the [Training Phases](https://marin.readthedocs.io/en/latest/reports/marin-32b-retro/#phase-1-scaling-up-our-existing-recipe) and [Optimizer](https://marin.readthedocs.io/en/latest/reports/marin-32b-retro/#optimizer-schedule) sections:
+
+1. **Tighten `max_grad_norm` from 1.0 → 0.2** — activated around **56.4k** steps after observing that *most* grad norms are ~0.2, and large norms **precede** spikes. *Effect:* softened, did **not** remove spikes.  
+2. **Clip update norm (rolling mean + 2σ; window 128)** — added ~**72,233** steps; targets **post-Adam** update size. *Effect:* still not sufficient; *accidentally* **disabled** for a few thousand steps in the **~74k–80k** window—may have worsened the worst window.  
+3. **Skip bad steps** (after [OLMo-core–style](https://github.com/allenai/OLMo-core/blob/main/src/olmo_core/optim/skip_step_optimizer.py) / Levanter ideas) — skip updates when update norm is an outlier. *Effect:* *softens*; does not fix **structural** attention instability.
+
+**Table quote (abridged from report):** max grad 0.2 from ~56.4k; update clip at ~72,233; skip bad steps **on**; EMA, z-loss, *etc.*
+
+#### Phase 2 — “Recovery without architecture” (short, diagnostic)
+
+At **80k** the team saw **unavoidable** spikes with all the tricks above, and treated the run as **salvageable** rather than “delete everything”:
+
+- **Necromancy** (`exp1390_32b_necro`) — **rebuild optimizer state** and warm-start in a way that makes update-norm statistics sane again. Stabilized briefly, then **relapsed** → the problem was not “bad Adam moments” alone.  
+- **Muon** (`exp1380_muon32b`) — swap optimizer, higher effective LR, still **abandoned** when the run went bad later.
+
+**Lesson the report draws:** temporary gradient health without fixing **attention** at scale is not enough.
+
+#### Phase 3 — QK-Norm and warm-start (the part people remember)
+
+- **Switch** to a **Qwen3-style 32B** with **QK-Norm** in attention (same width/depth family as the Llama 32B in the report’s tables, **except** the attention mod). Rationale: prior work (including [OLMo 2](https://arxiv.org/abs/2501.00656) and DeepMind) suggests **QK-Norm** gives **stability headroom** at large scale—see the retrospective’s references.  
+- **Warm-start** from the **80,000**-step **Llama** checkpoint: preserve what transfers (e.g. **embeddings, MLPs**), re-learn attention with the new **normalized** Q/K.  
+- **Re-warmup:** the report’s **table** says **1,000**-step re-warm and specific **cycle** configuration (see *Warm-start + rewarm* table in the doc).  
+- **Outcome (report):** a **one-time** loss *penalty* at the switch, then training loss **recovered in about 10B tokens**; **spikes stopped**.  
+
+**Code:** [exp1395_qwen3_32b.py](https://github.com/marin-community/marin/blob/fe373c233ee7288cbf8e7600765c3fc6fb6fa3ac/experiments/tootsie/exp1395%5Fqwen3%5F32b.py) (verify **latest** path on `main` if the hash moves).
+
+#### Two public “recovery clocks” (not a contradiction)
+
+- **Retrospective (~10B tokens):** a **report-grade** description of *training loss* recovery to their satisfaction after the switch—useful for *budgeting* long-run stability.  
+- **Public thread (David Hall) on X** — e.g. [this status](https://x.com/dlwh/status/1938282102698741989): a **faster** “caught up on the *plot*” story (hundreds of steps / single-digit **billion-token** *scale* in the thread’s framing) when read next to a **LR re-warm** and a particular smoothing window.  
+
+Treat these as **two valid cameras** on the **same** surgery: one is **paper/report** aggregation; one is a **thread** with **eyeballed** recovery. When you read *any* plot, always ask: **raw or EMA?** **which loss?** **which token counter after restarts?**
+
+#### ASCII: three “shapes” to recognize
+
+**Phase 1 (spiky)** — diagnostic but exhausting:
+
+```text
+loss  \/\___/\__/\____
+```
+
+**Pre-switch “bad plateau”** — worse *baseline* than before the last spike (from your mental model, not a traced pixel):
+
+```text
+loss   \____
+           \__  (new, worse level)
+```
+
+**After QK-Norm (boring = good):**
+
+```text
+loss     \________________   smooth decay, few spikes
+```
+
+#### Data mix (Marin) — not Dolma, still “read the table”
+
+Marin 32B pretrain uses a **Nemotron-CC–centric** mixture (starcoder + proofpile slices in small percentages). **That is not OLMo’s Dolma**—the lesson is: when you read *any* `loss`, you should know *which mixture* and *which batch schedule* (the report’s batch table changes with **hardware** and **divisibility**). Same skill you need for *your* W&B.
+
+---
+
+## QK-Norm in the wild (snapshot table)
+
+*Snapshot for orientation—**always** confirm on the current **model card** and technical report. Names and designs change year to year.*
+
+| Model / line | QK-Norm? | Attention / notes | “Latest” pointer (verify) |
+|--------------|----------|-------------------|---------------------------|
+| **Sarvam** | Yes | 30B **GQA**; 105B **MLA** for KV at scale | Card / Sarvam release notes |
+| **Qwen3** | Yes (attention stability) | **GQA**, SwiGLU, RoPE; see [arXiv:2505.09388](https://arxiv.org/abs/2505.09388) Table 1 | Qwen3 Technical Report |
+| **MiniMax** | Yes | Full **GQA** + QK-Norm; production-stability focus | MiniMax M2.x cards |
+| **Kimi K2** | No (uses **QK-clip**-style ideas) | **MLA** (DeepSeek-style efficiency) | Model card (1T total / 32B active in public framing) |
+| **SmolLM3** | Yes | GQA, Smol training playbook | HuggingFace SmolLM3 |
+| **OLMo 3** | Yes | **MHA** family choices | AI2 OLMo 3 release |
+| **Meituan LongCat** (video) | Yes | 3D block sparse attention, DiT-style video | LongCat-Video / Flash cards |
+
+*Why include MoE/MLA rows?* So you do not overfit the Marin “add QK-Norm” story into **every** stack—**Kimi**-style training uses a different stability toolkit.
+
+---
+
+## Takeaways and exercises
+
+**Takeaways**
+
+- Fix **batch/token axes** before comparing runs; fix **pipeline** before panic-reading loss.  
+- Use **val + train + norms + LR + throughput** as a *set*.  
+- **Spikes** are data; the Marin retrospective shows that **clipping** can be necessary but *insufficient* when the root is **attention** at scale.  
+- **Public** artifacts (Marin, OLMo, Qwen3) exist—**cite them** when you make claims.
+
+**Exercises (longer, deliberate)**
+
+1. **OLMo** — Enumerate 10 `revision` tags for `allenai/OLMo-7B-0424-hf` (or the card’s recommended id), pick **two** far apart, run the same **three** prompts, and **tabulate** qualitative differences.  
+2. **W&B** — For your next run, add **config** to the run page (YAML snapshot). When something “looks weird,” first compare **code SHA** and **data path** to the previous good run.  
+3. **Marin** — Read [Phase 1–3](https://marin.readthedocs.io/en/latest/reports/marin-32b-retro/) once with the **Data Mix** and **Optimizer** pages open. Write a one-page **timeline** in your own words.  
+4. **Qwen3** — In [arXiv:2505.09388](https://arxiv.org/abs/2505.09388), find **where** the three pretrain **stages** are listed and what **x-axis** their loss figures use.  
+5. **Perfetto** — One trace from your own speedrun, **three** bullet **findings** (data vs comm vs kernel).
+
+---
+
+## References
+
+**Marin**
+
+- [Marin 32B Retrospective](https://marin.readthedocs.io/en/latest/reports/marin-32b-retro/) (primary)  
+- [exp1295_32b (Phase 1)](https://github.com/marin-community/marin/blob/5e88b5253975ffd13e63a5db0b946883c8660e1b/experiments/tootsie/exp1295%5F32b.py)  
+- [exp1395 Qwen3 32B (Phase 3)](https://github.com/marin-community/marin/blob/fe373c233ee7288cbf8e7600765c3fc6fb6fa3ac/experiments/tootsie/exp1395%5Fqwen3%5F32b.py)  
+- [Marin 32B base (Hugging Face)](https://huggingface.co/marin-community/marin-32b-base)  
+- [David Hall (X thread) on recovery and warm-start](https://x.com/dlwh/status/1938282102698741989) (secondary, faster-timescale view)
+
+**Qwen3**
+
+- [Qwen3 Technical Report — arXiv:2505.09388](https://arxiv.org/abs/2505.09388)  
+- [Qwen3 HTML (same paper)](https://arxiv.org/html/2505.09388v1)  
+- [Qwen on Hugging Face](https://huggingface.co/Qwen)  
+- [Qwen3 GitHub](https://github.com/QwenLM/Qwen3)
+
+**OLMo / Dolma / stability references cited by Marin**
+
+- [OLMo (2024) — arXiv:2402.00838](https://arxiv.org/abs/2402.00838)  
+- [OLMo 2 / core — arXiv:2501.00656](https://arxiv.org/abs/2501.00656) (cited in Marin for QK-Norm *headroom* context)  
+- [OLMo 7B April 2024 (Hub)](https://huggingface.co/allenai/OLMo-7B-0424) and [OLMo-7B-0424-hf](https://huggingface.co/allenai/OLMo-7B-0424-hf)  
+- [Dolma dataset (Hub)](https://huggingface.co/datasets/allenai/dolma)  
+- [OLMo GitHub](https://github.com/allenai/OLMo)  
+- Example **W&B** group from the model card: [ai2-llm/OLMo-7B / OLMo-1.7-7B](https://wandb.ai/ai2-llm/OLMo-7B/groups/OLMo-1.7-7B)
+
+**Tools**
+
+- [Weights & Biases](https://wandb.ai)  
+- [Perfetto UI](https://ui.perfetto.dev/)
+
+[← Back to Blog index](index.qmd) · [Roadmap](../roadmap.qmd)
