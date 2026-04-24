@@ -611,15 +611,28 @@ The **Qwen3 Technical Report** is [arXiv:2505.09388](https://arxiv.org/abs/2505.
 
 The report describes pretraining in **three** stages (paraphrased; read the table and prose for exact token budgets):
 
-- **General (S1)** — on the order of **tens of trillions** of tokens at **4,096** context, broad language and world knowledge.  
-- **Reasoning-leaning (S2)** — on the order of **~5T** more tokens with **higher** STEM / code / reasoning / synthetic *share*, still at 4,096—LR decay is **accelerated** in that phase.  
-- **Long context** — **hundreds of billions** of tokens at **32,768** context, with long-doc corpora; RoPE frequency and YARN/DCA-style techniques appear for length extension (see report).
+**S1 — General (tens of trillions of tokens, 4,096 context)**
+
+Broad web data dominates. The loss curve shows the classic steep-drop-then-slow-decline shape. This is where the model learns language fundamentals — syntax, token distribution, and world knowledge from scale.
+
+**S2 — Reasoning-leaning (~5T more tokens, 4,096 context)**
+
+Higher STEM / code / reasoning / synthetic share. The key observable: LR decay is **accelerated** in this phase, which means the loss curve’s *slope* changes. If you are reading a combined plot, you will see a change in descent rate at the S1/S2 boundary. This is *intentional*, not a bug — the schedule is tuned to squeeze more reasoning signal from the curated data.
+
+**S3 — Long context (hundreds of billions of tokens, 32,768 context)**
+
+Long-doc corpora; RoPE frequency adjustment and YARN/DCA-style techniques appear for length extension. The loss curve looks different here because the effective batch (in tokens) changes with context length. **Do not compare S3 loss directly to S1 loss** without accounting for this.
 
 **What to look for in figures:** in large foundation reports, the **x-axis** is often **cumulative pretrain tokens** (sometimes per *stage*). When someone posts a single loss curve on Discord, your first questions are: **which stage?** **raw vs smoothed?** **train only or eval?**
 
-### W&B and published plots
+### How to read Qwen3’s published figures
 
-Qwen’s team publishes through **Hugging Face** ([Qwen org](https://huggingface.co/Qwen)), GitHub, and the **arXiv** report. This post does **not** embed their figures; open the PDF, search for “pre-training” / “loss,” and read the *caption* for **axes** and **stage** boundaries.
+Qwen’s team publishes through **Hugging Face** ([Qwen org](https://huggingface.co/Qwen)), GitHub, and the **arXiv** report. To read their figures:
+
+1. Open the PDF ([arXiv:2505.09388](https://arxiv.org/pdf/2505.09388)), search for “pre-training” or “loss”
+2. Read the **caption first**: what is the x-axis? Is it per-stage tokens or cumulative?
+3. Look for **stage boundary markers** — vertical lines or annotations showing S1/S2/S3 transitions
+4. Note that **QK-Norm is present from the start** in Qwen3 — unlike Marin, they did not add it mid-run. The stability benefits are baked in from step 0.
 
 ---
 
@@ -641,6 +654,28 @@ Everything in this section is anchored to the official **[Marin 32B Retrospectiv
 Total tokens in the *artifact* the report summarizes is on the order of **~6.4T** in their accounting—see the retrospective for the full breakdown. **This post** focuses on the **QK-Norm** transition (Phases 1–3) because that is the *graph-reading* story; Phase 4 is still worth reading for **data pipeline** lessons (GSM8k cache contamination, LCG shuffle issues—**not** the same as “the model can’t do math”).
 
 **HF base:** [marin-community/marin-32b-base](https://huggingface.co/marin-community/marin-32b-base) (linked in the report).
+
+### Architecture and optimizer specifics
+
+| Parameter | Value |
+|---|---|
+| Hidden size | 5,120 |
+| Intermediate size | 27,648 |
+| Attention heads | 40 |
+| KV heads | 8 (GQA) |
+| Layers | 64 |
+| Sequence length | 4,096 |
+| Activation | SiLU |
+| Optimizer | AdamW |
+| Peak learning rate | 7e-4 |
+| Warmup | 1% of steps |
+| Decay window | 40% of steps |
+| Weight decay | 0.05 |
+| EMA beta | 0.995 |
+| Hardware (Phase 1) | TPU v5p-512 slices |
+| Hardware (Phase 3+) | TPU v4-2048 |
+
+These numbers matter because they set the **scale** of the debugging story: 64 layers of GQA attention at 5,120 width is where the instability lived.
 
 #### Phase 1 — “Same 8B recipe, bigger world” (until ~70k felt OK-ish)
 
@@ -704,9 +739,130 @@ loss   \____
 loss     \________________   smooth decay, few spikes
 ```
 
-#### Data mix (Marin) — not Dolma, still “read the table”
+#### Phase 4 — cooldown: the data mix shifts
 
-Marin 32B pretrain uses a **Nemotron-CC–centric** mixture (starcoder + proofpile slices in small percentages). **That is not OLMo’s Dolma**—the lesson is: when you read *any* `loss`, you should know *which mixture* and *which batch schedule* (the report’s batch table changes with **hardware** and **divisibility**). Same skill you need for *your* W&B.
+In the Mantis cooldown (~1.074T tokens, steps 160k–192k), the data mix changed significantly from Phase 1. **MegaMath** datasets (web, text, QA, translated code) were added at ~12% combined. **ArXiv papers**, **finemath**, **StackExchange**, and **Wikipedia** each got dedicated slices. Nemotron-CC dropped from ~91% to ~68%. The contaminated Dolmino math source (GSM8k leak) was replaced with clean MegaMath. A **Feistel shuffle** replaced the flawed LCG shuffle to fix batch-level distribution skew.
+
+This is standard practice: late-stage training uses more targeted, higher-quality data to sharpen the model.
+
+#### Benchmark results
+
+| Benchmark | Marin 32B (Mantis) |
+|---|---|
+| **Average** (across suite) | **65.2%** |
+| MMLU | 74.7% |
+| BBH | 59.6% |
+| HumanEval | 42.7% |
+| GSM8K | 69.1% |
+| vs **OLMo 2 32B Base** | **+2.0 avg accuracy**, better on 14 of 19 tasks |
+
+The point is not to memorize these — it is to see that the QK-Norm surgery and subsequent stable training produced a **competitive** model, not a compromised one. The ~2.679T tokens from Phase 1 were not wasted.
+
+### Visual storyboard: the Marin debugging timeline
+
+This is a **visual analysis sequence** — annotated diagrams showing cause and effect, what to look for in W&B, and the teaching point at each step.
+
+**Panel 1 — The confident scale-up**
+
+```text
+8B recipe (stable, fast) ──────→ 32B scale-up (same recipe, bigger)
+     ✓ worked                        ? will it hold?
+```
+
+*Teaching point:* a training recipe that is stable at 8B can become unstable at 32B. Architecture choices that were “fine” at smaller scale may lack stability headroom.
+
+**Panel 2 — Spikes appear, but recover**
+
+```text
+loss
+ |  \       /\        /\       /\
+ |   \_____/  \______/  \_____/
+ |
+ +-------------------------------- steps (0 → ~56k)
+```
+
+*What to look for in W&B:* loss spikes that **return** to the previous band. Eval loss continues improving. Grad norms spike *before* each loss spike.
+
+*Teaching point:* a spike is not automatically fatal. The first question is whether the loss recovers to the previous trajectory.
+
+**Panel 3 — Mitigations applied, spikes soften but persist**
+
+```text
+max_grad_norm: 1.0 → 0.2        (step ~56.4k)
+update_norm clipping: ON         (step ~72.2k)
+skip_bad_steps: ON               (same window)
+
+Result: spikes soften in amplitude, but keep appearing
+```
+
+*Teaching point:* grad clipping controls the *input* to Adam. Update clipping controls the *actual* weight movement. Skip-step skips the update entirely. All three are **symptoms-level** fixes.
+
+**Panel 4 — The bad plateau (the diagnosis changes)**
+
+```text
+loss
+ |  \______
+ |         \   (old band)
+ |          /\
+ |         /  \______  ← new, WORSE plateau (~74k-80k)
+ +-------------------------------- steps
+```
+
+*What to look for in W&B:* loss does **not** return to the old band. Eval loss shifts up. Norms stay elevated.
+
+*Teaching point:* a recovered spike is a warning. A new worse plateau is a diagnosis. The team now knows this is **structural**, not noise.
+
+**Panel 5 — Architecture switch: QK-Norm warm-start**
+
+```text
+Llama 32B checkpoint @ step 80k
+        ↓
+Preserve: embeddings, MLPs, optimizer state
+Change:   attention stack → Qwen3-style with QK-Norm
+Rewarm:   LR for 1,000 steps
+        ↓
+Continue training (Phase 3)
+```
+
+*Teaching point:* you can change architecture mid-training if the mapping is mostly compatible. They did **not** throw away 2.679T tokens of compute.
+
+**Panel 6 — “Boring is beautiful”: smooth curve after surgery**
+
+```text
+Before QK-Norm:    \__/\___/\____/\__   (spiky, exhausting)
+                        ↑ architecture switch
+After QK-Norm:           \____________   (smooth, stable)
+                          ~10B tokens to recover
+```
+
+*What to look for in W&B:* a one-time loss penalty at the switch, then smooth decay. No more spikes. Grad norms in a tight band.
+
+*Teaching point:* in professional pretraining, the best loss curve is **boring** — smooth, stable, slowly decreasing. All the drama of Phases 1–2 was to *reach* boring.
+
+---
+
+## Boring is beautiful: the philosophy of stable training
+
+After reading the Marin case study, you might think training is all about *drama* — spikes, rescues, mid-training surgery. The real lesson is the opposite. **The goal of all that work is to make the loss curve boring.**
+
+### What “boring” means in practice
+
+| Boring (good) | Exciting (bad) |
+|---|---|
+| Smooth monotonic decline | Spikes, plateaus, recoveries |
+| Grad norms in a tight band | Norm explosions |
+| Throughput flat line | Throughput drops and recoveries |
+| Eval tracks train (both down) | Eval diverges from train |
+| No code changes mid-run | Emergency hotfixes at 3 AM |
+
+### “Boring” does not mean “easy”
+
+Making a curve boring requires getting data, optimizer, architecture, and systems right **before** you start. The Marin story took months and multiple failed interventions to reach boring. QK-Norm was chosen because it gives **stability headroom**, making future runs boring from the start — which is why Qwen3, OLMo 3, SmolLM3, and others now include it by default (see [QK-Norm table](#qk-norm-in-the-wild-snapshot-table)).
+
+::: {.callout-tip}
+## The boring test
+Open your W&B dashboard. If the loss curve is so smooth you are bored looking at it, and the throughput line is flat, and the norm plots are in a tight band — congratulations, you have a healthy run. Now go work on **data quality** — that is where the remaining gains live.
+:::
 
 ---
 
@@ -732,18 +888,22 @@ Marin 32B pretrain uses a **Nemotron-CC–centric** mixture (starcoder + proofpi
 
 **Takeaways**
 
-- Fix **batch/token axes** before comparing runs; fix **pipeline** before panic-reading loss.  
-- Use **val + train + norms + LR + throughput** as a *set*.  
-- **Spikes** are data; the Marin retrospective shows that **clipping** can be necessary but *insufficient* when the root is **attention** at scale.  
-- **Public** artifacts (Marin, OLMo, Qwen3) exist—**cite them** when you make claims.
+- Fix **batch/token axes** before comparing runs; fix **pipeline** before panic-reading loss.
+- Use **val + train + norms + LR + throughput** as a *set*, not individually.
+- **Data mix is the first decision** in pretraining — read the data mix table before interpreting any loss curve.
+- **Spikes** are diagnostic data; the Marin retrospective shows that **clipping** can be necessary but *insufficient* when the root is **attention** at scale.
+- **”Boring is beautiful”** — the goal of stability engineering is a featureless loss curve, not a dramatic rescue story.
+- **Public** artifacts (Marin, OLMo, Qwen3) exist — **cite them** when you make claims.
 
 **Exercises (longer, deliberate)**
 
-1. **OLMo** — Enumerate 10 `revision` tags for `allenai/OLMo-7B-0424-hf` (or the card’s recommended id), pick **two** far apart, run the same **three** prompts, and **tabulate** qualitative differences.  
-2. **W&B** — For your next run, add **config** to the run page (YAML snapshot). When something “looks weird,” first compare **code SHA** and **data path** to the previous good run.  
-3. **Marin** — Read [Phase 1–3](https://marin.readthedocs.io/en/latest/reports/marin-32b-retro/) once with the **Data Mix** and **Optimizer** pages open. Write a one-page **timeline** in your own words.  
-4. **Qwen3** — In [arXiv:2505.09388](https://arxiv.org/abs/2505.09388), find **where** the three pretrain **stages** are listed and what **x-axis** their loss figures use.  
-5. **Perfetto** — One trace from your own speedrun, **three** bullet **findings** (data vs comm vs kernel).
+1. **OLMo checkpoints** — Enumerate 10 `revision` tags for `allenai/OLMo-7B-0424-hf` (use the `list_repo_refs` code above), pick **two** far apart, run the same **three** prompts, and **tabulate** qualitative differences.
+2. **OLMo weight inspection** — Using the embedding comparison code above, compute the relative change in embedding weights between an early and late checkpoint. What changed most? Write a 3-sentence interpretation.
+3. **W&B** — For your next run, add **config** to the run page (YAML snapshot). When something “looks weird,” first compare **code SHA** and **data path** to the previous good run.
+4. **Marin** — Read [Phase 1–3](https://marin.readthedocs.io/en/latest/reports/marin-32b-retro/) once with the **Data Mix** and **Optimizer** pages open. Write a one-page **timeline** in your own words.
+5. **Data mix comparison** — Find the data mix table in the Marin retrospective. Compare it to OLMo’s Dolma composition (from the OLMo paper). Write a 5-row table: source category, Marin %, OLMo % (approximate), your interpretation of why they differ.
+6. **Qwen3** — In [arXiv:2505.09388](https://arxiv.org/abs/2505.09388), find **where** the three pretrain **stages** are listed and what **x-axis** their loss figures use.
+7. **Perfetto** — One trace from your own speedrun, **three** bullet **findings** (data vs comm vs kernel).
 
 ---
 
