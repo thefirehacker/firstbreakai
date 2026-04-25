@@ -12,7 +12,7 @@ Complete these before you start the cohort.
 
 Everything starts here. Join the Discord to connect with the cohort, ask questions, share progress, and get help.
 
-[Join Discord](https://discord.gg/QZuBvfcj){.cta-button-checklist}
+[Join Discord](https://discord.gg/hRPese4H3F){.cta-button-checklist}
 
 **Office Hours:** Every Friday, 9:00 — 10:00 PM IST. Meeting link shared on Discord.
 <span class="office-hours-local"></span>
