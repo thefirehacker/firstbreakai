@@ -9,7 +9,7 @@ Your learning path — one journey, step by step. The cohort runs **1 May 2026 �
 
 ::: {.callout-important}
 ## Before you begin
-Make sure you've completed the [Checklist](checklist.qmd) — set up your accounts and [join the Discord](https://discord.gg/QZuBvfcj) so you can ask questions and share progress as you go.
+Make sure you've completed the [Checklist](checklist.qmd) — set up your accounts and [join the Discord](https://discord.gg/hRPese4H3F) so you can ask questions and share progress as you go.
 :::
 
 ::: {.view-toggle}

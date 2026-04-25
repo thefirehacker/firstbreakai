@@ -234,9 +234,10 @@ css: ../styles/journey.css
     <h2>Your first break starts here</h2>
     <p>This cohort is free, community-driven, and open. Join the Discord, pick up the roadmap, and start building in the open.</p>
     <div class="journey-end-actions">
-      <a href="https://discord.gg/QZuBvfcj" class="journey-cta-btn journey-cta-primary">Join Discord</a>
+      <a href="https://discord.gg/hRPese4H3F" class="journey-cta-btn journey-cta-primary">Join Discord</a>
       <a href="../roadmap.qmd" class="journey-cta-btn journey-cta-secondary">View Full Roadmap</a>
     </div>
+    <p class="journey-end-contact">Questions? Reach us at <a href="mailto:contact@bubblspace.com">contact@bubblspace.com</a></p>
   </div>
 </section>
 ```
