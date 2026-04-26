@@ -75,6 +75,7 @@ This is a free, community-driven cohort. To join, sign up on Discord — that's 
 
 | Section | Description |
 |--------|--------------|
+| [Lesson 0: Welcome to First Break AI](lessons/lesson-0-welcome.qmd) | Cohort intro video with interactive transcript — start here. Also on [YouTube](https://www.youtube.com/watch?v=r9uykyGAdJQ&list=PLEzXCZNdmgBm-SbXuXHxn9_vXpvFbrKKL) (full [playlist](https://www.youtube.com/playlist?list=PLEzXCZNdmgBm-SbXuXHxn9_vXpvFbrKKL)) |
 | [Roadmap](roadmap.qmd) | Learning path: Quarto blog, local inference, training, and beyond |
 | [Checklist](checklist.qmd) | Accounts to create (Hugging Face, GitHub, Fetchlens.ai, Colab) and who to follow |
 | [AI Setup](setup.qmd) | AI-based IDE (Cursor / Claude Code), ChatGPT, Open Router |

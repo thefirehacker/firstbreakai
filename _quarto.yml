@@ -4,12 +4,14 @@ project:
   resources:
     - robots.txt
     - _redirects
+    - public/transcripts/**
   render:
     - "*.qmd"
     - "blog/*.qmd"
     - "project-watch/*.qmd"
     - "office-hours/*.qmd"
     - "journey/*.qmd"
+    - "lessons/*.qmd"
     - "!temp/"
 
 website:
@@ -44,6 +46,8 @@ website:
         text: Checklist
       - href: setup.qmd
         text: AI Setup
+      - href: lessons/index.qmd
+        text: Lessons
       - href: blog/index.qmd
         text: Blog
       - href: project-watch/index.qmd
@@ -66,5 +70,6 @@ format:
       - includes/mermaid-zoom.html
       - includes/github-card.html
       - includes/journey-player.html
+      - includes/lesson-player.html
     mermaid:
       theme: neutral
