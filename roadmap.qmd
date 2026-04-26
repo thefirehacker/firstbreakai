@@ -47,6 +47,11 @@ Set up a **Quarto blog** and host it on GitHub with an about-me page, blog posts
 <li>How AI coding tools and SWE agents work in practice</li>
 </ul>
 
+<p><strong>Lessons:</strong></p>
+<ul>
+<li><a href="lessons/lesson-0-welcome.qmd">Welcome to First Break AI</a> — cohort intro video with interactive transcript (start here).</li>
+</ul>
+
 <p><strong>Office Hours sessions:</strong></p>
 <ul>
 <li><a href="office-hours/2026-03-13.qmd#topic-1-github-collaboration">GitHub collaboration — PRs, conflicts, rebasing</a> (13 Mar)</li>
@@ -257,6 +262,10 @@ Prove what you've learned. Pick one: ship a capstone project or make a meaningfu
 2. Use your AI-based IDE to complete this setup.
 
 **Learning objectives:** GitHub basics refresher · Setting up a personal and blogging website · Understanding how coding tools or SWE / AI agents work
+
+**Lessons:**
+
+- [Welcome to First Break AI](lessons/lesson-0-welcome.qmd) — cohort intro video with interactive transcript (start here).
 
 **Office Hours sessions:**
 

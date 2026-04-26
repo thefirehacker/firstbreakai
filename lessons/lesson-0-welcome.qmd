@@ -1,0 +1,74 @@
+---
+title: "Lesson 0: Welcome to First Break AI"
+subtitle: "A guided tour of the cohort — six stages from commit to capstone"
+description: "Watch the cohort intro video with an interactive transcript. Click any line to jump the video to that point. Covers the six stages, who the cohort is for, the roadmap, the checklist, and the AI setup."
+page-layout: full
+css:
+  - ../styles/journey.css
+  - ../styles/lessons.css
+---
+
+This is the cohort intro. It walks through the **six stages of the journey**, the roadmap, the checklist, and the AI setup you'll need. The transcript below is interactive — **click any line and the video jumps to that point**.
+
+## Navigate by roadmap
+
+| Step | Topic | This lesson |
+|------|-------|-------------|
+| **Lesson 0** | **Welcome to First Break AI** | **You are here** |
+| [Step 1](../roadmap.qmd) | First use of AI for coding (Quarto blog) | — |
+| [Step 2](../roadmap.qmd) | Run a model locally | — |
+
+[← Back to Roadmap](../roadmap.qmd)
+
+
+```{=html}
+<div class="lesson-page lesson-page-theatre" data-size="compact">
+
+  <div class="lesson-deck">
+    <div class="lesson-video-wrap">
+      <div id="ytPlayer"
+           data-video-id="r9uykyGAdJQ"
+           data-transcript="lesson-0-welcome.json"></div>
+    </div>
+
+    <div class="lesson-meta">
+      <div class="lesson-now-playing">
+        <span class="lesson-now-label">Chapter</span>
+        <span class="lesson-chapter-title" id="lessonChapterTitle">Welcome &amp; the six stages</span>
+      </div>
+      <div class="lesson-controls">
+        <div class="lesson-size-group" role="group" aria-label="Video size">
+          <button type="button" class="lesson-size-btn" data-size="compact">Compact</button>
+          <button type="button" class="lesson-size-btn" data-size="theatre">Theatre</button>
+          <button type="button" class="lesson-size-btn" data-size="wide">Wide</button>
+        </div>
+        <button type="button" class="transcript-toggle" id="lessonTranscriptToggle">Show Transcript</button>
+      </div>
+    </div>
+
+    <div class="lesson-chapters">
+      <div class="lesson-chapters-label">Chapters</div>
+      <div class="lesson-chapter-list" id="lessonChapterList"></div>
+    </div>
+  </div>
+
+  <div class="scene-transcript lesson-transcript" id="lessonTranscript"></div>
+
+</div>
+```
+
+## What this lesson covers
+
+- **The six stages:** ship something real, see inside the machine, think at production scale, train your own model, ship a product, prove it.
+- **Cohort dates:** 1 May 2026 – 30 June 2026.
+- **The roadmap:** GitHub basics, run a model locally, attention & KV cache, PyTorch & training, and Modal-based GPU runs.
+- **The checklist:** Discord, Hugging Face, GitHub, Bubblspace AI, Google Colab.
+- **The AI setup:** Cursor / Claude Code / Codex, ChatGPT, OpenRouter, Modal, Weights & Biases.
+
+## Next steps
+
+1. Join the [First Break AI Discord](https://discord.gg/hRPese4H3F).
+2. Walk through the [Roadmap](../roadmap.qmd).
+3. Tick off the [Checklist](../checklist.qmd).
+4. Complete the [AI Setup](../setup.qmd).
+5. Begin [The Journey](../journey/index.qmd) — the audio-narrated walk-through of stage 1.

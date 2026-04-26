@@ -1,0 +1,230 @@
+/* ── Navigate-by-roadmap table on lesson pages — match site cream bg ── */
+main table,
+main .table {
+  background-color: transparent !important;
+  --bs-table-bg: transparent;
+  --bs-table-striped-bg: transparent;
+  --bs-table-accent-bg: transparent;
+  border-color: rgba(180, 168, 138, 0.4) !important;
+}
+main table thead th,
+main .table thead th {
+  background-color: transparent !important;
+  border-bottom: 2px solid rgba(180, 168, 138, 0.5) !important;
+  color: #1e1a14;
+}
+main table tbody tr,
+main table tbody td,
+main .table tbody tr,
+main .table tbody td {
+  background-color: transparent !important;
+  border-color: rgba(180, 168, 138, 0.3) !important;
+}
+
+/* ── Lesson page: theatre layout with side-by-side transcript ── */
+.lesson-page-theatre {
+  max-width: 1500px;
+  margin: 0.5rem auto 3rem;
+  padding: 0 1rem;
+  display: grid;
+  gap: 1.5rem;
+  align-items: start;
+  transition: grid-template-columns 0.25s ease;
+}
+.lesson-page-theatre[data-size="compact"] {
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+}
+.lesson-page-theatre[data-size="theatre"] {
+  grid-template-columns: minmax(0, 9fr) minmax(0, 4fr);
+}
+.lesson-page-theatre[data-size="wide"] {
+  grid-template-columns: minmax(0, 1fr);
+}
+.lesson-page-theatre[data-size="wide"] .lesson-transcript {
+  display: none;
+}
+
+/* ── Size toggle chips ── */
+.lesson-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.lesson-size-group {
+  display: inline-flex;
+  border: 1px solid rgba(122, 85, 24, 0.25);
+  border-radius: 2rem;
+  overflow: hidden;
+  background: rgba(122, 85, 24, 0.04);
+}
+.lesson-size-btn {
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #7a5518;
+  background: transparent;
+  border: 0;
+  padding: 0.35rem 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-right: 1px solid rgba(122, 85, 24, 0.18);
+}
+.lesson-size-btn:last-child { border-right: 0; }
+.lesson-size-btn:hover {
+  background: rgba(122, 85, 24, 0.1);
+}
+.lesson-size-btn.active {
+  background: #7a5518;
+  color: #faf6ee;
+}
+
+/* ── Sticky left deck: video + meta + chapters ── */
+.lesson-deck {
+  position: sticky;
+  top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  /* Cap so the whole deck fits in the viewport without overflow */
+  max-height: calc(100vh - 1.5rem);
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+/* ── Theatre-mode 16:9 video wrap ── */
+.lesson-video-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+}
+.lesson-video-wrap > div,
+.lesson-video-wrap iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* ── Now-playing meta row ── */
+.lesson-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(180, 168, 138, 0.3);
+}
+.lesson-now-playing {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  min-width: 0;
+}
+.lesson-now-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #7a5518;
+}
+.lesson-chapter-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e1a14;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Chapter list (restored — bigger, prettier) ── */
+.lesson-chapters-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #7a5518;
+  margin-bottom: 0.5rem;
+}
+.lesson-chapter-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.4rem;
+}
+.lesson-chapter-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(122, 85, 24, 0.04);
+  border: 1px solid rgba(180, 168, 138, 0.3);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: all 0.15s;
+  color: #1e1a14;
+}
+.lesson-chapter-item:hover {
+  background: rgba(122, 85, 24, 0.1);
+  border-color: rgba(122, 85, 24, 0.4);
+}
+.lesson-chapter-item.active {
+  background: rgba(212, 167, 74, 0.18);
+  border-color: #d4a74a;
+}
+.lesson-chapter-time {
+  font-size: 0.7rem;
+  color: rgba(90, 78, 62, 0.7);
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.lesson-chapter-name {
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+/* ── Transcript panel (right column, independent scroll) ── */
+.lesson-transcript {
+  display: block;
+  max-height: calc(100vh - 1.5rem);
+  position: sticky;
+  top: 0.75rem;
+}
+.lesson-transcript:not(.visible) {
+  display: none;
+}
+.lesson-transcript .transcript-seg {
+  gap: 0.75rem;
+}
+
+/* ── Stack on narrower screens ── */
+@media (max-width: 1024px) {
+  .lesson-page-theatre {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .lesson-deck {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+  .lesson-transcript {
+    position: static;
+    max-height: 600px;
+  }
+}
+
+/* ── Mobile tweaks ── */
+@media (max-width: 600px) {
+  .lesson-page-theatre { padding: 0 0.5rem; gap: 1rem; }
+  .lesson-chapter-list { grid-template-columns: 1fr; }
+  .lesson-meta { flex-direction: column; align-items: flex-start; gap: 0.4rem; }
+}

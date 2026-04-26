@@ -1,0 +1,33 @@
+---
+title: "Lessons"
+subtitle: "Video lessons with interactive transcripts"
+description: "Watch cohort lessons with NotebookLM-style interactive transcripts — click any line to jump the video to that point."
+css: ../styles/blog.css
+---
+
+Each lesson pairs a video with a clickable transcript and chapter markers. Click any line in the transcript to jump the video to that exact moment.
+
+::: {.callout-tip}
+## How to use lessons
+Use the chapter list to skim what's covered. Use the transcript to find the exact sentence you want to revisit — clicking a line seeks the video. The active line highlights as the video plays.
+:::
+
+## Available lessons
+
+::: {.blog-cards}
+
+:::: {.blog-card .blog-card-oh}
+[Lesson 0 · Cohort intro]{.blog-card-label}
+
+### Welcome to First Break AI
+
+::: {.blog-card-desc}
+A guided tour of the cohort — the six stages from commit to capstone, who this cohort is for, the roadmap walkthrough, the checklist, and the AI setup. Watch with an interactive transcript and chapter markers.
+:::
+
+[Watch lesson](lesson-0-welcome.qmd){.blog-card-link}
+::::
+
+:::
+
+More lessons will be published here as the cohort progresses.

@@ -1,0 +1,226 @@
+<script>
+(function() {
+  var mount = document.getElementById('ytPlayer');
+  if (!mount) return;
+
+  var videoId = mount.getAttribute('data-video-id');
+  var transcriptFile = mount.getAttribute('data-transcript');
+  if (!videoId) return;
+
+  var transcriptPanel = document.getElementById('lessonTranscript');
+  var toggleBtn = document.getElementById('lessonTranscriptToggle');
+  var chapterListEl = document.getElementById('lessonChapterList');
+  var chapterTitleEl = document.getElementById('lessonChapterTitle');
+
+  var player = null;
+  var apiReady = false;
+  var pendingInit = false;
+  var transcriptSegments = [];
+  var transcriptChapters = [];
+  var activeIdx = -1;
+  var activeChapterIdx = -1;
+  var playerReady = false;
+
+  function formatTime(sec) {
+    if (!sec || isNaN(sec)) return '0:00';
+    var m = Math.floor(sec / 60);
+    var s = Math.floor(sec % 60);
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  function loadYouTubeAPI() {
+    if (window.YT && window.YT.Player) {
+      apiReady = true;
+      initPlayer();
+      return;
+    }
+    var existing = document.querySelector('script[data-yt-iframe-api]');
+    if (!existing) {
+      var tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      tag.setAttribute('data-yt-iframe-api', '1');
+      document.head.appendChild(tag);
+    }
+    var prevReady = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = function() {
+      if (typeof prevReady === 'function') prevReady();
+      apiReady = true;
+      initPlayer();
+    };
+  }
+
+  function initPlayer() {
+    if (!apiReady || pendingInit || player) return;
+    pendingInit = true;
+    player = new YT.Player('ytPlayer', {
+      videoId: videoId,
+      playerVars: {
+        rel: 0,
+        modestbranding: 1,
+        playsinline: 1
+      },
+      events: {
+        onReady: function() { playerReady = true; },
+        onStateChange: function() {}
+      }
+    });
+  }
+
+  function seekTo(t) {
+    if (!playerReady || !player) return;
+    try {
+      player.seekTo(t, true);
+      player.playVideo();
+    } catch (e) {}
+  }
+
+  function loadTranscript() {
+    if (!transcriptFile) return;
+    var url = '../public/transcripts/' + transcriptFile;
+    fetch(url).then(function(r) {
+      if (!r.ok) throw new Error('Transcript fetch failed: ' + r.status);
+      return r.json();
+    }).then(function(data) {
+      transcriptSegments = data.segments || [];
+      transcriptChapters = data.chapters || [];
+      renderChapters();
+      renderTranscript();
+    }).catch(function() {
+      if (transcriptPanel) {
+        transcriptPanel.innerHTML = '<p style="color:#999;font-size:0.85rem;padding:0.5rem;">Transcript not available.</p>';
+      }
+    });
+  }
+
+  function renderChapters() {
+    if (!chapterListEl || !transcriptChapters.length) return;
+    chapterListEl.innerHTML = '';
+    transcriptChapters.forEach(function(ch, i) {
+      var item = document.createElement('button');
+      item.className = 'lesson-chapter-item';
+      item.setAttribute('type', 'button');
+      item.dataset.idx = i;
+      item.innerHTML =
+        '<span class="lesson-chapter-time">' + formatTime(ch.t) + '</span>' +
+        '<span class="lesson-chapter-name">' + ch.title + '</span>';
+      item.addEventListener('click', function() { seekTo(ch.t); });
+      chapterListEl.appendChild(item);
+    });
+  }
+
+  function renderTranscript() {
+    if (!transcriptPanel) return;
+    transcriptPanel.innerHTML = '';
+    transcriptSegments.forEach(function(seg, i) {
+      var div = document.createElement('div');
+      div.className = 'transcript-seg';
+      div.dataset.idx = i;
+      div.dataset.start = seg.start_time;
+      div.innerHTML =
+        '<span class="transcript-time">' + formatTime(seg.start_time) + '</span>' +
+        '<span class="transcript-text">' + seg.text + '</span>';
+      div.addEventListener('click', function() { seekTo(seg.start_time); });
+      transcriptPanel.appendChild(div);
+    });
+  }
+
+  function highlightActiveSegment(time) {
+    if (!transcriptSegments.length) return;
+    var newIdx = -1;
+    for (var i = transcriptSegments.length - 1; i >= 0; i--) {
+      if (time >= transcriptSegments[i].start_time) { newIdx = i; break; }
+    }
+    if (newIdx === activeIdx) return;
+    activeIdx = newIdx;
+    var items = transcriptPanel ? transcriptPanel.querySelectorAll('.transcript-seg') : [];
+    items.forEach(function(el, i) {
+      var isActive = i === newIdx;
+      el.classList.toggle('active', isActive);
+      if (isActive && transcriptPanel.classList.contains('visible')) {
+        el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      }
+    });
+  }
+
+  function highlightActiveChapter(time) {
+    if (!transcriptChapters.length) return;
+    var newIdx = 0;
+    for (var i = transcriptChapters.length - 1; i >= 0; i--) {
+      if (time >= transcriptChapters[i].t) { newIdx = i; break; }
+    }
+    if (newIdx === activeChapterIdx) return;
+    activeChapterIdx = newIdx;
+    if (chapterTitleEl) {
+      chapterTitleEl.textContent = transcriptChapters[newIdx].title;
+    }
+    if (chapterListEl) {
+      var items = chapterListEl.querySelectorAll('.lesson-chapter-item');
+      items.forEach(function(el, i) {
+        el.classList.toggle('active', i === newIdx);
+      });
+    }
+  }
+
+  function tick() {
+    if (playerReady && player && typeof player.getCurrentTime === 'function') {
+      try {
+        var t = player.getCurrentTime() || 0;
+        highlightActiveSegment(t);
+        highlightActiveChapter(t);
+      } catch (e) {}
+    }
+    requestAnimationFrame(tick);
+  }
+
+  if (transcriptPanel) {
+    /* Theatre layout: transcript starts visible (it has its own column) */
+    transcriptPanel.classList.add('visible');
+  }
+
+  /* ── Video size toggle (compact / theatre / wide) ── */
+  var pageEl = document.querySelector('.lesson-page-theatre');
+  var sizeBtns = document.querySelectorAll('.lesson-size-btn');
+  var lastNonWideSize = 'compact';
+
+  function applySize(size) {
+    if (!pageEl) return;
+    pageEl.setAttribute('data-size', size);
+    sizeBtns.forEach(function(b) {
+      b.classList.toggle('active', b.dataset.size === size);
+    });
+    if (size !== 'wide') lastNonWideSize = size;
+    /* Keep transcript panel + toggle button in sync with size */
+    if (transcriptPanel && toggleBtn) {
+      var visible = (size !== 'wide');
+      transcriptPanel.classList.toggle('visible', visible);
+      toggleBtn.classList.toggle('active', visible);
+      toggleBtn.textContent = visible ? 'Hide Transcript' : 'Show Transcript';
+    }
+  }
+
+  if (pageEl) {
+    var initialSize = pageEl.getAttribute('data-size') || 'compact';
+    applySize(initialSize);
+  }
+  sizeBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      applySize(btn.dataset.size);
+    });
+  });
+
+  if (toggleBtn && transcriptPanel) {
+    toggleBtn.addEventListener('click', function() {
+      var currentlyVisible = transcriptPanel.classList.contains('visible');
+      if (currentlyVisible) {
+        applySize('wide');
+      } else {
+        applySize(lastNonWideSize);
+      }
+    });
+  }
+
+  loadYouTubeAPI();
+  loadTranscript();
+  requestAnimationFrame(tick);
+})();
+</script>
