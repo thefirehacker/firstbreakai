@@ -1,12 +1,82 @@
+/* ── Navigate-by-roadmap table on lesson pages — match site cream bg ── */
+main table,
+main .table {
+  background-color: transparent !important;
+  --bs-table-bg: transparent;
+  --bs-table-striped-bg: transparent;
+  --bs-table-accent-bg: transparent;
+  border-color: rgba(180, 168, 138, 0.4) !important;
+}
+main table thead th,
+main .table thead th {
+  background-color: transparent !important;
+  border-bottom: 2px solid rgba(180, 168, 138, 0.5) !important;
+  color: #1e1a14;
+}
+main table tbody tr,
+main table tbody td,
+main .table tbody tr,
+main .table tbody td {
+  background-color: transparent !important;
+  border-color: rgba(180, 168, 138, 0.3) !important;
+}
+
 /* ── Lesson page: theatre layout with side-by-side transcript ── */
 .lesson-page-theatre {
   max-width: 1500px;
   margin: 0.5rem auto 3rem;
   padding: 0 1rem;
   display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
   gap: 1.5rem;
   align-items: start;
+  transition: grid-template-columns 0.25s ease;
+}
+.lesson-page-theatre[data-size="compact"] {
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+}
+.lesson-page-theatre[data-size="theatre"] {
+  grid-template-columns: minmax(0, 9fr) minmax(0, 4fr);
+}
+.lesson-page-theatre[data-size="wide"] {
+  grid-template-columns: minmax(0, 1fr);
+}
+.lesson-page-theatre[data-size="wide"] .lesson-transcript {
+  display: none;
+}
+
+/* ── Size toggle chips ── */
+.lesson-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.lesson-size-group {
+  display: inline-flex;
+  border: 1px solid rgba(122, 85, 24, 0.25);
+  border-radius: 2rem;
+  overflow: hidden;
+  background: rgba(122, 85, 24, 0.04);
+}
+.lesson-size-btn {
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #7a5518;
+  background: transparent;
+  border: 0;
+  padding: 0.35rem 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-right: 1px solid rgba(122, 85, 24, 0.18);
+}
+.lesson-size-btn:last-child { border-right: 0; }
+.lesson-size-btn:hover {
+  background: rgba(122, 85, 24, 0.1);
+}
+.lesson-size-btn.active {
+  background: #7a5518;
+  color: #faf6ee;
 }
 
 /* ── Sticky left deck: video + meta + chapters ── */

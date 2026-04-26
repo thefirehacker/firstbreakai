@@ -10,8 +10,19 @@ css:
 
 This is the cohort intro. It walks through the **six stages of the journey**, the roadmap, the checklist, and the AI setup you'll need. The transcript below is interactive — **click any line and the video jumps to that point**.
 
+## Navigate by roadmap
+
+| Step | Topic | This lesson |
+|------|-------|-------------|
+| **Lesson 0** | **Welcome to First Break AI** | **You are here** |
+| [Step 1](../roadmap.qmd) | First use of AI for coding (Quarto blog) | — |
+| [Step 2](../roadmap.qmd) | Run a model locally | — |
+
+[← Back to Roadmap](../roadmap.qmd)
+
+
 ```{=html}
-<div class="lesson-page lesson-page-theatre">
+<div class="lesson-page lesson-page-theatre" data-size="compact">
 
   <div class="lesson-deck">
     <div class="lesson-video-wrap">
@@ -25,7 +36,14 @@ This is the cohort intro. It walks through the **six stages of the journey**, th
         <span class="lesson-now-label">Chapter</span>
         <span class="lesson-chapter-title" id="lessonChapterTitle">Welcome &amp; the six stages</span>
       </div>
-      <button type="button" class="transcript-toggle" id="lessonTranscriptToggle">Show Transcript</button>
+      <div class="lesson-controls">
+        <div class="lesson-size-group" role="group" aria-label="Video size">
+          <button type="button" class="lesson-size-btn" data-size="compact">Compact</button>
+          <button type="button" class="lesson-size-btn" data-size="theatre">Theatre</button>
+          <button type="button" class="lesson-size-btn" data-size="wide">Wide</button>
+        </div>
+        <button type="button" class="transcript-toggle" id="lessonTranscriptToggle">Show Transcript</button>
+      </div>
     </div>
 
     <div class="lesson-chapters">

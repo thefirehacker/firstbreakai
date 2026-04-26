@@ -89,6 +89,7 @@ css: ../styles/journey.css
     </div>
     <div class="scene-links">
       <span class="scene-links-label">Explore this step:</span>
+      <a href="../lessons/lesson-0-welcome.qmd">Welcome to First Break AI (Lesson 0)</a>
       <a href="../roadmap.qmd">Roadmap — Step 1</a>
       <a href="../office-hours/2026-03-13.qmd#topic-1-github-collaboration">GitHub collaboration (Office Hours)</a>
     </div>

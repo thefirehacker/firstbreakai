@@ -176,13 +176,46 @@
     /* Theatre layout: transcript starts visible (it has its own column) */
     transcriptPanel.classList.add('visible');
   }
+
+  /* ── Video size toggle (compact / theatre / wide) ── */
+  var pageEl = document.querySelector('.lesson-page-theatre');
+  var sizeBtns = document.querySelectorAll('.lesson-size-btn');
+  var lastNonWideSize = 'compact';
+
+  function applySize(size) {
+    if (!pageEl) return;
+    pageEl.setAttribute('data-size', size);
+    sizeBtns.forEach(function(b) {
+      b.classList.toggle('active', b.dataset.size === size);
+    });
+    if (size !== 'wide') lastNonWideSize = size;
+    /* Keep transcript panel + toggle button in sync with size */
+    if (transcriptPanel && toggleBtn) {
+      var visible = (size !== 'wide');
+      transcriptPanel.classList.toggle('visible', visible);
+      toggleBtn.classList.toggle('active', visible);
+      toggleBtn.textContent = visible ? 'Hide Transcript' : 'Show Transcript';
+    }
+  }
+
+  if (pageEl) {
+    var initialSize = pageEl.getAttribute('data-size') || 'compact';
+    applySize(initialSize);
+  }
+  sizeBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      applySize(btn.dataset.size);
+    });
+  });
+
   if (toggleBtn && transcriptPanel) {
-    toggleBtn.classList.add('active');
-    toggleBtn.textContent = 'Hide Transcript';
     toggleBtn.addEventListener('click', function() {
-      var open = transcriptPanel.classList.toggle('visible');
-      toggleBtn.classList.toggle('active', open);
-      toggleBtn.textContent = open ? 'Hide Transcript' : 'Show Transcript';
+      var currentlyVisible = transcriptPanel.classList.contains('visible');
+      if (currentlyVisible) {
+        applySize('wide');
+      } else {
+        applySize(lastNonWideSize);
+      }
     });
   }
 
