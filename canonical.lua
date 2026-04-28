@@ -12,6 +12,7 @@ function Pandoc(doc)
 
   local url_path = '/' .. rel
   url_path = url_path:gsub('/index%.html$', '/')
+  url_path = url_path:gsub('%.html$', '')
 
   local full = SITE_URL .. url_path
 
