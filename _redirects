@@ -1,7 +1,7 @@
-# Canonicalize host: redirect the Pages default domain to the custom domain.
-# Cloudflare Pages _redirects supports full-URL source patterns for cross-host 301s.
-# The 301! (force) variant runs even when a static asset exists at the same path.
-https://firstbreakai.pages.dev/*  https://cohort.bubblnet.com/:splat  301!
+# Host canonicalization (firstbreakai.pages.dev -> cohort.bubblnet.com) is NOT done here.
+# Cloudflare Pages _redirects sources are path-only -- they cannot match by hostname,
+# and both hostnames are aliases of the same deployment. Host canonicalization is
+# configured as a zone-level Redirect Rule in the Cloudflare dashboard instead.
 
 # Canonicalize trailing index.html -> directory form (avoids /foo/ vs /foo/index.html dupes)
 /index.html        /            301
