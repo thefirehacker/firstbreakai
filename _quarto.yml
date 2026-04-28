@@ -66,6 +66,8 @@ format:
   html:
     css: styles/global.css
     include-in-header: includes/schema.html
+    filters:
+      - canonical.lua
     include-after-body:
       - includes/mermaid-zoom.html
       - includes/github-card.html
