@@ -1,1 +1,10 @@
-# No catch-all SPA routing - return 404 for unknown paths
+# Canonicalize host: redirect the Pages default domain to the custom domain.
+# Cloudflare Pages _redirects supports full-URL source patterns for cross-host 301s.
+# The 301! (force) variant runs even when a static asset exists at the same path.
+https://firstbreakai.pages.dev/*  https://cohort.bubblnet.com/:splat  301!
+
+# Canonicalize trailing index.html -> directory form (avoids /foo/ vs /foo/index.html dupes)
+/index.html        /            301
+/*/index.html      /:splat/     301
+
+# No catch-all SPA routing - unknown paths return 404
