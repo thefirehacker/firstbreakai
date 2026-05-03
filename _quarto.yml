@@ -13,6 +13,8 @@ project:
     - "journey/*.qmd"
     - "lessons/*.qmd"
     - "!temp/"
+  post-render:
+    - scripts/rewrite-sitemap.mjs
 
 website:
   title: "First Break AI"

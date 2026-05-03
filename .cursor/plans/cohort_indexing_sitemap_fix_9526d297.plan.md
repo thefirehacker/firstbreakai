@@ -4,19 +4,19 @@ overview: "Fix the real reason `cohort.bubblnet.com` is stuck at \"Crawled – c
 todos:
   - id: rewrite-sitemap
     content: Add scripts/rewrite-sitemap.mjs that strips /index.html and .html from <loc> entries
-    status: pending
+    status: completed
   - id: wire-post-render
     content: Add project.post-render hook in _quarto.yml to run the rewriter
-    status: pending
+    status: completed
   - id: robots-disallow-audio
     content: "Add Disallow: /public/audio/ to robots.txt to suppress 404 crawl noise"
-    status: pending
+    status: completed
   - id: rebuild-docs
     content: Run quarto render so docs/sitemap.xml + docs/robots.txt are regenerated and committed
-    status: pending
+    status: completed
   - id: gsc-resubmit
     content: "User: resubmit sitemap.xml + Request Indexing for 5 priority URLs in Google Search Console"
-    status: pending
+    status: completed
 isProject: false
 ---
 
