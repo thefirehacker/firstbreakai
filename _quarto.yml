@@ -15,6 +15,7 @@ project:
     - "!temp/"
   post-render:
     - scripts/rewrite-sitemap.mjs
+    - scripts/rewrite-html-links.mjs
 
 website:
   title: "First Break AI"
