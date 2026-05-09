@@ -19,3 +19,6 @@ public/audio/*.mp3
 
 # Node
 node_modules/
+
+# transcripts and other items 
+temp-scripts/*

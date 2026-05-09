@@ -14,34 +14,46 @@ Office Hours are live cohort sessions where we go deeper on roadmap topics, debu
 Office hours transcripts are used to create AI-generated podcast lessons and other learning resources published on this site, including [The Journey](../journey/). All learner names are anonymized — no real names are used. Voices and conversation in podcast episodes are entirely AI-generated. By participating in office hours, you consent to your contributions being used in this way.
 :::
 
-## Sessions
+## [Cohort 01]{.oh-section-tag .cohort} Live sessions {.oh-section-heading}
 
-The sessions below are **pre-cohort** (the cohort starts **1 May 2026**). They're kept here as reference; the same roadmap topics apply when you follow along later.
-
-::: {.blog-cards}
-
-:::: {.blog-card .blog-card-oh}
-[Pre-cohort · Office Hours]{.blog-card-label}
-
-### 13 March 2026
-
-::: {.blog-card-desc}
-GitHub collaboration (PRs, conflicts, rebasing), Qwen3 inference concepts (temperature, chat templates, speculative decoding, GGUF vs SafeTensors, quantization/precision), cohort-based learning, and Unsloth efficiency.
+::: {.oh-section-blurb}
+Cohort 01 runs **1 May 2026 — 30 June 2026**. These are the live sessions for enrolled learners — the most recent session is at the top.
 :::
 
-[Read session notes](2026-03-13.qmd){.blog-card-link}
+::: {.blog-cards .oh-cohort-row}
+
+:::: {.blog-card .blog-card-oh-cohort .blog-card-oh-featured}
+[Cohort 01 · Session 1]{.blog-card-label}
+
+### 8 May 2026
+
+::: {.blog-card-desc}
+**Cohort 01 kickoff.** Three intuitions about LLMs (architecture, autoregressive, vocab-wide probabilities), why Qwen3 0.6B is small but structurally identical to large models, **HuggingFace as the "GitHub for models"** (Git LFS → Xet, model cards, scale), `config.json` and the Transformers library, markdown everywhere and Karpathy's AI-managed knowledge base, the math-or-no-math question, and a **live pure-C / GGUF demo** with system prompt, `--thinking`, and `--multi-turn` flags.
+:::
+
+[Read session notes](2026-05-08.qmd){.blog-card-link}
 ::::
 
+:::
+
+## [Pre-cohort]{.oh-section-tag .precohort} Earlier sessions {.oh-section-heading}
+
+::: {.oh-section-blurb}
+Sessions held before Cohort 01 started. Kept here as reference — the same roadmap topics apply when you follow along later.
+:::
+
+::: {.blog-cards .oh-precohort-row}
+
 :::: {.blog-card .blog-card-oh}
 [Pre-cohort · Office Hours]{.blog-card-label}
 
-### 27 March 2026
+### 24 April 2026
 
 ::: {.blog-card-desc}
-Transformer architecture deep dive — why attention replaced LSTMs, self-attention and multi-head attention, decoder-only LLMs, dense vs MoE models, benchmarking, the three pillars of model development, data parallelism (DDP), and Project Watch: Speedrun and Auto Research GPT.
+NanoGPT speedrun infrastructure: modded-nanogpt repo walkthrough, 8x H100 cost and cloud GPU options, Modal for containerized training, Accelerate and DDP vs FSDP, sharding explained (parameters, gradients, optimizer states), training script demo, HF and W&B secrets setup, and troubleshooting pip/PATH issues on Windows.
 :::
 
-[Read session notes](2026-03-27.qmd){.blog-card-link}
+[Read session notes](2026-04-24.qmd){.blog-card-link}
 ::::
 
 :::: {.blog-card .blog-card-oh}
@@ -59,13 +71,25 @@ Learner LAN stock game (scope and shipping), Claude Code harness leak and safe l
 :::: {.blog-card .blog-card-oh}
 [Pre-cohort · Office Hours]{.blog-card-label}
 
-### 24 April 2026
+### 27 March 2026
 
 ::: {.blog-card-desc}
-NanoGPT speedrun infrastructure: modded-nanogpt repo walkthrough, 8x H100 cost and cloud GPU options, Modal for containerized training, Accelerate and DDP vs FSDP, sharding explained (parameters, gradients, optimizer states), training script demo, HF and W&B secrets setup, and troubleshooting pip/PATH issues on Windows.
+Transformer architecture deep dive — why attention replaced LSTMs, self-attention and multi-head attention, decoder-only LLMs, dense vs MoE models, benchmarking, the three pillars of model development, data parallelism (DDP), and Project Watch: Speedrun and Auto Research GPT.
 :::
 
-[Read session notes](2026-04-24.qmd){.blog-card-link}
+[Read session notes](2026-03-27.qmd){.blog-card-link}
+::::
+
+:::: {.blog-card .blog-card-oh}
+[Pre-cohort · Office Hours]{.blog-card-label}
+
+### 13 March 2026
+
+::: {.blog-card-desc}
+GitHub collaboration (PRs, conflicts, rebasing), Qwen3 inference concepts (temperature, chat templates, speculative decoding, GGUF vs SafeTensors, quantization/precision), cohort-based learning, and Unsloth efficiency.
+:::
+
+[Read session notes](2026-03-13.qmd){.blog-card-link}
 ::::
 
 :::

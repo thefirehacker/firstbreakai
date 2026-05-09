@@ -4,7 +4,7 @@ Free, open cohort for your first break in AI. Live site: [cohort.bubblnet.com](h
 
 ## Deploying the site
 
-Built with [Quarto](https://quarto.org/) and deployed to **Cloudflare Pages**. The `publish.yml` workflow renders the site and deploys on push to `main`.
+Built with [Quarto](https://quarto.org/) and deployed to **Cloudflare Pages**. The [`.github/workflows/publish.yml`](.github/workflows/publish.yml) workflow renders the site and deploys on push to `main`.
 
 Local preview:
 
@@ -13,6 +13,30 @@ quarto preview --port 5942
 ```
 
 Using a fixed port keeps the R2 CORS policy stable (see below).
+
+### Cloudflare Pages and SEO (clean URLs)
+
+Cloudflare Pages strips `.html` extensions and serves canonical "clean" URLs (e.g. `/about` instead of `/about.html`). Requests for the `.html` version 308-redirect to the clean URL. Two post-render scripts in [`_quarto.yml`](_quarto.yml) keep the generated site aligned with that behavior:
+
+| Script | What it does | When it runs |
+| --- | --- | --- |
+| [`scripts/rewrite-sitemap.mjs`](scripts/rewrite-sitemap.mjs) | Strips `.html` and `index.html` from `<loc>` entries in `sitemap.xml` so URLs match canonical tags. | Every render. |
+| [`scripts/rewrite-html-links.mjs`](scripts/rewrite-html-links.mjs) | Rewrites internal `href` attributes in every `docs/**/*.html` file to drop `.html`, eliminating ~470 internal redirect chains. | Only when `QUARTO_PROJECT_RENDER_ALL=1` (i.e. a full `quarto render`). |
+
+#### Local preview vs Cloudflare deploy
+
+| | Internal `href`s | Sitemap | Server behavior |
+| --- | --- | --- | --- |
+| `quarto preview` (local) | keep `.html` | clean URLs | Quarto preview server does **not** auto-resolve clean URLs, so links must keep `.html` to avoid 404s. |
+| `quarto render` in CI (Cloudflare) | rewritten to clean URLs | clean URLs | Cloudflare serves clean URLs natively; Googlebot sees a fully consistent site (canonical = sitemap = href). |
+
+#### Why local has no SEO risk
+
+- [`docs/` is gitignored](.gitignore) — the rendered site is **never committed**. Cloudflare always serves what CI builds, not what you build locally.
+- The CI workflow runs `quarto render` (a full project render), which sets `QUARTO_PROJECT_RENDER_ALL=1` automatically. The link rewriter fires, and production ships clean URLs.
+- A local `quarto preview` skips the link rewriter so navigation works in the browser, but that output never reaches the live site.
+
+If you ever change CI to render a single file (`quarto render some-page.qmd`), the env var won't be set and that page would ship with `.html` `href`s. Keep the workflow on a bare `quarto render`.
 
 ## Journey Player: Audio and Transcripts
 

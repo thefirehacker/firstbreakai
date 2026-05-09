@@ -54,6 +54,7 @@ Set up a **Quarto blog** and host it on GitHub with an about-me page, blog posts
 
 <p><strong>Office Hours sessions:</strong></p>
 <ul>
+<li><a href="office-hours/2026-05-08.qmd#topic-5-markdown-knowledge-base">Markdown everywhere — and Karpathy's AI-managed knowledge base</a> (8 May, Cohort 01)</li>
 <li><a href="office-hours/2026-03-13.qmd#topic-1-github-collaboration">GitHub collaboration — PRs, conflicts, rebasing</a> (13 Mar)</li>
 <li><a href="office-hours/2026-04-10.qmd#topic-2-claude-code-harness-leak">Claude Code harness — skills, sub-agents, safe learning</a> (10 Apr)</li>
 </ul>
@@ -99,6 +100,12 @@ Run Qwen3 0.6B locally in pure C — trace every operation from tokenization to 
 
 <p><strong>Office Hours sessions:</strong></p>
 <ul>
+<li><a href="office-hours/2026-05-08.qmd#topic-1-three-intuitions">Three intuitions — model shape, autoregressive generation, vocab-wide probabilities</a> (8 May, Cohort 01)</li>
+<li><a href="office-hours/2026-05-08.qmd#topic-2-why-qwen3-0-6b">Why Qwen3 0.6B — small but structurally identical to large models</a> (8 May, Cohort 01)</li>
+<li><a href="office-hours/2026-05-08.qmd#topic-3-huggingface">HuggingFace — the GitHub for models (LFS → Xet, model cards)</a> (8 May, Cohort 01)</li>
+<li><a href="office-hours/2026-05-08.qmd#topic-4-config-and-transformers">config.json and the Transformers library</a> (8 May, Cohort 01)</li>
+<li><a href="office-hours/2026-05-08.qmd#topic-7-pure-c-demo">Live demo — Qwen3 in pure C with GGUF, system prompt, thinking, multi-turn</a> (8 May, Cohort 01)</li>
+<li><a href="office-hours/2026-05-08.qmd#topic-4-what-to-expect">What to expect — Qwen3 locally, HF basics, tokenizer, embeddings, temperature, thinking on/off</a> (8 May, Cohort 01)</li>
 <li><a href="office-hours/2026-03-13.qmd#topic-2-qwen3-inference-concepts">Qwen3 inference concepts — temperature, chat templates, speculative decoding</a> (13 Mar)</li>
 <li><a href="office-hours/2026-03-27.qmd#topic-1-why-attention-lstm-and-rnn-limitations">Why attention? LSTM and RNN limitations</a> (27 Mar)</li>
 <li><a href="office-hours/2026-03-27.qmd#topic-2-transformer-architecture-breakthroughs">Transformer breakthroughs — self-attention, MHA, positional encoding</a> (27 Mar)</li>
@@ -180,6 +187,7 @@ Build the foundations to train and fine-tune models from scratch — from a sing
 
 <p><strong>Office Hours sessions:</strong></p>
 <ul>
+<li><a href="office-hours/2026-05-08.qmd#topic-2-training-trajectory">From a random model to Qwen3 0.6B — the training trajectory</a> (8 May, Cohort 01)</li>
 <li><a href="office-hours/2026-03-27.qmd#topic-7-data-parallelism-and-the-parallelism-ladder">DDP and the parallelism ladder</a> (27 Mar)</li>
 <li><a href="office-hours/2026-03-27.qmd#topic-8-project-watch-speedrun-and-auto-research-gpt">Speedrun and Auto Research GPT</a> (27 Mar)</li>
 <li><a href="office-hours/2026-04-10.qmd#topic-6-speedrun-nanogpt">Speedrun — nanoGPT, target loss, Tyler Romero's worklog</a> (10 Apr)</li>
@@ -269,6 +277,7 @@ Prove what you've learned. Pick one: ship a capstone project or make a meaningfu
 
 **Office Hours sessions:**
 
+- [Markdown everywhere — and Karpathy's AI-managed knowledge base](office-hours/2026-05-08.qmd#topic-5-markdown-knowledge-base) (8 May, Cohort 01)
 - [GitHub collaboration — PRs, conflicts, rebasing](office-hours/2026-03-13.qmd#topic-1-github-collaboration) (13 Mar)
 - [Claude Code harness — skills, sub-agents, safe learning](office-hours/2026-04-10.qmd#topic-2-claude-code-harness-leak) (10 Apr)
 :::
@@ -294,6 +303,12 @@ Prove what you've learned. Pick one: ship a capstone project or make a meaningfu
 
 **Office Hours sessions:**
 
+- [Three intuitions — model shape, autoregressive generation, vocab-wide probabilities](office-hours/2026-05-08.qmd#topic-1-three-intuitions) (8 May, Cohort 01)
+- [Why Qwen3 0.6B — small but structurally identical to large models](office-hours/2026-05-08.qmd#topic-2-why-qwen3-0-6b) (8 May, Cohort 01)
+- [HuggingFace — the GitHub for models (LFS → Xet, model cards)](office-hours/2026-05-08.qmd#topic-3-huggingface) (8 May, Cohort 01)
+- [config.json and the Transformers library](office-hours/2026-05-08.qmd#topic-4-config-and-transformers) (8 May, Cohort 01)
+- [Live demo — Qwen3 in pure C with GGUF, system prompt, thinking, multi-turn](office-hours/2026-05-08.qmd#topic-7-pure-c-demo) (8 May, Cohort 01)
+- [What to expect — Qwen3 locally, HF basics, tokenizer, embeddings, temperature, thinking on/off](office-hours/2026-05-08.qmd#topic-4-what-to-expect) (8 May, Cohort 01)
 - [Qwen3 inference concepts — temperature, chat templates, speculative decoding](office-hours/2026-03-13.qmd#topic-2-qwen3-inference-concepts) (13 Mar)
 - [Why attention? LSTM and RNN limitations](office-hours/2026-03-27.qmd#topic-1-why-attention-lstm-and-rnn-limitations) (27 Mar)
 - [Transformer breakthroughs — self-attention, MHA, positional encoding](office-hours/2026-03-27.qmd#topic-2-transformer-architecture-breakthroughs) (27 Mar)
@@ -331,6 +346,7 @@ Prove what you've learned. Pick one: ship a capstone project or make a meaningfu
 
 **Office Hours sessions:**
 
+- [From a random model to Qwen3 0.6B — the training trajectory](office-hours/2026-05-08.qmd#topic-2-training-trajectory) (8 May, Cohort 01)
 - [DDP and the parallelism ladder](office-hours/2026-03-27.qmd#topic-7-data-parallelism-and-the-parallelism-ladder) (27 Mar)
 - [Speedrun and Auto Research GPT](office-hours/2026-03-27.qmd#topic-8-project-watch-speedrun-and-auto-research-gpt) (27 Mar)
 - [Speedrun — nanoGPT, target loss, Tyler Romero's worklog](office-hours/2026-04-10.qmd#topic-6-speedrun-nanogpt) (10 Apr)

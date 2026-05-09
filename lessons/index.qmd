@@ -12,7 +12,11 @@ Each lesson pairs a video with a clickable transcript and chapter markers. Click
 Use the chapter list to skim what's covered. Use the transcript to find the exact sentence you want to revisit — clicking a line seeks the video. The active line highlights as the video plays.
 :::
 
-## Available lessons
+## [Cohort 01]{.section-tag .cohort} Available lessons {.section-heading}
+
+::: {.section-blurb}
+Video lessons published as Cohort 01 progresses. Each one pairs the recording with a clickable transcript so you can jump straight to the moment you care about.
+:::
 
 ::: {.blog-cards}
 

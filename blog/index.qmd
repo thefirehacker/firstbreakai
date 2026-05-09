@@ -7,7 +7,11 @@ css: ../styles/blog.css
 
 Cohort guides and posts are organized by the [Roadmap](../roadmap.qmd). Start with the step you're on.
 
-## By roadmap step
+## [Step 1]{.section-tag .step-1} First use of AI for coding {.section-heading}
+
+::: {.section-blurb}
+Set up a Quarto blog, GitHub, and your AI IDE. Posts for this step are still in progress — follow the roadmap for the current task list.
+:::
 
 ::: {.blog-cards}
 
@@ -23,10 +27,20 @@ Set up a Quarto blog, GitHub, and use your AI IDE.
 [See Roadmap](../roadmap.qmd){.blog-card-link}
 ::::
 
+:::
+
+## [Step 2]{.section-tag .step-2} Run a model locally {.section-heading}
+
+::: {.section-blurb}
+Run Qwen3 0.6B on your laptop and trace every operation from tokenization to token output — first in pure C, then through the HuggingFace `transformers` API.
+:::
+
+::: {.blog-cards}
+
 :::: {.blog-card .blog-card-step-2}
 [Step 2]{.blog-card-label}
 
-### Run a model locally
+### Run Qwen3 0.6B in pure C
 
 ::: {.blog-card-desc}
 Run Qwen3 0.6B in pure C. Tokens, BPE, chat templates, attention, KV cache — all in one C binary.
@@ -47,6 +61,16 @@ Model weight formats compared. GGUF, SafeTensors, pickle security, quantization,
 [Read guide](model-formats-gguf-safetensors.qmd){.blog-card-link}
 ::::
 
+:::
+
+## [Step 3]{.section-tag .step-3} Inference deep dive {.section-heading}
+
+::: {.section-blurb}
+Beyond running a model — inference engines, batching, quantization formats, and serving. Posts in progress.
+:::
+
+::: {.blog-cards}
+
 :::: {.blog-card .blog-card-step-3 .blog-card-no-post}
 [Step 3]{.blog-card-label}
 
@@ -58,6 +82,16 @@ vLLM, quantization, batching, APIs.
 
 [See Roadmap](../roadmap.qmd){.blog-card-link}
 ::::
+
+:::
+
+## [Step 4]{.section-tag .step-4} Training fundamentals {.section-heading}
+
+::: {.section-blurb}
+Read training curves like an engineer, then train your own. Distributed training, loss spikes, and what real LLM W&B dashboards actually show you.
+:::
+
+::: {.blog-cards}
 
 :::: {.blog-card .blog-card-step-4}
 [Step 4]{.blog-card-label}
