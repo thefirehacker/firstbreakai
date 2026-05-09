@@ -100,6 +100,105 @@
 .blog-card-oh { border-top-color: #b8860b; }
 .blog-card-oh .blog-card-label { color: #b8860b; }
 
+/* Cohort 01 — live cohort sessions (richer, accent border + subtle glow) */
+.blog-card-oh-cohort {
+  border-top-color: #2f7d6b;
+  background: linear-gradient(180deg, #f3faf6 0%, #faf6ee 60%);
+  position: relative;
+}
+.blog-card-oh-cohort .blog-card-label { color: #2f7d6b; }
+.blog-card-oh-cohort::before {
+  content: "● LIVE";
+  position: absolute;
+  top: 0.85rem;
+  right: 0.95rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #2f7d6b;
+  background: rgba(47, 125, 107, 0.1);
+  padding: 0.15rem 0.55rem;
+  border-radius: 1rem;
+}
+
+/* Featured / first session — slightly larger, full-width on mobile */
+.blog-card-oh-featured {
+  border-top-width: 6px;
+}
+
+/* Featured cohort card spans full width when it's the only/lead card */
+.blog-cards.oh-cohort-row {
+  grid-template-columns: 1fr !important;
+  max-width: 720px;
+}
+
+/* Pre-cohort grid: 2-up at desktop avoids the orphan-card layout */
+.blog-cards.oh-precohort-row {
+  grid-template-columns: 1fr !important;
+}
+@media (min-width: 700px) {
+  .blog-cards.oh-precohort-row {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ══════════════════════════════════════════
+   Index-page section headings
+   Used on Office Hours / Lessons / Blog / Project Watch indexes
+   to group cards under labelled sections (pill tag + heading + blurb).
+
+   Pandoc applies the heading's classes to BOTH the wrapping <section>
+   and the <h2>, so any layout rule must be scoped to the <h2> — otherwise
+   the entire section becomes a flex container and everything inside
+   (cards, blurb) collapses into narrow columns.
+   ══════════════════════════════════════════ */
+h2.section-heading,
+h2.oh-section-heading {
+  margin-top: 2.5rem;
+  margin-bottom: 0.25rem;
+  font-size: 1.35rem;
+  color: #1a1510;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+h2.section-heading .section-tag,
+h2.oh-section-heading .oh-section-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 1rem;
+}
+
+/* Tag colour variants — pick one per section */
+.section-tag.cohort,
+.oh-section-tag.cohort {
+  color: #2f7d6b;
+  background: rgba(47, 125, 107, 0.1);
+}
+.section-tag.precohort,
+.oh-section-tag.precohort {
+  color: #8b6914;
+  background: rgba(139, 105, 20, 0.1);
+}
+.section-tag.step-1 { color: #8b6914; background: rgba(139, 105, 20, 0.1); }
+.section-tag.step-2 { color: #6b5c4c; background: rgba(107, 92, 76, 0.12); }
+.section-tag.step-3 { color: #7a5518; background: rgba(122, 85, 24, 0.1); }
+.section-tag.step-4 { color: #5a6a4e; background: rgba(90, 106, 78, 0.12); }
+.section-tag.featured { color: #4a6741; background: rgba(74, 103, 65, 0.12); }
+.section-tag.guide    { color: #3d5a80; background: rgba(61, 90, 128, 0.1); }
+
+.section-blurb,
+.oh-section-blurb {
+  color: #5a4e3e;
+  font-size: 0.95rem;
+  margin: 0.25rem 0 0.75rem;
+  max-width: 60ch;
+}
+
 /* ══════════════════════════════════════════
    GitHub repo-style cards
    ══════════════════════════════════════════ */

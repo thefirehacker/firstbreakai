@@ -42,6 +42,15 @@ function rewriteLinks(html) {
   return { result, count };
 }
 
+// Only rewrite during a full project render (CI deploy / `quarto render`).
+// Single-file renders and `quarto preview` re-renders skip this step so that
+// internal links keep their `.html` extensions for local browsing — Quarto's
+// preview server doesn't auto-resolve clean URLs the way Cloudflare Pages does.
+if (process.env.QUARTO_PROJECT_RENDER_ALL !== '1') {
+  console.log('[links] skipping rewrite (not a full project render — set QUARTO_PROJECT_RENDER_ALL=1 to force)');
+  process.exit(0);
+}
+
 if (!fs.existsSync(DOCS_DIR)) {
   console.warn(`[links] ${DOCS_DIR}/ not found, skipping rewrite`);
   process.exit(0);

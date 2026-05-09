@@ -7,7 +7,11 @@ css: ../styles/blog.css
 
 Project Watch is where we study real AI projects in depth. Each entry is a full annotated walkthrough — what the project does, why the engineering decisions matter, and how it connects to what you're learning in the [Roadmap](../roadmap.qmd).
 
-## Projects
+## [Featured]{.section-tag .featured} Projects {.section-heading}
+
+::: {.section-blurb}
+Annotated walkthroughs of real AI projects — what they do, why the engineering decisions matter, and how each connects to a step in the [Roadmap](../roadmap.qmd).
+:::
 
 ::: {.repo-cards}
 
