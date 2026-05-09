@@ -1,136 +1,73 @@
-# First Break AI.
+# First Break AI
 
-Free, open cohort for your first break in AI. Live site: [cohort.bubblnet.com](https://cohort.bubblnet.com).
+> Your first break in AI — a free, open cohort to learn by doing.
 
-## Deploying the site
+Live site: **[cohort.bubblnet.com](https://cohort.bubblnet.com)** · Cohort 01: **1 May 2026 – 30 June 2026 (2 months)**
 
-Built with [Quarto](https://quarto.org/) and deployed to **Cloudflare Pages**. The [`.github/workflows/publish.yml`](.github/workflows/publish.yml) workflow renders the site and deploys on push to `main`.
+Free, community-driven cohort to upskill in **training**, **inference**, and **AI product building**. No applications, no prerequisites. Follow the roadmap, build in the open, and let your work speak for itself.
 
-Local preview:
+## Watch the intro
 
-```bash
-quarto preview --port 5942
-```
+[![Watch Lesson 0 on YouTube](https://img.youtube.com/vi/r9uykyGAdJQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=r9uykyGAdJQ&list=PLEzXCZNdmgBm-SbXuXHxn9_vXpvFbrKKL)
 
-Using a fixed port keeps the R2 CORS policy stable (see below).
+- **Lesson 0 (intro):** [Welcome to First Break AI on YouTube](https://www.youtube.com/watch?v=r9uykyGAdJQ&list=PLEzXCZNdmgBm-SbXuXHxn9_vXpvFbrKKL) · or watch with the [interactive transcript on the site](https://cohort.bubblnet.com/lessons/lesson-0-welcome)
+- **Full playlist:** [First Break AI on YouTube](https://www.youtube.com/playlist?list=PLEzXCZNdmgBm-SbXuXHxn9_vXpvFbrKKL)
 
-### Cloudflare Pages and SEO (clean URLs)
+## The journey — six scenes from first commit to capstone
 
-Cloudflare Pages strips `.html` extensions and serves canonical "clean" URLs (e.g. `/about` instead of `/about.html`). Requests for the `.html` version 308-redirect to the clean URL. Two post-render scripts in [`_quarto.yml`](_quarto.yml) keep the generated site aligned with that behavior:
+The cohort is structured as a [scroll-driven storyboard](https://cohort.bubblnet.com/journey/) with an AI-narrated podcast for each scene:
 
-| Script | What it does | When it runs |
+1. **[Ship something real](https://cohort.bubblnet.com/journey/#scene-1)** — set up your blog, push your first commit, build the habit.
+2. **[See inside the machine](https://cohort.bubblnet.com/journey/#scene-2)** — local inference, tokens, attention, what an LLM actually does.
+3. **[Think at production scale](https://cohort.bubblnet.com/journey/#scene-3)** — APIs, evals, latency, cost, the production mindset.
+4. **[Train your own](https://cohort.bubblnet.com/journey/#scene-4)** — fine-tuning, distributed training, nanoGPT speedrun on real GPUs.
+5. **[Ship a product](https://cohort.bubblnet.com/journey/#scene-5)** — turn your model into something people can use.
+6. **[Prove it](https://cohort.bubblnet.com/journey/#scene-6)** — capstone, public artifact, your first break.
+
+## Who it's for
+
+You don't need a specific degree. You need a starting point. This cohort is for **students**, **professionals**, **career switchers**, and the **simply curious** — anyone who wants their first real break in AI. Most learning is self-directed and peer-supported; the roadmap, checklist, and resources are open so you can contribute and others can follow.
+
+## Get started
+
+Open the live site and work through these in order:
+
+| Step | What | Where |
 | --- | --- | --- |
-| [`scripts/rewrite-sitemap.mjs`](scripts/rewrite-sitemap.mjs) | Strips `.html` and `index.html` from `<loc>` entries in `sitemap.xml` so URLs match canonical tags. | Every render. |
-| [`scripts/rewrite-html-links.mjs`](scripts/rewrite-html-links.mjs) | Rewrites internal `href` attributes in every `docs/**/*.html` file to drop `.html`, eliminating ~470 internal redirect chains. | Only when `QUARTO_PROJECT_RENDER_ALL=1` (i.e. a full `quarto render`). |
+| 1 | Watch the intro | [Lesson 0](https://cohort.bubblnet.com/lessons/lesson-0-welcome) |
+| 2 | Read the path | [Roadmap](https://cohort.bubblnet.com/roadmap) |
+| 3 | Create accounts | [Checklist](https://cohort.bubblnet.com/checklist) — Hugging Face, GitHub, Cursor, Modal, W&B |
+| 4 | Set up your tools | [AI Setup](https://cohort.bubblnet.com/setup) — Cursor / Claude Code, ChatGPT, Open Router, Modal, E2E Networks |
+| 5 | Join the community | **[Discord](https://discord.gg/hRPese4H3F)** — where the cohort lives |
 
-#### Local preview vs Cloudflare deploy
+**Office hours:** every Friday, **9:00 – 10:00 PM IST**. Meeting link is shared on Discord. Past sessions and notes live at [cohort.bubblnet.com/office-hours](https://cohort.bubblnet.com/office-hours/).
 
-| | Internal `href`s | Sitemap | Server behavior |
-| --- | --- | --- | --- |
-| `quarto preview` (local) | keep `.html` | clean URLs | Quarto preview server does **not** auto-resolve clean URLs, so links must keep `.html` to avoid 404s. |
-| `quarto render` in CI (Cloudflare) | rewritten to clean URLs | clean URLs | Cloudflare serves clean URLs natively; Googlebot sees a fully consistent site (canonical = sitemap = href). |
+## Cohort lead — FireHacker
 
-#### Why local has no SEO risk
+Hi, I'm FireHacker. I'm running this cohort in the open as a way to help people get their first real break in AI without paywalls, applications, or gatekeeping.
 
-- [`docs/` is gitignored](.gitignore) — the rendered site is **never committed**. Cloudflare always serves what CI builds, not what you build locally.
-- The CI workflow runs `quarto render` (a full project render), which sets `QUARTO_PROJECT_RENDER_ALL=1` automatically. The link rewriter fires, and production ships clean URLs.
-- A local `quarto preview` skips the link rewriter so navigation works in the browser, but that output never reaches the live site.
+- **Blog & TIL:** [thefirehacker.github.io](https://thefirehacker.github.io/)
+- **GitHub:** [@thefirehacker](https://github.com/thefirehacker)
+- **X / Twitter:** [@thefirehacker](https://x.com/thefirehacker)
+- **About page on the site:** [cohort.bubblnet.com/about](https://cohort.bubblnet.com/about)
 
-If you ever change CI to render a single file (`quarto render some-page.qmd`), the env var won't be set and that page would ship with `.html` `href`s. Keep the workflow on a bare `quarto render`.
+## Built in the open
 
-## Journey Player: Audio and Transcripts
+This entire site — lessons, transcripts, blog, office-hours notes, infra — is open source. If something's wrong or could be better, open a PR.
 
-The Journey page (`journey/index.qmd`) features a scroll-driven audio player with chapter markers and interactive transcripts. Audio and transcript files are hosted on **Cloudflare R2**.
+- **Live site:** <https://cohort.bubblnet.com>
+- **Repo:** <https://github.com/thefirehacker/firstbreakai>
+- **Contribute:** [CONTRIBUTING.md](CONTRIBUTING.md) — how to propose changes, add roadmap items, fix typos.
+- **License:** [Apache 2.0](LICENSE).
 
-### File hosting (Cloudflare R2)
+## A note on AI-generated content
 
-All `.mp3` and `.json` transcript files live in an R2 bucket mapped to the custom domain `firstbreakai.bubblnet.com`. The base URL is set once at the top of `journey/index.qmd`:
+Office hours transcripts and cohort material are used to generate AI podcast lessons and summaries published on the site and in [The Journey](https://cohort.bubblnet.com/journey/). All learner names are anonymized — no real names are used. By participating in office hours, you consent to your contributions being used in this way.
 
-```html
-<script>var AUDIO_BASE = 'https://firstbreakai.bubblnet.com';</script>
-```
+## For developers and maintainers
 
-Upload new files via the Cloudflare dashboard: **R2 → your bucket → Upload**.
+This README is for learners. If you're forking the repo, hosting your own version, or contributing infrastructure changes:
 
-### Adding a new audio episode
-
-1. Upload `scene-N.mp3` to R2.
-2. Optionally drop a local copy in `public/audio/` for offline preview (already gitignored).
-3. In `journey/index.qmd`, inside the target `<section class="journey-scene">`, add:
-
-```html
-<audio preload="auto" data-scene="N"
-  data-transcript="scene-N_eng.json"
-  data-chapters='[{"t": 0, "title": "Intro"}, {"t": 60, "title": "Topic A"}]'>
-  <source data-r2="scene-N.mp3" src="../public/audio/scene-N.mp3" type="audio/mpeg">
-</audio>
-```
-
-- `data-r2` — filename only; the player prepends `AUDIO_BASE` at runtime.
-- `src` — local fallback used when `AUDIO_BASE` is empty.
-
-### Chapters (seek markers)
-
-`data-chapters` is a JSON array on the `<audio>` element. Each entry needs two fields:
-
-```json
-{"t": 46, "title": "Ship something real"}
-```
-
-- `t` — start time in seconds.
-- `title` — label shown in the chapter dropdown and as a marker on the seek bar.
-
-### Adding an interactive transcript
-
-1. Upload `scene-N_eng.json` to R2 (same bucket as audio).
-2. Set `data-transcript="scene-N_eng.json"` on the `<audio>` element.
-3. Add the transcript panel HTML inside the scene section:
-
-```html
-<div class="scene-transcript-wrap">
-  <button class="transcript-toggle" type="button" id="transcriptToggleN">Show Transcript</button>
-  <div class="scene-transcript" id="sceneTranscriptN"></div>
-</div>
-```
-
-Replace every `N` with the scene number (e.g. `transcriptToggle2`, `sceneTranscript2`).
-
-**Expected JSON shape:**
-
-```json
-{
-  "segments": [
-    {
-      "start_time": 0,
-      "end_time": 12.5,
-      "text": "Hello and welcome...",
-      "speaker": { "id": "speaker_0" }
-    }
-  ]
-}
-```
-
-- `speaker_0` displays as **Speaker A**; any other id displays as **Speaker B**.
-- `start_time` / `end_time` are in seconds.
-
-### Quick checklist (per scene)
-
-- [ ] Upload `.mp3` to R2
-- [ ] Upload `.json` transcript to R2 (if applicable)
-- [ ] Add/update `<audio>` in `journey/index.qmd` with `data-r2`, `data-chapters`, `data-transcript`
-- [ ] Add transcript panel HTML with matching IDs (`transcriptToggleN`, `sceneTranscriptN`)
-- [ ] Preview locally with `quarto preview --port 5942`
-
-### CORS
-
-The R2 bucket CORS policy allows specific origins to fetch audio and transcript files:
-
-- `https://cohort.bubblnet.com` — production site
-- `https://firstbreakai.pages.dev` — Cloudflare Pages default domain
-- `http://localhost:5942` — local Quarto preview
-
-Update the policy via **Cloudflare Dashboard → R2 → bucket → Settings → CORS Policy**.
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for how to propose changes and new roadmap items.
+- **[DEVELOPMENT.md](DEVELOPMENT.md)** — local preview, Cloudflare deploy, Journey Player audio/transcripts on R2, CORS policy.
+- **[SEO-Explained.md](SEO-Explained.md)** — plain-English walkthrough of the clean-URL setup and post-render scripts.
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** — contribution guidelines.
