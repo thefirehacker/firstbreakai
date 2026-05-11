@@ -84,6 +84,11 @@ Run Qwen3 0.6B locally in pure C — trace every operation from tokenization to 
 <li>Transformer architecture: self-attention, MHA, positional encoding, decoder-only design</li>
 </ul>
 
+<p><strong>Lessons:</strong></p>
+<ul>
+<li><a href="lessons/lesson-1-huggingface-beyond-upload.qmd">Lesson 1 — HuggingFace Beyond Upload</a>: why an open model is not a file — it's a supply chain (provenance, datasets, security, evals, runtime, agents).</li>
+</ul>
+
 <p><strong>Guides:</strong></p>
 <ul>
 <li><a href="blog/qwen3-run-locally.qmd">Run Qwen3 0.6B in pure C</a> — inference from first principles (tokenization, chat templates, attention, KV cache).</li>
@@ -288,6 +293,10 @@ Prove what you've learned. Pick one: ship a capstone project or make a meaningfu
 **Goal:** Run Qwen3 0.6B locally in pure C — trace every operation from tokenization to token output.
 
 **Topics:** Basics of inference (decoding, KV cache) · Chat templates and system prompts · Tokenization · Temperature and sampling · GGUF vs SafeTensors · Transformer architecture (self-attention, MHA, positional encoding, decoder-only design)
+
+**Lessons:**
+
+- [Lesson 1 — HuggingFace Beyond Upload](lessons/lesson-1-huggingface-beyond-upload.qmd) — why an open model is not a file. The supply-chain mental model: provenance, datasets, security (`trust_remote_code`), evals, runtime routing, and agent-readable manifests.
 
 **Guides:**
 

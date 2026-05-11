@@ -32,6 +32,18 @@ A guided tour of the cohort — the six stages from commit to capstone, who this
 [Watch lesson](lesson-0-welcome.qmd){.blog-card-link}
 ::::
 
+:::: {.blog-card .blog-card-oh}
+[Lesson 1 · Step 2]{.blog-card-label}
+
+### HuggingFace Beyond Upload
+
+::: {.blog-card-desc}
+Why an open model is not a file — it's a supply chain you can inspect. The mental shift from `from_pretrained` to provenance, datasets, security (`trust_remote_code`), evals, runtime routing, and agent-readable manifests. Builds on the May 8 office hours.
+:::
+
+[Watch lesson](lesson-1-huggingface-beyond-upload.qmd){.blog-card-link}
+::::
+
 :::
 
 More lessons will be published here as the cohort progresses.
