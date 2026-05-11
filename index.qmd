@@ -33,16 +33,6 @@ css: styles/home.css
           <span class="ticker-text">Cohort 01 kickoff — three intuitions, HuggingFace deep dive, live pure-C demo.</span>
         </a>
         <span class="ticker-sep" aria-hidden="true">●</span>
-        <a class="ticker-item" href="#cohort-poster-anchor">
-          <span class="ticker-pill">Poster</span>
-          <span class="ticker-text">The Anatomy of a First Break in AI — the full path on one page.</span>
-        </a>
-        <span class="ticker-sep" aria-hidden="true">●</span>
-        <a class="ticker-item" href="https://discord.gg/hRPese4H3F">
-          <span class="ticker-pill">Join</span>
-          <span class="ticker-text">Cohort 01 is live · 1 May – 30 June 2026 · Free · Open · Discord.</span>
-        </a>
-        <span class="ticker-sep" aria-hidden="true">●</span>
       </div>
       <div class="ticker-group" aria-hidden="true">
         <a class="ticker-item" href="lessons/lesson-1-huggingface-beyond-upload.qmd" tabindex="-1">
@@ -53,16 +43,6 @@ css: styles/home.css
         <a class="ticker-item" href="office-hours/2026-05-08.qmd" tabindex="-1">
           <span class="ticker-pill">Office Hours · 8 May</span>
           <span class="ticker-text">Cohort 01 kickoff — three intuitions, HuggingFace deep dive, live pure-C demo.</span>
-        </a>
-        <span class="ticker-sep">●</span>
-        <a class="ticker-item" href="#cohort-poster-anchor" tabindex="-1">
-          <span class="ticker-pill">Poster</span>
-          <span class="ticker-text">The Anatomy of a First Break in AI — the full path on one page.</span>
-        </a>
-        <span class="ticker-sep">●</span>
-        <a class="ticker-item" href="https://discord.gg/hRPese4H3F" tabindex="-1">
-          <span class="ticker-pill">Join</span>
-          <span class="ticker-text">Cohort 01 is live · 1 May – 30 June 2026 · Free · Open · Discord.</span>
         </a>
         <span class="ticker-sep">●</span>
       </div>
@@ -102,7 +82,7 @@ css: styles/home.css
 
 ::: {.content-section}
 
-**Cohort: 1 May 2026 — 30 June 2026 (2 months)**
+**Cohort: 1 May 2026 — 30 June 2026 (2 months)** [<span class="cohort-live-badge"><span class="cohort-live-dot" aria-hidden="true"></span>Live</span>]{.cohort-live-wrap}
 
 First Break AI is a free, community-driven cohort for anyone who wants their first break in AI. It doesn't matter what you studied or where you work — what matters is that you're ready to learn by doing. We focus on what matters: running and training models, understanding inference, and shipping AI-powered products. Most learning is self-directed and peer-supported; the roadmap, checklist, and resources live in the open so you can contribute and others can follow. The goal is simple: **upskill, build, showcase** — and get that first role or first break in AI.
 

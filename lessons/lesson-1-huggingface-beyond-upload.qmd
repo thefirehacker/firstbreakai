@@ -8,6 +8,21 @@ css:
   - ../styles/lessons.css
 ---
 
+::: {.lesson-hero}
+::: {.lesson-hero-tags}
+[Lesson 01 · First Break AI]{.lesson-hero-eyebrow}
+[● Draft · Under Review]{.lesson-hero-status .lesson-hero-status-review}
+:::
+
+# HuggingFace Beyond Upload {.lesson-hero-title}
+
+##### Run Qwen3-0.6B locally, tour HuggingFace properly, and see open models as a supply chain. {.lesson-hero-subtitle}
+
+::: {.lesson-hero-meta}
+[~25 min read]{.lesson-hero-chip} [Cohort 01](../office-hours/2026-05-08.qmd){.lesson-hero-chip} [Run a model locally](../roadmap.qmd){.lesson-hero-chip}
+:::
+:::
+
 This is the **full lesson** — everything you need is on this page. The video mirrors what's written here; the transcript is interactive, so you can click any line to jump the video to that point. Read it, watch it, do the homework, bring it to office hours.
 
 ::: {.callout-note appearance="minimal"}
@@ -63,187 +78,102 @@ This is the **full lesson** — everything you need is on this page. The video m
 
 ---
 
-## The shape of this lesson
+## A thought experiment to open with
 
-This lesson has two halves stacked on top of each other.
+Imagine, for a moment, that HuggingFace doesn't exist. There is no model hub, no `pip install transformers`, no friendly "Files and versions" tab. Someone hands you a flash drive. On it is a single file: `model.safetensors`. Just over a gigabyte. They tell you it contains the brain of a chatbot — roughly six hundred million floating-point numbers — and that, if you can wake it up, it will hold a coherent conversation with you about almost anything.
 
-**Half one — Run a model locally (the practical core).** Everything you need to actually run Qwen3 0.6B on your laptop and have a working mental model of what's happening: the three intuitions, why we picked Qwen3 0.6B, the HuggingFace ecosystem tour, `config.json` + the Transformers library, the live pure-C demo, and the training trajectory. This is the May 8 office hours, made detailed and reproducible.
+What would you actually *do* with it?
 
-**Half two — HuggingFace as a supply chain (the new lens).** Once you can *run* a model, the next professional skill is *inspecting* one. A model release is not a checkpoint file — it's a software supply chain with provenance, datasets, security, evals, runtime, and agent-readable layers. This is what separates someone who uses HuggingFace from someone who understands it.
+That is the question this lesson exists to answer. Once you have answered it for yourself, you will understand HuggingFace and the `transformers` library and `config.json` and `.gguf` and Xet storage not as a pile of disconnected tools, but as the specific things the world needed to invent in order to make that flash drive useful. We will travel from the file on the drive all the way to a running chat app on your laptop, and we will do it twice — once in Python through HuggingFace's library, and once in pure C through a tiny program small enough to read in an afternoon. By the end, the abstractions will dissolve.
 
-The homework at the end forces you to apply both halves to a single model.
+This lesson is, in that sense, two journeys laid end-to-end. The first half is *practical*: how a model file becomes a running model. The second half is *cultural*: how to read a HuggingFace page like a professional, because a model release in 2026 is no longer a checkpoint file — it is a software supply chain. Most people skim the supply chain. You are going to learn to inspect it.
 
 ---
 
-# Half one — Run a model locally
+# Half one — From a file to a working model
 
-## 1. Three intuitions about LLMs
+## Three intuitions that hold the rest of the cohort together
 
-If you only walk away with three things, walk away with these. Every concept in the cohort — tokenization, attention, training loss, sampling — sits on top of one of them.
+Before we touch a single line of code, three ideas have to be true in your head. Every later topic in this cohort — tokenization, attention, training loss, sampling, fine-tuning, RAG — is a refinement of one of these three. If you internalize them now, the rest of the cohort will feel like *filling in detail*. If you skip them, every subsequent lesson will feel like swimming through fog.
 
-### Intuition 1 — A model is a stack of repeated blocks
-
-Open any modern LLM and the architecture has the same skeleton: an input → an embedding lookup → a tower of identical decoder blocks → a normalisation step → a linear projection → an output. Qwen3-0.6B looks like this:
+**The first intuition is that a modern language model is a stack of repeated blocks.** When you open the architecture diagram for almost any modern LLM, the picture is the same: an input flows into an embedding lookup, then through a tower of identical decoder blocks, then through a final normalisation, a linear projection, and out. There is no exotic, bespoke wiring at the bottom of these models. Qwen3-0.6B, the model we will use throughout this cohort, is precisely this picture made concrete: twenty-eight copies of the *same* decoder block, stacked one on top of the other, fed by an embedding table whose vocabulary has 151,936 entries. If you understand one block — its attention layer, its feed-forward layer, its two normalisations — you understand the entire tower, because the tower is just that block twenty-eight times.
 
 ![Qwen3-0.6B interactive model view — 24 nodes, 9 op types, 151,936-token vocab. The decoder block repeats x28.](../public/images/office-hours/2026-05-08-qwen3-model-view.png){fig-alt="Qwen3 0.6B architecture diagram: input → text embeddings → Qwen3DecoderLayer x28 → RMSNorm → Linear → output"}
 
-What to notice:
+You can explore this interactively at [hfviewer.com/Qwen/Qwen3-0.6B](https://hfviewer.com/Qwen/Qwen3-0.6B). Click into the decoder block; click into the attention layer; keep going. The repetition is the architecture. Two-thirds of every operation in the diagram is a matrix multiplication or a normalisation. There is no magic at the bottom — only weights.
 
-- **`Qwen3DecoderLayer × 28`** — the entire "depth" of the model is the same block stacked 28 times. Once you understand one block (attention + MLP + normalisation), you understand the whole tower.
-- **`151,936` tokens** — that is the vocabulary size. Every input word/symbol/sub-word maps to one of these IDs.
-- **Operation breakdown** — `Linear` is ~36% of operations and `RMSNorm` ~23%. Most of an LLM is matrix multiplications and normalisations; the "magic" lives in the weights, not in exotic operators.
-
-Explore this interactively at **[hfviewer.com/Qwen/Qwen3-0.6B](https://hfviewer.com/Qwen/Qwen3-0.6B)**.
-
-### Intuition 2 — LLMs are autoregressive: one token at a time
-
-LLMs do not "write a sentence." They generate **one token, append it to the input, then generate the next token**. That loop is called *autoregressive decoding*. Whether you ask a question, ask for code, or ask for a full app, the shape is always the same: input → some processing → output, one token at a time.
-
-```text
-prompt: "Write a sonnet about love."
-step 1  →  "In"
-step 2  →  "In twilight's"
-step 3  →  "In twilight's hush,"
-step 4  →  "In twilight's hush, where"
-... and so on
-```
-
-In pseudocode the whole generation loop is roughly:
+**The second intuition is that LLMs generate one token at a time, and never anything else.** A model does not "write a sentence" or "answer a question." It takes the tokens of your prompt, runs them through the tower once, produces a single next token, appends that token to the input, and runs the whole thing again. And again. And again. The loop is called autoregressive decoding, and it is the same loop whether the model is writing a sonnet, a SQL query, or a thousand-line React component:
 
 ```python
-tokens = tokenizer.encode(prompt)        # [list of int]
+tokens = tokenizer.encode(prompt)
 while not done(tokens):
-    logits = model.forward(tokens)       # shape: [vocab_size]
-    next_id = sample(logits)             # one int from vocab
+    logits = model.forward(tokens)
+    next_id = sample(logits)
     tokens.append(next_id)
-    yield tokenizer.decode([next_id])    # stream this back
+    yield tokenizer.decode([next_id])
 ```
 
-Every architectural detail you'll learn in this cohort — the KV cache, attention masks, sampling temperature, speculative decoding — exists to make *that loop* run efficiently and controllably.
+Every architectural improvement you will hear about in this cohort — the KV cache, FlashAttention, speculative decoding, MoE routing — is, in the end, an optimisation of that loop. The KV cache makes the loop cheap by avoiding recomputation. Speculative decoding makes the loop *parallel* by guessing several tokens ahead and verifying them in a single forward pass. MoE makes the loop sparse by only routing through a fraction of the parameters per token. The loop itself never goes away.
 
-The InfoLens space makes the loop visible — every generated token connects back to the prompt tokens it was paying attention to:
+If you would like to *see* the loop in action, the [InfoLens](https://huggingface.co/spaces/dqy08/InfoLens) space on HuggingFace draws an attribution graph for every token the model emits: which prompt tokens did it look at, how strongly, and through which layers. Watch it generate one token, then the next, then the next, and intuition two becomes physical.
 
 ![InfoLens — context-attribution DAG. Each generated token (e.g. "gentle") traces back to the prompt tokens that informed it.](../public/images/office-hours/2026-05-08-infolens-attribution.png){fig-alt="InfoLens HuggingFace space showing context-attribution DAG and info highlight panel"}
 
-Try it live: **[huggingface.co/spaces/dqy08/InfoLens](https://huggingface.co/spaces/dqy08/InfoLens)**.
+**The third intuition is the one most learners get subtly wrong, and getting it right will pay you back for the rest of your career.** When the model "produces the next token," it does not pick a word. It produces a probability — a single floating-point number — for *every one of its 151,936 vocabulary tokens, all at once*. The output of the model at every step is a vector of length one hundred and fifty-one thousand. Picking a word is something *we*, the runtime, do *after* the model has spoken.
 
-### Intuition 3 — The model outputs a probability distribution over the *entire* vocabulary
+Make this concrete. You type: *"What is the capital of India?"* The model thinks for a moment and produces 151,936 numbers. The number sitting in the slot for the token `"Delhi"` is, say, 0.71. The number in the slot for `"New"` is 0.18. `"Mumbai"` is around 0.04. `"Bangalore"` is 0.01. Down at the bottom of the list, in the slot for the token `"potato"`, there is a number on the order of one in ten million. The model has produced *all of those numbers in a single forward pass*. The reason you see `"Delhi"` on your screen is not that the model picked it; it is that *the sampler we wrapped around the model* looked at the list of 151,936 numbers and applied a rule — "take the highest" — to one of them.
 
-This is the intuition learners miss most often.
+That rule is called sampling, and the rule we pick changes the personality of the whole system. The simplest rule, greedy sampling, always takes the top entry; it is deterministic and often boring. Temperature is a dial that sharpens or flattens the distribution before we choose: low temperatures concentrate probability on a few strong candidates and produce safe, repetitive text; high temperatures flatten the distribution and let unlikely tokens win, producing creative, sometimes incoherent text. Top-k restricts attention to only the *k* highest-probability candidates and ignores the long tail entirely. Top-p, the most widely-used variant, dynamically takes whichever set of tokens has cumulative probability at least *p*, which adapts to how confident the model is at each step.
 
-When the model is "predicting the next token," it is *not* picking one word. At every step it produces a probability for **every single one of the ~150K vocabulary tokens** (151,936 for Qwen3). The "output" you see is just the result of *sampling* from that distribution.
+When somebody says *"the model wrote Delhi,"* a more honest sentence is *"the model produced 151,936 numbers, and our sampler ranked Delhi at the top."* Everything you will learn later about hallucination, repetition penalties, constrained decoding, beam search, and chain-of-thought prompting lives inside that one observation. The short [Decoding Strategies in LLMs](https://huggingface.co/blog/mlabonne/decoding-strategies) post on the HuggingFace blog walks through each strategy with diagrams; twenty minutes there will pay you back permanently.
 
-```text
-At step k, the model emits a vector of length 151,936:
-
-  token_id 0       →  0.0001
-  token_id 1       →  0.0003
-  ...
-  token_id 9821    →  0.342   ("twilight")   ← high
-  token_id 9822    →  0.118   ("twinkle")
-  ...
-  token_id 151935  →  0.0000
-
-Sampling step picks one. Greedy = pick the max.
-Temperature / top-p / top-k = different ways of "shaping"
-this distribution before sampling.
-```
-
-This is why `temperature` and `top_p` can change a model's output without changing the model: they reshape how aggressively we sample from this distribution.
-
-> **Mental-model lock.** A model is a stack of identical blocks (Intuition 1) that repeatedly turns a context into a vocab-sized probability vector (Intuition 3) and we sample from that vector one token at a time (Intuition 2). Everything else in the cohort is detail filling in those three pictures.
+Hold all three intuitions together. A model is a stack of identical blocks. It turns a context into a vocabulary-sized probability vector. We sample from that vector one token at a time. Everything else is detail.
 
 ---
 
-## 2. Why Qwen3 0.6B is the right model to learn from
+## Why the smallest model is the right model to learn from
 
-A common reaction: *"600 million parameters? Isn't that tiny? GPT-4 is hundreds of billions."*
+A reasonable question at this point is: *six hundred million parameters? Isn't that tiny? Aren't the real models hundreds of billions?* The answer is yes, the real models are much bigger, and that is precisely why we are not starting with one.
 
-Yes — and that is the point.
+It helps to know how the landscape is laid out in 2026. At the very top of the size distribution sit the frontier models — Claude Sonnet, Claude Opus, GPT-5.5, the largest open-weight releases — somewhere between one hundred billion and three hundred billion parameters, served from large data-centre GPUs, mostly behind APIs. A tier below that are the *large open* models, in the thirty-to-one-hundred-billion range, like Qwen3-Coder, Llama-70B and DeepSeek-V3 — serious self-hosting territory, multi-GPU servers, production-ready but expensive. Below those are the *small* models, from roughly four billion up to thirty billion parameters, which fit comfortably on a single good GPU and are quietly running an enormous amount of production work today; Microsoft's Phi-4-Multimodal-Instruct is a personal favourite in this bracket. And at the bottom — three hundred million up to about four billion — are the *very small* models, the ones that run on a laptop CPU and that you can read end-to-end. Qwen3-0.6B lives at the boundary between that very-small tier and our cohort's hands.
 
-| Model class | Parameters | Notes |
-|---|---|---|
-| Frontier (Claude, GPT-4-class) | **200B – 300B+** | Closed weights, served via API |
-| Mid-scale open | 7B – 70B | Llama, Mistral, Qwen mid-tier |
-| **Qwen3-0.6B** | **600M** | What we run in this cohort |
+The temptation, when you are new, is to assume that the small models are uninteresting toys and that real learning has to happen at frontier scale. That is exactly backwards. The architecture of Qwen3-0.6B is *structurally identical* to the architecture of Claude. Same decoder-only transformer. Same attention mechanism. Same RoPE-family positional encoding. Same sampling. The only differences between a 600M-parameter Qwen and a 300B-parameter Claude are scale — how many layers, how wide each layer is, how many attention heads — and training data. The shape is the same. The lessons transfer up.
 
-The architecture of Qwen3-0.6B is **structurally the same** as Claude-class models — same decoder-only transformer, same attention, same positional encoding family, same sampling. The differences are:
+This makes Qwen3-0.6B, in the language of the children's story, our Goldilocks model — neither too hot nor too cold, but just right. A seventy-billion-parameter model is too hot for a classroom: you cannot walk every line of code, you cannot read every layer, you cannot run it on a laptop. A one-million-parameter toy is too cold: the architecture works, but the outputs are so weak that learners draw the wrong conclusions about what LLMs feel like. Qwen3-0.6B is just right. It runs on the CPU you already own, every tensor shape is small enough to inspect in a notebook, and the outputs are coherent enough that you build real intuition about what these systems can and cannot do. We will occasionally drop down to smaller laboratories — GPT-2 at 124 million parameters is excellent for watching certain phenomena in slow motion — but Qwen3-0.6B is the model we keep returning to.
 
-- **Scale** — number of layers, hidden dim, attention heads.
-- **Training data** — Qwen3-0.6B was trained on far less data than a frontier model.
-
-Because the *shape* is identical, learning Qwen3-0.6B teaches you the same mental model you need for the big ones — but with weights small enough to fit on a laptop, run on a CPU, and read end-to-end. **It is the stepping stone for everything else in the roadmap.**
-
-> *Why does this matter for teaching?* A 7B model is too big to walk through line-by-line in a session. A 600M model is small enough that we will, in this cohort, walk every layer, every tensor shape, and every line of inference code. The lessons transfer up; the size does not get in the way.
+There is also a newer cousin worth knowing about: [`Qwen/Qwen3.5-0.8B`](https://huggingface.co/Qwen/Qwen3.5-0.8B). Still in our very-small tier, still laptop-friendly, but it has been downloaded **more than 2.8 million times in a single month**. That is a strange number when you think about it. Who is pulling an 800-million-parameter model two-point-eight million times every month, and what are they *doing* with it? Edge inference on phones and embedded devices? Generating synthetic training data for larger models? Cheap classification at scale? Fine-tuning bases for narrow domains? I have put the same question to X and Reddit and I genuinely do not know the answer yet. Reply with your best guess in `#cohort-01` on Discord — we will discuss it live in Friday's office hours, and whoever finds the most surprising real-world use case wins.
 
 ---
 
-## 3. HuggingFace — the GitHub for models
+## HuggingFace is GitHub for models, and that comparison is exact
 
-If you understand GitHub, you already understand most of HuggingFace.
+If you understand GitHub, you already understand most of HuggingFace. The mapping is not a loose analogy; it is precise enough to be technical. A HuggingFace model repository is, underneath, a Git repository. It has commits, branches, pull requests and issues. The model card that you read on the model's main page is a `README.md` file at the root of that repo. There are stars (called likes), forks, releases. There are even GitHub-Pages-equivalent demos, called [Spaces](https://huggingface.co/spaces), which let anyone publish an interactive app that uses the model. We used one of them earlier — InfoLens — to make intuition two physical.
 
-| GitHub | HuggingFace |
-|---|---|
-| Source code repos | **Models** repos |
-| `README.md` | **Model card** (still a `README.md`) |
-| Issues, PRs, branches | Issues, PRs, branches |
-| Stars, forks | Likes, downloads |
-| Releases | **Model files** (`.safetensors`, `.bin`, `.gguf`) |
-| Datasets (sometimes) | **Datasets** as a first-class section |
-| GitHub Pages | **Spaces** (interactive demos) |
+So why does HuggingFace exist as a separate thing, instead of everyone just using GitHub? Because of one engineering constraint that breaks GitHub's model: file size. Source code is small, mostly textual, and diffs cleanly. Model weights are gigabytes of opaque binary numbers and diff terribly. GitHub puts a hard limit of roughly one hundred megabytes per file before things start failing; push a five-gigabyte `.safetensors` to vanilla Git and the push is rejected outright. GitHub solved part of this problem with **Git LFS** (Large File Storage), which keeps the big blobs in separate storage and leaves only small pointer files in the repository itself, so that cloning a repo does not drag the weights down with it. HuggingFace started with LFS too. But the access patterns for model files are unlike anything GitHub was designed for — millions of people pulling the same seven-billion-parameter blob, every five minutes, from every continent — and so the HuggingFace team built a successor called **Xet**, a content-addressed storage system that does chunk-level deduplication and is dramatically faster for the model-download workload. When you see the Xet tag on a file in a HuggingFace repo, that is what is happening underneath: the same Git semantics, a much more aggressive blob layer.
 
-Three top-level sections to know on the HF site:
-
-- **Models** — the LLMs themselves.
-- **Datasets** — the training/eval data.
-- **Spaces** — runnable demos (we used [InfoLens](https://huggingface.co/spaces/dqy08/InfoLens) earlier).
-
-### Scale check
-
-When you publish an open model, you are publishing infrastructure. One older model alone hit **~18 million downloads in a single month**. Good model providers (the Qwen team is one) write detailed model cards: prompt template, supported languages, eval numbers, known limitations. Bad providers ship just weights and let you guess. The quality of the model card is one of the best signals of how seriously a release is being maintained.
-
-### Why HuggingFace exists at all — the large-blob problem
-
-Source code is small text files. **Models are gigabytes of binary weights.** GitHub has a **~100 MB hard limit on individual files** without special tooling — push a 5 GB `.safetensors` to vanilla Git and the push fails.
-
-GitHub solved part of this with **Git LFS** (Large File Storage) — a layer on top of Git that stores big blobs separately and replaces them in the repo with small pointer files. HuggingFace started here too. They have since moved beyond LFS to **Xet**, a content-addressed storage system designed specifically for the access patterns of model files: chunk-level dedup, faster downloads, better behaviour for the *every-five-minutes-someone-pulls-7-billion-parameters* workload. When you see a model file marked with the Xet indicator on a HF repo, that is what is happening underneath.
-
-### Anatomy of a model repo
-
-Open [`Qwen/Qwen3-0.6B`](https://huggingface.co/Qwen/Qwen3-0.6B) and you will see something like:
+If you open the Qwen3-0.6B repository at [`Qwen/Qwen3-0.6B`](https://huggingface.co/Qwen/Qwen3-0.6B) and click "Files and versions," you will see something close to this:
 
 ```text
 Qwen/Qwen3-0.6B/
-├── README.md                    # the model card — license, prompt format, evals, examples
-├── config.json                  # the architecture spec (Topic 4 below)
-├── tokenizer.json               # the tokenizer's vocabulary and rules
-├── tokenizer_config.json        # tokenizer settings (chat template, special tokens)
-├── generation_config.json       # default sampling params (temperature, top-p)
-├── special_tokens_map.json      # how special tokens map to vocab IDs
-├── model.safetensors            # THE WEIGHTS — billions of floats
-└── (sometimes) *.gguf           # CPU-friendly alternative format
+├── README.md                    # the model card
+├── config.json                  # the architecture blueprint
+├── tokenizer.json               # the tokenizer's vocabulary and merge rules
+├── tokenizer_config.json        # special tokens, chat template
+├── generation_config.json       # default sampling parameters
+├── special_tokens_map.json      # mapping for special tokens
+├── model.safetensors            # the weights themselves
+└── (sometimes) *.gguf           # a CPU-friendly alternative
 ```
 
-Three of those files do almost all the work:
+Of those files, three carry the entire model. The `README.md` is the **model card**, and although it looks like decoration it is in fact the closest thing the model has to a contract: license, prompt template, evaluation numbers, intended use, known limitations. A good provider — and Qwen has been one — writes detailed model cards. A bad provider ships only weights and lets you guess at the rest, and the quality of the model card is probably the single best leading indicator of how seriously a release is being maintained. The `config.json` is the **architecture blueprint** — without it, the bytes in the weights file are meaningless. And `model.safetensors` is the weights themselves, stored in a format specifically designed to be safe to load (no arbitrary code execution on import, unlike Python's pickle) and fast to memory-map.
 
-- `README.md` is the **model card** — a markdown document. The model card is the closest thing to a contract between the model author and you.
-- `config.json` is the **architecture spec** — width, depth, heads, vocab size. Without it the weights file is a meaningless block of bytes.
-- `model.safetensors` is the **weights** — billions of floats, stored in a format that is safe to load (no arbitrary code execution) and fast to memory-map.
-
-We'll spend the next section on `config.json` because it is the one most learners skim past.
+We are about to spend more time than may seem reasonable on `config.json`, because it is the file that ties the entire system together and the one most learners skim past.
 
 ---
 
-## 4. `config.json` + the Transformers library
+## config.json is the blueprint, and then transformers is the builder
 
-`config.json` is the single most important small file in a model repo. **It describes the architecture** — number of layers, hidden size, number of attention heads, vocabulary size, RoPE settings, activation function — everything you need to *reconstruct the model in code* before you load the weights.
-
-```text
-weights file (.safetensors)  →  just numbers
-config.json                  →  the shape they go into
-```
-
-Without `config.json`, the bytes in `.safetensors` are meaningless. Here is a (truncated) example of what Qwen3-0.6B's looks like:
+Here is what `config.json` looks like for Qwen3-0.6B, trimmed for clarity:
 
 ```json
 {
@@ -260,11 +190,13 @@ Without `config.json`, the bytes in `.safetensors` are meaningless. Here is a (t
 }
 ```
 
-Match the numbers up against the architecture diagram from Intuition 1 — `num_hidden_layers: 28` is your `Qwen3DecoderLayer × 28`. `hidden_size: 1024` is the dimensional width of every tensor flowing through the tower. `vocab_size: 151936` is the size of the probability vector at every step. **The config tells you the shape of the thing before you ever touch the weights.**
+Read those numbers against the diagram from the first intuition and everything snaps into place. `num_hidden_layers: 28` is the decoder block repeated twenty-eight times. `hidden_size: 1024` is the dimensional width of every tensor flowing through the tower. `vocab_size: 151936` is the size of the probability vector the model produces at every step. The config file is, literally, the shape of the thing before you ever touch the weights.
 
-### The Transformers library
+But there is one field in that config that does more work than any other: `"architectures": ["Qwen3ForCausalLM"]`. This is the name of the Python class that knows how to assemble *this specific model* out of those tensor shapes. And once you understand the workflow for going from that field to the actual source code, you will never be stuck on a new HuggingFace model again. The move is four steps and you should memorise it. Open the model on HuggingFace, click into `config.json`, copy the value of the `architectures` field, and paste it into a Google search prefixed with the word *transformers* — for example, `transformers Qwen3ForCausalLM`. You will land in two places at once: the [API documentation page](https://huggingface.co/docs/transformers/v5.8.0/en/model_doc/qwen3#transformers.Qwen3ForCausalLM) for the class, which tells you what it does from the outside; and the [source code](https://github.com/huggingface/transformers/blob/main/src/transformers/models/qwen3/modeling_qwen3.py#L442) for the class, in a file called `modeling_qwen3.py`, which tells you what it actually does, line by line. Bookmark both. If you take only one practical habit away from this lesson, take this one. The same move works for the newer variant: `Qwen3.5-0.8B`'s config names a class called `Qwen3_5ForConditionalGeneration`, and Googling `transformers Qwen3_5ForConditionalGeneration` puts you on its source.
 
-[**`transformers`**](https://huggingface.co/docs/transformers) — the library, created and maintained by HuggingFace — is the standard way to use these models from Python. The pattern is always the same:
+Why does that class even need to exist? Because the weight file is a bag of named tensors — `model.layers.0.self_attn.q_proj.weight`, and twenty-eight layers' worth of those — and tensors do not know how to multiply themselves together in the right order. The class is the recipe. It allocates the right modules in the right order, wires them into a `forward()` pass that implements one step of the autoregressive loop from intuition two, and tells PyTorch which weight goes into which slot. Three pieces are required and none of them can be skipped: `config.json` tells you the *shape* of the model, the class tells you the *order of operations*, and `model.safetensors` tells you the *actual numbers*. Drop any one and the other two are inert.
+
+The `transformers` library — that is, the Python library called `transformers`, created and maintained by HuggingFace and installable with `pip install transformers` — is what turns this three-piece system into the friendly two-line load you have probably seen before:
 
 ```python
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -277,85 +209,43 @@ outputs = model.generate(**inputs, max_new_tokens=200)
 print(tokenizer.decode(outputs[0]))
 ```
 
-What `transformers` does behind that two-line load:
+What is hidden behind those two `from_pretrained` calls is exactly the pipeline we just described. The library reads `config.json` from the repo, looks at the `architectures` field, picks the matching Python class (`Qwen3ForCausalLM`), constructs the architecture in PyTorch from the config, streams the weights from `model.safetensors` into the right tensor slots, and hands you back a ready-to-call PyTorch model. The rest of the cohort sits on top of this loop. Step 3 of the roadmap is about making it *faster*. Step 4 is about training one of your own. Step 5 is about building a product around it. Everything from here downstream is a layer above this single load.
 
-1. Reads `config.json` from the repo.
-2. Looks at `"architectures": ["Qwen3ForCausalLM"]` and picks the right Python class — [the source is here](https://github.com/huggingface/transformers/blob/main/src/transformers/models/qwen3/modeling_qwen3.py#L442).
-3. Builds the architecture *in PyTorch* from the config.
-4. Streams the weights from `model.safetensors` into the right tensor slots.
-5. Returns a ready-to-call PyTorch model.
-
-The rest of the cohort sits on top of that loop. Step 3 (inference) is *making it faster*. Step 4 (training) is *training one of your own*. Step 5 (product) is *building around it*.
-
-> **Practical demo for learners.** Open the [HuggingFace Qwen3 docs](https://huggingface.co/docs/transformers/v5.8.0/en/model_doc/qwen3#transformers.Qwen3ForCausalLM) on one screen and the [`modeling_qwen3.py` source](https://github.com/huggingface/transformers/blob/main/src/transformers/models/qwen3/modeling_qwen3.py#L442) on the other. The docs are what they see; the source is what is actually running. Switch between them while you teach.
+A small practical recommendation, if you are teaching this section live: open the [HuggingFace Qwen3 documentation page](https://huggingface.co/docs/transformers/v5.8.0/en/model_doc/qwen3#transformers.Qwen3ForCausalLM) on one half of your screen and [`modeling_qwen3.py`](https://github.com/huggingface/transformers/blob/main/src/transformers/models/qwen3/modeling_qwen3.py#L442) on the other half, and flick between them while you talk. The docs are what the user sees. The source is what is actually running. Most learners have never read the inside of a library they import; reading this one for ten minutes changes that habit permanently.
 
 ---
 
-## 5. Markdown everywhere — and Karpathy's AI knowledge base
+## Markdown is the lingua franca of AI-assisted work
 
-Model cards are markdown. Issues and PRs on GitHub are markdown. Discord posts use markdown. Even the task lists you write for yourself in your IDE are markdown.
+It is worth pausing on a small, unglamorous skill that will pay back every day of the cohort: markdown. Every model card is markdown. Every issue, every pull request, every Discord message, every note you take in Cursor or Claude Code, every README in every folder you publish — markdown. It is not a documentation format; it is the language in which all of us, humans and language models alike, write to each other now. If you are not fluent in it, you will spend the cohort fighting your own tools.
 
-Markdown is not a "documentation format" — it is the **lingua franca of AI-assisted work**. If you are not fluent in it, you will spend the cohort fighting your own tooling.
+Each of the platforms you will use renders markdown automatically. On GitHub, a `README.md` file in any folder is rendered as a webpage whenever someone opens that folder in the GitHub UI, which is why important folders in a serious project always have one; other markdown files render when you click them. HuggingFace works the same way — the model card you read on every model's main page is just the `README.md` at the root of that model's Git repo. Discord supports a useful subset: headings with `#`, bold and italic, fenced code blocks, blockquotes, lists, and spoiler tags, and your cohort messages should use them. VS Code, Cursor and Claude Code all preview markdown side-by-side and treat it as the native format for planning, notes, and AI-assisted scratchpads.
 
-The basics, with a quick sandbox to try them in: **[dillinger.io](https://dillinger.io/)** — a browser-based markdown editor with live preview. Write headings, lists, links, code blocks, tables. Five minutes is enough.
+If you do not already feel comfortable with the syntax, open [dillinger.io](https://dillinger.io/) — a browser-based markdown editor with live preview — and spend one hour there. Write a heading, a bullet list, a numbered list, a link, a fenced code block (try one with a language tag, like `` ```python ``, and watch the syntax highlight appear), a blockquote that begins with `>`, a table with pipes and dashes, and a math equation between dollar signs. That hour is the most leveraged hour you will spend this week.
 
-### Karpathy's evolving knowledge base
-
-A learner asked about Andrej Karpathy's recent suggestion to "use markdown files as a database."
-
-The clarification: Karpathy is **not** advocating markdown as a relational database. He is describing **a personal, evolving knowledge base** — a tree of markdown files that an AI agent (Claude Code, Cursor, etc.) can iterate on, enrich, and re-organise as your understanding grows. The AI reads, writes, and restructures markdown the way a junior researcher would update a notebook. The format is markdown precisely because:
-
-- It is human-readable when the AI is wrong.
-- It diffs cleanly in Git.
-- Every model on Earth has been trained to read and write it fluently.
-
-This is a workflow recommendation, not a data-storage architecture. The takeaway for the cohort: **start a markdown notebook now**. Drop everything you learn into it. Let your AI tools enrich and reorganise it as you go.
+Andrej Karpathy recently [posted on X](https://x.com/karpathy/status/2039805659525644595?s=20) about using markdown files as a personal LLM knowledge base, and the suggestion is worth understanding correctly. He is not advocating markdown as a database. He is describing a workflow: a folder of markdown files — one per topic, one per idea, one per project — that you and an AI agent like Claude Code or Cursor evolve together over time. The agent reads, writes, restructures, and cross-references the notes the way a diligent junior researcher would update a notebook. The format is markdown precisely because it is human-readable when the agent is wrong, it diffs cleanly in Git, every model on earth has been trained to read and write it fluently, and it mixes prose, code blocks, tables, and links in a single file — which happens to be exactly the shape of *what learning feels like*. The takeaway for the cohort is straightforward: start a markdown notebook today, drop everything you learn into it, let your AI tools enrich and reorganise it, back it up in a private Git repo, and by the time the cohort ends you will have a second brain.
 
 ---
 
-## 6. Do I need deep math to contribute to open source?
+## Do you need deep math for this?
 
-A learner raised this honestly: *"I do not have a strong math background. Should I even be in this cohort? Can I contribute to open source without that?"*
+This question comes up early and honestly from at least one learner every cohort: *I do not have a strong math background. Should I even be here? Can I contribute to open source without it?* The short answer is no, you do not need deep math up front, and yes you can absolutely contribute. But the reason has to do with the order in which we will study things, which is the opposite of how a typical machine-learning course is structured.
 
-**Short answer: no, you do not need deep math up front. We go in reverse.**
+A typical course goes math first, code second. You learn linear algebra, then probability, then statistics, then optimisation, and only at the end of the semester do you ever load a model. The result is that the math feels disconnected from anything you can see, and the model feels like a magic black box you finally got to touch. This cohort goes in the other direction. We start by *running inference* — getting Qwen3 on your laptop, watching it generate tokens, feeling the autoregressive loop in real time. That requires zero math beyond the ability to read numbers off a screen. Then, when a concept genuinely starts mattering for the work we are doing, we cover it. When attention starts limiting our understanding of what the model is doing, we cover attention. When RoPE matters, we cover RoPE. Not before.
 
-1. **Start from inference** — get Qwen3 running locally, watch it generate tokens. This needs *zero* math beyond reading numbers off a screen.
-2. **Add concepts only when they unlock something practical.** When attention starts mattering for what we are doing, we cover attention. When RoPE matters, we cover RoPE. Not before.
-3. **Math becomes legible because you have already seen the thing it describes.** Reading the attention equations after you have watched 28 decoder layers run on your laptop is a very different experience from reading them cold.
-
-This is the opposite of how a typical ML course is structured (math → code). It is the same approach Karpathy uses in his "Let's reproduce GPT" lectures, and it is how most working ML engineers actually learnt — by running models, breaking them, and *then* picking up the math piece by piece.
-
-If you have the math, great — it will accelerate you. If you do not, that is fine — you can ship real work in this field without it. **What you cannot skip is willingness to read code and run experiments.**
+The reason this works is that math becomes legible *after* you have seen the thing it describes. Reading the attention equations after you have watched twenty-eight decoder layers run on your laptop is a fundamentally different experience from reading them cold. It is the same pedagogical move Karpathy uses in his "Let's reproduce GPT" series of lectures, and it is the way most working ML engineers actually picked the field up — by running models, breaking them, and *then* picking up the math, piece by piece, where it earned its keep. If you happen to have the math already, wonderful — it will speed you up. If you do not, that is fine; what you cannot skip is a willingness to read code and run experiments.
 
 ---
 
-## 7. Running Qwen3 0.6B locally — the pure-C demo
+## Running Qwen3 in pure C
 
-Section 4 covered loading via `transformers` (Python + PyTorch). For learning, we go further: **ignore `transformers` entirely** and run the model with a tiny C program. This is the cohort's "from first principles" approach.
+We have spent the last several pages loading Qwen3 the easy way — through `transformers`, with all of PyTorch's machinery doing the heavy lifting underneath. For learning, we now go further. We are going to throw away `transformers` entirely and run the same model with a single C file small enough to read in one sitting. This is the cohort's "from first principles" move, and it changes how the model feels.
 
-### Why pure C?
+There are three reasons to do this. The first is that, in pure C, every step from token IDs to logits is in code you can read; there are no abstractions to hide behind, no autograd graph to forget about, no kernel launches happening invisibly. The second is that the C program runs on your laptop's CPU, with no GPU required at all, which makes it the most portable demo in this entire cohort. The third is that the C code is *functionally identical* to what `Qwen3ForCausalLM` is doing inside `transformers`. The same architecture, just spelt out. Once you have seen the same arithmetic in both languages, the abstraction breaks open and the magic dissolves.
 
-- **No abstractions to hide behind** — every step from token IDs to logits is in code you can read.
-- **No GPU required** — the demo runs on your laptop's CPU.
-- **Same architecture, just spelt out** — the C code is functionally an exact version of what `Qwen3ForCausalLM` does inside `transformers`.
+To make this work we need a different file format. Where `transformers` likes `.safetensors`, our C program reads **`.gguf`** — a single self-contained file that bundles weights, tokenizer, and config together in a layout designed for CPU inference. It is the same format that `llama.cpp` and `ollama` use. The bundling matters: with `.safetensors`, the weights are in one file, the tokenizer in another, the config in a third, and a Python framework stitches them together at load time; with `.gguf`, all of that lives in a single memory-mappable file that a tiny C program can read without external help. The two formats are not competitors so much as different specialisations — `.safetensors` for the GPU/PyTorch world, `.gguf` for the CPU/laptop world.
 
-### GGUF — the file format we use here
-
-Instead of `.safetensors` (the format `transformers` likes), we use **`.gguf`** — a single self-contained file that bundles weights, tokenizer, and config in a CPU-friendly layout. GGUF is the format of choice for tools like `llama.cpp` and is what makes "run a real LLM on a laptop CPU" tractable.
-
-The differences in one table:
-
-| | `.safetensors` | `.gguf` |
-|---|---|---|
-| Bundles weights + tokenizer + config? | No (separate files) | **Yes (single file)** |
-| Designed for | GPU inference via PyTorch | **CPU inference** |
-| Loaded by | `transformers`, `vllm` | `llama.cpp`, `ollama`, our pure-C binary |
-| Quantization built in | Limited | **First-class** |
-| Memory-mapped | Yes | Yes |
-
-### The cohort repo
-
-**[github.com/thefirehacker/QWEN3-RunLocally](https://github.com/thefirehacker/QWEN3-RunLocally)** — clone it, follow the README.
+The cohort repository is [`github.com/thefirehacker/QWEN3-RunLocally`](https://github.com/thefirehacker/QWEN3-RunLocally). Clone it, follow the README. Inside that repo is a Git submodule pointing at [`thefirehacker/qwen3.c`](https://github.com/thefirehacker/qwen3.c/tree/a068f9cabd0d180b7160fabcbec368b7642c01d3), a tiny C file called `run.c` that runs Qwen3-shaped models on the CPU with no external ML libraries. If you have ever read Karpathy's `llama2.c`, this is the Qwen3-shaped sibling. Once you have built it, a single command runs the whole thing:
 
 ```bash
 git clone https://github.com/thefirehacker/QWEN3-RunLocally
@@ -368,228 +258,111 @@ make
   --multi-turn on
 ```
 
-What that one command stitches together:
+What that command does, under the hood, is exactly the loop from intuition two: load the weights and tokenizer from the GGUF file, apply your system prompt as the model's role, generate one token at a time on the CPU, optionally let the model produce an internal reasoning trace inside `<think>` tags before its real answer, and remember conversation history across turns.
 
-1. Loads the `.gguf` (weights + tokenizer + config in one file).
-2. Applies the `--system` prompt as the model's *role* before any user input.
-3. Generates one token at a time on the CPU (Intuition 2).
-4. Keeps conversation history between turns (`--multi-turn on`).
-5. Optionally produces an internal reasoning trace (`--thinking on`).
+The system-prompt flag is where the live demo becomes memorable. In office hours we set the system prompt to *"You are an AI expert running orientation for new hires at Accenture"*, asked the model a series of in-domain questions about transformer architecture and attention, and watched a six-hundred-million-parameter model produce perfectly competent answers — the kind of answers that, if you did not know the model's size, you would assume came from a frontier system. The architecture is the same as Claude's. Only the scale and the training data are different. Once you have seen this happen on your own laptop, with your own system prompt, large models stop feeling magical and start feeling like *bigger versions of the same thing*. If you are teaching this section, demo it live; type a system prompt that matches your audience — their company, their team, their role — and let the small model give a real answer in real time. It changes how learners think about what is possible on commodity hardware.
 
-### System prompts — the Accenture demo
+The two other flags are your first encounter with what will, by the end of the cohort, feel like an entire toolbox of levers. `--thinking on` lets the model produce an internal reasoning trace before answering: the same `<think>...</think>` block you have seen in ChatGPT-style products, where the model spends extra compute deliberating before it commits to a response. It costs more tokens, and in exchange you typically get better answers. `--multi-turn on` keeps conversation history between turns; with it off, every prompt starts from a blank slate, and with it on the model carries previous turns as context, which is where the KV cache will eventually earn its keep when we get to inference optimisation. These are levers. They trade compute for quality. Most of the "tuning" you will do for the rest of the cohort — sampling temperature, top-p, prompt structure, thinking budgets — is a flavour of the same trade-off.
 
-The `--system` flag lets you set the role the model adopts before any user message. In the live office hours we made the model an *"AI expert running orientation for new hires at Accenture,"* and a 600M-parameter model produced perfectly competent answers about transformer architecture, attention, and training. **The architecture is the same as Claude's; only the scale and training data differ.** Once you have seen this with your own eyes, large models stop feeling magical.
+### The same model, in two languages
 
-This is the moment in the lesson you should *demo live* if you are teaching it. Type a system prompt that matches your audience (their company, their team, their job role), ask the model an in-domain question, and watch a tiny model give a competent answer. It changes how learners think about what's possible on commodity hardware.
+Here is the move that, more than anything else in this lesson, makes the abstractions click: the Python class `Qwen3ForCausalLM` and the C file `run.c` describe the *same computation* in two different languages. Map them onto each other and the mystique disappears.
 
-### `--thinking` and `--multi-turn` — your first hyperparameter levers
-
-| Flag | What it does |
-|---|---|
-| `--thinking on` | Enables the model's *internal reasoning trace* (the `<think>...</think>` block). The model spends extra compute "thinking out loud" before producing its real answer. Same idea as the deliberation step you see in ChatGPT-style products. **Costs more compute → typically gives better answers.** |
-| `--multi-turn on` | Keeps conversation history between turns. With it off, every prompt is a fresh start. With it on, the model carries the previous turns as context — and you start to see the KV cache earn its keep. |
-
-The takeaway: **hyperparameters are levers**. `thinking` trades compute for quality. Sampling temperature trades determinism for creativity. Most of the "tuning" you will do for the rest of the cohort is some flavour of this same trade.
-
----
-
-## 8. From random weights to Qwen3 0.6B — the training trajectory
-
-Today, `Qwen3-0.6B` has 600M parameters and writes coherent essays. **It started with random numbers.** Every weight in that 600M-parameter tensor was initialised from a random distribution.
-
-So how does a random model become Qwen3?
-
-```text
-Random weights
-  ↓  pretrain on trillions of tokens (next-token prediction)
-Base model — fluent text continuation, no instruction following
-  ↓  supervised fine-tuning (instruction–response pairs)
-Instruct model — answers questions, follows instructions
-  ↓  preference optimisation (DPO / RLHF / similar)
-Aligned model — preferred outputs, refuses harmful requests
-  ↓  reasoning / "thinking" training (long chain-of-thought traces)
-Thinking model — Qwen3 with <think>...</think> on
-```
-
-What changes at each stage:
-
-| Stage | Data shape | What the model learns |
+| Concept | Python (`transformers.Qwen3ForCausalLM`) | C (`qwen3.c / run.c`) |
 |---|---|---|
-| **Pretraining** | Raw text (web, code, books) | Statistical structure of language — the *next token* task |
-| **SFT** | `(prompt, ideal response)` pairs | To produce *answers*, not just continuations |
-| **Preference** | `(prompt, better, worse)` triples | Which of two valid responses humans prefer |
-| **Reasoning** | Long traces with `<think>` segments | When and how to "think out loud" before answering |
+| Hyperparameters | `Qwen3Config` (from `config.json`) | `struct Config` |
+| All weight tensors | `nn.Module` parameters | `struct TransformerWeights` |
+| Activation buffers | PyTorch intermediate tensors | `struct RunState` |
+| Container object | `Qwen3ForCausalLM` instance | `struct Transformer` |
+| Token embeddings | `model.embed_tokens` | `token_embedding_table` |
+| Attention Q, K, V, O | `self_attn.{q,k,v,o}_proj` | `wq`, `wk`, `wv`, `wo` |
+| Qwen3-specific Q/K norms | `self_attn.{q,k}_norm` | `wq_norm`, `wk_norm` |
+| MLP (SwiGLU) | `mlp.{gate,up,down}_proj` | `w1`, `w3`, `w2` |
+| Per-layer RMSNorms | `input_layernorm`, `post_attention_layernorm` | `rms_att_weight`, `rms_ffn_weight` |
+| Final norm | `model.norm` | `rms_final_weight` |
+| LM head | `lm_head` | `wcls` |
+| One forward pass | `model.forward(input_ids)` | `forward(transformer, token, pos)` |
+| RMS normalisation | `Qwen3RMSNorm.forward` | `rmsnorm()` |
+| Matmul | `nn.Linear.forward` (BLAS / cuBLAS) | `matmul()` (OpenMP-parallel) |
+| Softmax | `F.softmax` | `softmax()` |
+| Tokenisation | `AutoTokenizer.{encode,decode}` | `encode()`, `decode_token_id()` |
+| Sampling | `model.generate(..., temperature=, top_p=)` | `struct Sampler` + `sample()` |
+| Chat loop | hand-rolled or `pipeline("conversational")` | `chat()` |
+| CLI entry point | `python -m transformers ...` | `main()` |
 
-**Key takeaway for Cohort 01.** When we train our own small GPT in Step 4, we are reproducing **only the first stage** — pretraining — at toy scale. That is the hardest stage to get right and the one that defines almost all of a model's capability. Everything later is shaping a model that already exists; pretraining *creates* it.
+Read that table top to bottom and notice that there is nothing magic happening in the Python — every concept has a direct C counterpart you can read, with your eyes, in roughly fifteen hundred lines. PyTorch is doing the *same arithmetic*; it is simply hidden behind autograd, GPU kernels, and a much friendlier API.
+
+The exercise we recommend, the first time you sit with both files open, is this: open [`modeling_qwen3.py`](https://github.com/huggingface/transformers/blob/main/src/transformers/models/qwen3/modeling_qwen3.py#L442) in one window and [`run.c`](https://github.com/thefirehacker/qwen3.c/tree/a068f9cabd0d180b7160fabcbec368b7642c01d3) in the other, pick one row from the table — RMSNorm is a good first choice — and read both implementations line by line. Twelve lines of C. Roughly ten lines of Python. Identical math. The first time you see it, something snaps into place that no amount of reading *about* transformers will ever produce. That moment is the point of this whole section.
 
 ---
 
-# Half two — The new lens: HuggingFace as a supply chain
+## From random weights to Qwen3
 
-You can now run a model. The next professional skill is *inspecting* one.
+There is one more story to tell in this half of the lesson, and it is the story of where Qwen3-0.6B came from. The model that, today, can answer questions about transformer architecture and write coherent essays on demand, was — three or four months before its release — a tensor of pure random noise. Every one of its six hundred million parameters was initialised from a random distribution, and the question of how a random tensor became Qwen3 is, in the end, the question of what training is.
 
-## 9. A model is not a file. It is a node in a graph.
+The answer has four stages, and modern open-weight releases pass through all of them. The first stage is **pretraining**: the model is shown trillions of tokens of raw text — web pages, code, books, conversations, papers — and asked, again and again, to predict the next token. Nothing more. Across trillions of examples, the random tensors slowly resolve into a model that has absorbed the statistical structure of language. At the end of pretraining you have a *base model* — fluent at continuing text but unable to follow instructions, because it has never been asked to answer a question; it has only been asked to continue a passage.
 
-The shallow mental model:
+The second stage is **supervised fine-tuning**, or SFT. The base model is shown thousands or hundreds of thousands of `(prompt, ideal response)` pairs, and it learns to produce *answers* rather than continuations. After SFT, asking the model "what is the capital of India?" produces "Delhi" rather than "is a question many travellers ask when planning their first trip to South Asia." The third stage is **preference optimisation** — DPO, RLHF, or one of their cousins — where the model is shown triples of `(prompt, better response, worse response)` and learns to prefer the better one. This is where the model becomes pleasant to talk to, learns when to refuse harmful requests, and develops the stylistic regularities that make it feel like *itself*. And the fourth stage, in modern releases like Qwen3 with `<think>` tags, is **reasoning training**: long chain-of-thought traces that teach the model when and how to deliberate out loud before answering, the way `--thinking on` lets you see in our pure-C demo.
 
-```text
-Find model on HuggingFace
-  ↓  download
-  ↓  run
-```
+The reason this trajectory matters for the cohort is that when we get to Step 4 of the roadmap and train our own small GPT, we will be reproducing only the *first* of these stages — pretraining — at toy scale. Pretraining is the hardest stage to get right, the most expensive, and the one that defines almost all of a model's eventual capability. Everything after pretraining is shaping a model that already exists. Pretraining is what *creates* it. When you watch your tiny model's loss curve descend during training, you are watching, in miniature, the same thing that happened to Qwen3 — random noise gradually becoming language.
 
-The professional mental model:
+---
 
-```text
-Paper
-  ↓
-Base model
-  ↓
-Pretraining data
-  ↓
-SFT data
-  ↓
-Preference data
-  ↓
-Quantizations (GGUF variants, GPTQ, AWQ)
-  ↓
-Fine-tunes (community + official)
-  ↓
-Spaces and demos that use it
-  ↓
-Apps deployed on top of it
-  ↓
-Benchmarks
-  ↓
-Discussions and issues
-```
+# Half two — A model is not a file, it is a node in a graph
 
-When you see `Qwen/Qwen3-0.6B` on a model page, that one line is the **tip of a tree**. Underneath are paper releases, dataset cards, evaluation runs, derivative quantizations, hosted spaces, third-party fine-tunes, and discussions.
+You can now run a model. That alone puts you ahead of most people who claim to "use AI" in 2026. But there is one more skill that separates a person who *uses* HuggingFace from a person who *understands* it, and it is the skill of *inspection*.
 
-A model hub *looks* like a website. Underneath, it's a **graph database** — models, datasets, spaces, papers, collections, eval results, commits, licences.
+## The shallow view, and the deep view
 
-A good model page should answer four questions: *What is this. Where did it come from. What depends on it. What can I safely do with it.* If a page doesn't answer those — that's a signal about the model itself.
+The shallow view of HuggingFace is the one most newcomers arrive with, and it goes like this: find a model on the hub, click download, run it. That is fine for the first day, but it leaves you helpless the moment something goes wrong — when a load fails, when a benchmark number does not reproduce, when you have to choose between two similar-sounding models, when an unfamiliar repository asks you to pass `trust_remote_code=True` and you do not know what that means. The deep view, by contrast, is the one professionals use: a model release is the tip of a much larger tree, and that tree has structure you can read.
 
-## 10. The engine and the car
+Underneath the line `Qwen/Qwen3-0.6B` on the model page is a graph. There is a paper somewhere upstream. There is a base model that the released model was fine-tuned from. There is the pretraining corpus, sometimes named, sometimes summarised, sometimes hidden. There are SFT and preference datasets, where they exist publicly. There are quantized derivatives — GGUF builds, GPTQ builds, AWQ builds — produced by the community and by official maintainers. There are third-party fine-tunes that took this model as their starting point. There are Spaces that wrap it, apps that depend on it, benchmark runs that evaluate it, GitHub issues that discuss its behaviour. A model hub *looks* like a website with files. Underneath, it is a graph database — models, datasets, spaces, papers, collections, evaluation runs, commits, licences — and every line you see on a model page is a node in that graph.
 
-A model file is like an **engine**.
+A good model page should, in the end, answer four questions. *What is this?* *Where did it come from?* *What depends on it?* *And what can I safely do with it?* If a page does not answer those, that is itself a signal — not about the page, but about the model.
 
-But a car is not an engine. A car needs a chassis. A fuel system. A safety certificate. A user manual. A service history. A dashboard. A road test. Ownership papers. A repair network.
+## The engine and the car
 
-An engine on the floor of a garage is not a car. It is a component.
+A useful analogy, when you are first learning to read these pages, is to think of a model file the way you think of an engine. The weights are the engine. They are the thing that does the work. But a car is not an engine. A car needs a chassis. A fuel system. A safety certificate. A user manual. A service history. A dashboard. A road test. Ownership papers. A repair network. An engine on the floor of a garage, no matter how well-machined, is not a car; it is a *component*.
 
-An open model is the same. The weights are the engine. To turn them into something trustworthy and usable, you need a config, a tokenizer, metadata, a licence, evals, dataset lineage, a safety scan, runtime options, a demo, and community feedback.
+An open model is the same kind of thing. The weights are the engine. To turn them into something trustworthy and usable, you need a config file (the manual), a tokenizer (the fuel system), metadata (the dashboard), a license (the ownership papers), evaluations (the road test), dataset lineage (the service history), a security scan (the safety certificate), runtime options (the repair network), a demo (the test drive), and community feedback (the reputation). Each of those is a layer of the supply chain. Each is something you can inspect, and most of the work of being a professional in this field is learning to inspect them quickly.
 
-Each of those is a **layer of the supply chain**. Each layer is something you can inspect.
+You do not need to master every layer in this lesson; you need to know they exist and to be able to name them. From the *artifact* layer — what files actually define the model — through *storage* (LFS, Xet), *metadata*, *provenance* (official or derivative), *dataset* (what shaped it, what evaluated it), *security* (is it safe to load), *evaluation* (are the claims reproducible), *runtime* (how will it actually run — `transformers`, `llama.cpp`, vLLM, hosted), *compute* (where will inference run — CPU, GPU, serverless), *distribution* (how does it get discovered), all the way up to the *agent* layer (can an AI agent inspect and use this model without a human) and *governance* (who can access it, under what licence). That is the supply chain. In the time we have remaining, three of those layers deserve a deep look, because they are the three where most engineers get themselves into trouble: security, evaluation, and agent-readable metadata.
 
-## 11. The supply-chain layers (a quick tour)
+## Security, and the single most important sentence in this lesson
 
-| Layer | What it answers |
-|---|---|
-| **Artifact** | What files actually define the model? |
-| **Storage** | How are multi-GB blobs stored and downloaded? (LFS → Xet) |
-| **Metadata** | Can humans *and* machines understand the model? |
-| **Provenance** | Where did this model come from? Official or derivative? |
-| **Dataset** | What data shaped it? What benchmarks evaluated it? |
-| **Security** | Is it safe to load and run? Does it need custom code? |
-| **Eval** | Are the model's claims reproducible? Where are the raw outputs? |
-| **Runtime** | How will the model actually be executed? (`transformers`, `llama.cpp`, vLLM, hosted) |
-| **Compute** | Where does inference / evaluation run? (CPU, GPU, serverless) |
-| **Distribution** | How does the model get discovered? |
-| **Agent** | Can an AI agent inspect and use this model without a human? |
-| **Governance** | Who can access it and under what licence? |
-
-You don't need to master every layer in this lesson. You need to know they exist, and you need three of them deeply now: **security**, **evals**, and **agent-readable manifests**.
-
-## 12. Layer deep dive — Security and `trust_remote_code`
-
-The most important sentence of this lesson:
+Here is the sentence. Memorise it.
 
 > When you write `trust_remote_code=True` in `from_pretrained`, you are giving a stranger permission to run their Python code on your machine.
 
-Not metaphorically. Literally. The flag downloads `modeling_*.py` files from the repo and executes them on import.
+Not metaphorically. Literally. That flag, when set, causes the `transformers` library to download `modeling_*.py` files from the model's repository and *execute them on import*. Beginners hit a load error, see a Stack Overflow answer that says "pass `trust_remote_code=True`", paste it in, the load works, and they move on. That is not a workaround. That is a security decision, and most of the time it is being made without anyone realising they are making it.
 
-Beginners hit a load error, paste `trust_remote_code=True`, the load works, and they move on. That's not a workaround. **That's a security decision.**
+The professional habit is to internalise the file tiering of a HuggingFace repo. Some files are *data*: `config.json`, `tokenizer.json`, `tokenizer_config.json`, `special_tokens_map.json`, `generation_config.json`, `model.safetensors`, `README.md`. These cannot execute code when loaded. Safetensors, in particular, was designed specifically to be a *safe* alternative to PyTorch's old pickle format precisely because pickle could execute arbitrary code on load. Other files are *code*: `pytorch_model.bin` (the pickle format, which can run code when unpickled), any `modeling_*.py` or `tokenization_*.py` in the repo (which will be executed if you pass `trust_remote_code=True`), `requirements.txt` (which may pull untrusted packages), `app.py` (used by Spaces). When you encounter an unfamiliar repository, read its file list before you load anything. If you see custom Python or pickle weights, slow down. Read the code, or pick a different repo.
 
-### File tiering — internalise this
-
-| Tier | Files | Why |
-|---|---|---|
-| **Low risk** | `config.json`, `tokenizer.json`, `tokenizer_config.json`, `special_tokens_map.json`, `generation_config.json`, `model.safetensors`, `README.md` | These are *data*, not *code*. Safetensors deliberately cannot execute code on load. |
-| **Higher risk** | `pytorch_model.bin` (pickle), `modeling_*.py`, `tokenization_*.py`, `requirements.txt`, `app.py` | Pickle can execute arbitrary code on load. Custom Python runs when you pass `trust_remote_code=True`. `requirements.txt` may pull untrusted packages. |
-
-The professional habit: **before you load a model from an unfamiliar repo, read its file list.** If you see custom Python or pickle weights, slow down. Read the code. Or pick a different repo.
-
-Most popular models — Qwen, Llama, Mistral, the well-known ones — ship safetensors and need no custom code. *That is a feature.* That is what you want.
+Most of the major model families — Qwen, Llama, Mistral, the well-known ones — ship safetensors-only and need no custom code, and that absence is a feature, not a limitation. It means the repository is *boring* in exactly the way you want a piece of infrastructure to be boring.
 
 ```python
-# Reasonable default — no custom code allowed
+# Reasonable default — no custom code allowed.
 model = AutoModelForCausalLM.from_pretrained(
     "Qwen/Qwen3-0.6B",
-    # trust_remote_code defaults to False — keep it that way
+    # trust_remote_code defaults to False — keep it that way.
 )
-
-# If a model REQUIRES trust_remote_code, treat it like running a stranger's binary.
-# Read the .py files in the repo first. Or look for a safetensors-only alternative.
 ```
 
-## 13. Layer deep dive — Evals and reproducibility
+If a model *requires* `trust_remote_code=True`, treat the situation the way you would treat running a stranger's compiled binary. Read the `.py` files in the repo. Or look for a safetensors-only alternative. The cost of the second option is almost always lower than the cost of the first one going wrong.
 
-A leaderboard without reproducibility is just marketing.
+## Evaluations, and what "state of the art" actually means
 
-Open any model card. You will see phrases like *strong reasoning, better coding, improved instruction following, fast inference, small but powerful*. Train yourself to ask:
+The second layer worth dwelling on is evaluation, because almost every model card you will read makes claims about it, and almost none of them give you enough information to verify those claims.
 
-```text
-Compared to what?
-On which benchmark?
-With which prompt format?
-With which decoding settings?
-On which hardware?
-Can I reproduce it?
-Where are the raw outputs?
-```
+Open any model card and you will see phrases like *strong reasoning, better coding, improved instruction following, fast inference, small but powerful*. Train yourself, every time you read those phrases, to ask the same set of questions. Compared to what? On which benchmark? With which prompt format? With which decoding parameters? On which hardware? Can I reproduce it? Where are the raw outputs? A serious evaluation is not a single number; it is a pipeline. A benchmark dataset feeds into a prompt template, which feeds into a model runner with specific parameters, which produces raw generations that are saved to disk, which are then scored by a script, producing metrics, producing a result file, producing a leaderboard entry. At every step there are choices, and at every step those choices can be selectively reported in a way that makes one model look better than another.
 
-A serious evaluation isn't a single number. It's a pipeline:
+A leaderboard without reproducibility is, at best, an interesting prior; at worst, it is marketing. If a model claims a benchmark score and you cannot find the prompts used, the decoding parameters, or the raw outputs, treat the claim as advertising rather than data.
 
-```text
-Benchmark dataset
-  ↓
-Prompt template
-  ↓
-Model runner (which runtime, what parameters)
-  ↓
-Raw generations saved
-  ↓
-Scoring script
-  ↓
-Metrics
-  ↓
-Result file
-  ↓
-Leaderboard
-  ↓
-Reproducibility notes (hardware, seeds, versions)
-```
+It is also worth remembering, even when reproducibility is solid, that accuracy is rarely the only number that matters in real product work. Latency, tokens-per-second, peak memory used, cost per hundred prompts, format-following score, and refusal behaviour all matter as much as the headline benchmark — sometimes more. The cheapest, fastest model that achieves ninety per cent of the quality often beats the prettiest leaderboard number that costs ten times more to serve. The leaderboard tells you which model is best at the benchmark. Your product tells you which model is best at your *job*.
 
-If a model claims a score and you can't find the prompts used, the decoding parameters, or the raw outputs — treat the claim as advertising, not data.
+## Agent-readable manifests, and the next two years
 
-And **measure more than accuracy**. In real product work, latency, tokens/sec, memory used, cost per 100 prompts, format-following score, and refusal behaviour all matter as much as the headline benchmark number. The cheapest, fastest model that hits 90% of the quality often beats the prettiest leaderboard number that costs ten times more to serve.
-
-## 14. Layer deep dive — Agent-readable manifests
-
-This is the layer most people haven't heard of yet, and the one that's going to matter most over the next two years.
-
-Every model page on HuggingFace today is written for a *human* reading a screen. `README.md` files, prose paragraphs, screenshots. That's fine for humans.
-
-But more and more model selection — for code completion, agent tools, RAG pipelines — is being done by **AI agents calling APIs, not humans clicking links**.
-
-A `README.md` is for humans:
-
-```md
-This model is useful for educational text-generation demos. It's small enough to run on a laptop and works well for...
-```
-
-An agent needs structured fields:
+The third layer is the one almost nobody has heard of yet, and it is the one that is going to matter most over the next two years. Today, every model page on HuggingFace is written for a human reading a screen — markdown prose, screenshots, paragraphs. That is fine while humans are choosing models. But increasingly, model selection — for code-completion endpoints, for tool-using agents, for RAG pipelines — is being done not by humans clicking links but by *AI agents* calling APIs. A README is a fine artefact for a person. It is a poor artefact for a machine, which would much rather receive something like this:
 
 ```json
 {
@@ -609,55 +382,42 @@ An agent needs structured fields:
 }
 ```
 
-When you build something in this cohort, ask: *could an AI agent figure out how to use this without a human in the loop?* If the answer is no, you've left work on the table.
-
-This is also the bridge to where the cohort is heading in Step 5 (build an AI product). The products that win the next two years will be the ones that are *legible to other agents*, not just to humans.
+The point is not that this exact schema will become a standard — schemas come and go. The point is that the future of model distribution is *legible to other agents*, not just to humans. When you build something in this cohort, ask yourself: could an AI agent figure out how to use this without a human in the loop? If the answer is no, you have left work on the table. This is also the bridge to where the cohort is heading in Step 5, when we build a real AI product. The products that win over the next two years will be the ones that are legible to other agents, not the ones that are merely pretty for humans.
 
 ---
 
-## Why this matters — the one-line takeaway
+## Why this matters, in one line
 
-> A model hub is not a folder of files. It is a **trust, compute, metadata, and distribution layer** for AI artifacts. Most people use it. You're going to understand it.
-
-The cohort's whole second half — Step 3 (inference), Step 4 (training), Step 5 (product), Step 6 (capstone) — sits on top of this mental model. Get it right now and everything that follows clicks.
+A model hub is not a folder of files. It is a **trust, compute, metadata, and distribution layer for AI artifacts**. Most people use it. You are going to understand it. The rest of the cohort — inference in Step 3, training in Step 4, product in Step 5, capstone in Step 6 — sits on top of that mental model. Get it right now, and everything that follows clicks.
 
 ---
 
 ## Companion reading
 
-- **[Office Hours — 8 May 2026](../office-hours/2026-05-08.qmd)** — the live session this lesson is built from. Topics 1–4 are the prerequisites for half one; the supply-chain framing in half two is new.
-- **[Run Qwen3 0.6B in pure C](../blog/qwen3-run-locally.qmd)** — what's inside the `.gguf` file we ran.
-- **[GGUF vs SafeTensors](../blog/model-formats-gguf-safetensors.qmd)** — the weight-format half of the supply chain.
-- **[Karpathy — Let's reproduce GPT-2 (124M)](https://www.youtube.com/watch?v=l8pRSuU81PU)** — the lecture this cohort is modelled on.
-- **[`modeling_qwen3.py` (transformers)](https://github.com/huggingface/transformers/blob/main/src/transformers/models/qwen3/modeling_qwen3.py#L442)** — the implementation we dissect in later lessons.
+If you want to go deeper on any of the threads we touched in this lesson, these are the places to start. The [Office Hours session from 8 May 2026](../office-hours/2026-05-08.qmd) is the live session this lesson was built from — the practical half is a polished version of it, the supply-chain framing in the second half is new. The cohort blog post on [Running Qwen3 0.6B in pure C](../blog/qwen3-run-locally.qmd) is a deeper walk through what is inside the `.gguf` file we ran. [GGUF vs SafeTensors](../blog/model-formats-gguf-safetensors.qmd) is the weight-format half of the supply chain. Andrej Karpathy's lecture series [*Let's reproduce GPT-2 (124M)*](https://www.youtube.com/watch?v=l8pRSuU81PU) is the work this cohort is modelled on. And [`modeling_qwen3.py`](https://github.com/huggingface/transformers/blob/main/src/transformers/models/qwen3/modeling_qwen3.py#L442) is the implementation we will return to in every later lesson.
 
 ---
 
-## Homework — the Supply-Chain Audit
+## Homework — the supply-chain audit
 
-Pick one model on HuggingFace. **Recommended:** [`Qwen/Qwen3-0.6B`](https://huggingface.co/Qwen/Qwen3-0.6B), since we're using it through the rest of the cohort.
+Pick one model on HuggingFace and audit it. We recommend [`Qwen/Qwen3-0.6B`](https://huggingface.co/Qwen/Qwen3-0.6B), because we will be using it throughout the cohort and you may as well know it intimately. Write a short blog post on your Quarto blog answering the following eleven questions for that model.
 
-Write a short blog post on your Quarto blog answering these eleven questions for that model:
-
-1. **Where did it come from?** Paper, base model, organisation. (Look for a verified badge and a paper link.)
-2. **What files define it?** List the repo's top-level files. Identify which are *data* vs *code*.
+1. **Where did it come from?** What paper, what base model, what organisation released it? Is there a verified badge? Is there a paper link?
+2. **What files define it?** List the repo's top-level files. Identify which are *data* and which are *code*.
 3. **Can I inspect the dataset it was trained on?** Is the pretraining corpus listed? Is the SFT data available?
-4. **Can I reproduce its benchmark claims?** Where are the raw outputs? Which prompts, which decoding parameters?
-5. **Is it safe to load?** Are the weights `.safetensors` or pickle?
-6. **Does it require `trust_remote_code=True`?** If yes — what does that code do? (Read it.)
-7. **What licence applies?** Can I use it commercially? Is attribution required?
-8. **Can I run it locally?** What runtime fits — `transformers`, `llama.cpp`, vLLM? Is there a `.gguf` variant?
-9. **Can I deploy it?** What's the cheapest path to a working endpoint?
-10. **What linked artifacts exist?** Spaces, derivative quantizations, datasets, papers, collections.
-11. **Could an AI agent answer all of these by reading the repo?** What's missing? What would a `model_context.json` for this model look like?
+4. **Can I reproduce its benchmark claims?** Where are the raw outputs? Which prompts, which decoding parameters were used?
+5. **Is it safe to load?** Are the weights in `.safetensors` or pickle?
+6. **Does it require `trust_remote_code=True`?** If yes, what does that code do? Read it.
+7. **What licence applies?** Can you use it commercially? Is attribution required?
+8. **Can you run it locally?** Which runtime fits — `transformers`, `llama.cpp`, vLLM? Is there a `.gguf` variant?
+9. **Can you deploy it?** What is the cheapest path to a working endpoint?
+10. **What linked artefacts exist?** Spaces, derivative quantizations, datasets, papers, collections.
+11. **Could an AI agent answer all of these by reading the repo?** What is missing? What would a `model_context.json` for this model look like if you had to write one?
 
-Drop the post in `#blog-share` on Discord when it's up. Bring the audit to Friday's office hours and we'll dissect it live.
+Drop the post in `#blog-share` on Discord when it is published. Bring the audit to Friday's office hours and we will dissect a few of them live.
 
 ---
 
 ## Next steps
 
-1. **Watch** the lesson video with the transcript open. Click around chapters until the mental model sticks.
-2. **Do** the Supply-Chain Audit homework above — pick a model, answer all eleven questions, publish.
-3. **Run** Qwen3 0.6B locally using [QWEN3-RunLocally](https://github.com/thefirehacker/QWEN3-RunLocally). Try your own system prompt with `--thinking on` and `--multi-turn on`.
-4. **Continue** to **[Step 2 — Run a model locally](../roadmap.qmd)** with the deeper frame in mind: every model you load is a supply-chain artifact.
+When you are ready, do four things. **Watch** the lesson video with the transcript open and click around the chapters until the mental model has settled. **Do** the supply-chain audit above; pick a model, answer all eleven questions, publish the post. **Run** Qwen3-0.6B locally using [QWEN3-RunLocally](https://github.com/thefirehacker/QWEN3-RunLocally), with your own system prompt and `--thinking on` and `--multi-turn on`. And then **continue** to [Step 2 — Run a model locally](../roadmap.qmd) with the supply-chain frame fresh in your head: every model you load from here on is an artefact in a graph, and you now know how to read the graph.
