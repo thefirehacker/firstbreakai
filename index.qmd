@@ -18,6 +18,38 @@ css: styles/home.css
   </div>
 </div>
 
+<div class="whats-new-ticker" aria-label="What's new at First Break AI">
+  <span class="ticker-label">What's New</span>
+  <div class="ticker-viewport">
+    <div class="ticker-track">
+      <div class="ticker-group">
+        <a class="ticker-item" href="lessons/lesson-1-huggingface-beyond-upload.qmd">
+          <span class="ticker-pill new">New · Lesson 1</span>
+          <span class="ticker-text">HuggingFace Beyond Upload — why an open model is not a file, it's a supply chain you can inspect.</span>
+        </a>
+        <span class="ticker-sep" aria-hidden="true">●</span>
+        <a class="ticker-item" href="office-hours/2026-05-08.qmd">
+          <span class="ticker-pill">Office Hours · 8 May</span>
+          <span class="ticker-text">Cohort 01 kickoff — three intuitions, HuggingFace deep dive, live pure-C demo.</span>
+        </a>
+        <span class="ticker-sep" aria-hidden="true">●</span>
+      </div>
+      <div class="ticker-group" aria-hidden="true">
+        <a class="ticker-item" href="lessons/lesson-1-huggingface-beyond-upload.qmd" tabindex="-1">
+          <span class="ticker-pill new">New · Lesson 1</span>
+          <span class="ticker-text">HuggingFace Beyond Upload — why an open model is not a file, it's a supply chain you can inspect.</span>
+        </a>
+        <span class="ticker-sep">●</span>
+        <a class="ticker-item" href="office-hours/2026-05-08.qmd" tabindex="-1">
+          <span class="ticker-pill">Office Hours · 8 May</span>
+          <span class="ticker-text">Cohort 01 kickoff — three intuitions, HuggingFace deep dive, live pure-C demo.</span>
+        </a>
+        <span class="ticker-sep">●</span>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="journey-preview">
   <div class="journey-preview-track">
     <a href="journey/#scene-1" class="journey-preview-card">
@@ -50,7 +82,7 @@ css: styles/home.css
 
 ::: {.content-section}
 
-**Cohort: 1 May 2026 — 30 June 2026 (2 months)**
+**Cohort: 1 May 2026 — 30 June 2026 (2 months)** [<span class="cohort-live-badge"><span class="cohort-live-dot" aria-hidden="true"></span>Live</span>]{.cohort-live-wrap}
 
 First Break AI is a free, community-driven cohort for anyone who wants their first break in AI. It doesn't matter what you studied or where you work — what matters is that you're ready to learn by doing. We focus on what matters: running and training models, understanding inference, and shipping AI-powered products. Most learning is self-directed and peer-supported; the roadmap, checklist, and resources live in the open so you can contribute and others can follow. The goal is simple: **upskill, build, showcase** — and get that first role or first break in AI.
 
@@ -70,6 +102,29 @@ This is a free, community-driven cohort. To join, sign up on Discord — that's 
 **Office Hours:** Every Friday, 9:00 — 10:00 PM IST. Meeting link shared on Discord.
 <span class="office-hours-local"></span>
 :::
+
+```{=html}
+<div class="cohort-poster" id="cohort-poster-anchor">
+  <div class="cohort-poster-header">
+    <span class="cohort-poster-tag">Bonus · The Anatomy</span>
+    <h2 class="cohort-poster-title">Want the full picture?</h2>
+    <p class="cohort-poster-sub">The cohort drawn as one inference flow — six steps, every detail on a single poster. Click to enlarge.</p>
+  </div>
+  <a class="cohort-poster-link"
+     href="public/images/firstbreakai-anatomy-poster.png"
+     target="_blank"
+     rel="noopener"
+     aria-label="Open the First Break AI anatomy poster full-size in a new tab">
+    <img class="cohort-poster-img"
+         src="public/images/firstbreakai-anatomy-poster-1500.webp"
+         alt="First Break AI cohort poster — Anatomy of a First Break in AI. Cohort 01, 1 May – 30 June 2026. Six numbered side panels (A–F) covering Step 1 First use of AI for coding, Step 2 Run a model locally, Step 3 Inference deep dive, Step 4 Training fundamentals, Step 5 Build an AI product, Step 6 Capstone or open-source contribution. Central diagram of Qwen3 0.6B inference flow: input → text embeddings → Qwen3 DecoderLayer ×28 → RMSNorm → Linear → output. Cohort ledger at the bottom."
+         width="1332"
+         height="1868"
+         loading="lazy"
+         decoding="async" />
+  </a>
+</div>
+```
 
 ## Get started
 

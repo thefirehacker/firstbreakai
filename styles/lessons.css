@@ -1,3 +1,139 @@
+/* ── Lesson hero — visible page title (journey.css hides Quarto's auto title) ── */
+.lesson-hero {
+  position: relative;
+  max-width: 1500px;
+  margin: 3rem auto 2rem;
+  padding: 2.25rem 2rem 2rem;
+  text-align: left;
+  background:
+    linear-gradient(180deg, rgba(212, 167, 74, 0.07) 0%, rgba(212, 167, 74, 0) 70%),
+    radial-gradient(120% 80% at 0% 0%, rgba(212, 167, 74, 0.10) 0%, rgba(212, 167, 74, 0) 60%);
+  border-top: 1px solid rgba(180, 168, 138, 0.35);
+  border-bottom: 1px solid rgba(180, 168, 138, 0.35);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.lesson-hero::before {
+  content: "";
+  position: absolute;
+  left: 2rem;
+  top: 0;
+  width: 56px;
+  height: 4px;
+  background: linear-gradient(90deg, #d4a74a, #e0b960);
+  border-radius: 0 0 4px 4px;
+}
+.lesson-hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.lesson-hero-eyebrow {
+  display: inline-block;
+  font-family: ui-monospace, "SF Mono", "Cascadia Code", "Consolas", monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8a6a1f;
+  background: rgba(212, 167, 74, 0.12);
+  border: 1px solid rgba(212, 167, 74, 0.35);
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+}
+
+/* ── Lesson status pill — three states: draft, under-review, published ── */
+.lesson-hero-status {
+  display: inline-block;
+  font-family: ui-monospace, "SF Mono", "Cascadia Code", "Consolas", monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid;
+}
+/* Draft: muted grey — work-in-progress */
+.lesson-hero-status-draft {
+  color: #5e5448;
+  background: rgba(180, 168, 138, 0.15);
+  border-color: rgba(180, 168, 138, 0.55);
+}
+/* Under Review: amber — being reviewed before publish */
+.lesson-hero-status-review {
+  color: #8a4a0e;
+  background: rgba(217, 119, 6, 0.12);
+  border-color: rgba(217, 119, 6, 0.45);
+  animation: lessonStatusPulse 2.4s ease-in-out infinite;
+}
+@keyframes lessonStatusPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.25); }
+  50%      { box-shadow: 0 0 0 4px rgba(217, 119, 6, 0); }
+}
+/* Published: green — final, live */
+.lesson-hero-status-published {
+  color: #2f6b2a;
+  background: rgba(64, 145, 56, 0.12);
+  border-color: rgba(64, 145, 56, 0.45);
+}
+.lesson-hero-title {
+  font-family: "Newsreader", "Source Serif Pro", Georgia, serif;
+  font-size: clamp(2.4rem, 5.2vw, 4rem);
+  line-height: 1.05;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #1e1a14;
+  margin: 0 0 0.85rem;
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+  text-wrap: balance;
+}
+.lesson-hero-subtitle {
+  font-family: "Newsreader", "Source Serif Pro", Georgia, serif;
+  font-size: clamp(1.1rem, 1.85vw, 1.4rem);
+  line-height: 1.5;
+  font-weight: 400;
+  font-style: italic;
+  color: #5a4f3a;
+  max-width: 62ch;
+  margin: 0 0 1.25rem;
+  text-wrap: balance;
+}
+.lesson-hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+.lesson-hero-chip {
+  display: inline-flex;
+  align-items: center;
+  font-family: ui-monospace, "SF Mono", "Cascadia Code", "Consolas", monospace;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #5a4e3e;
+  background: rgba(240, 235, 225, 0.7);
+  border: 1px solid rgba(180, 168, 138, 0.45);
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  text-decoration: none !important;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+a.lesson-hero-chip:hover {
+  background: rgba(212, 167, 74, 0.15);
+  border-color: rgba(212, 167, 74, 0.6);
+  color: #1e1a14;
+}
+@media (max-width: 640px) {
+  .lesson-hero {
+    margin: 1.5rem auto 1.25rem;
+    padding: 1.75rem 1.25rem 1.5rem;
+  }
+  .lesson-hero::before { left: 1.25rem; }
+}
+
 /* ── Navigate-by-roadmap table on lesson pages — match site cream bg ── */
 main table,
 main .table {
