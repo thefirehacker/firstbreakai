@@ -135,6 +135,170 @@ This is a free, community-driven cohort. To join, sign up on Discord — that's 
 | [Checklist](checklist.qmd) | Accounts to create (Hugging Face, GitHub, Fetchlens.ai, Colab) and who to follow |
 | [AI Setup](setup.qmd) | AI-based IDE (Cursor / Claude Code), ChatGPT, Open Router |
 
+## Frequently asked
+
+```{=html}
+<div class="faq">
+
+  <details open class="faq-item">
+    <summary>Do I need to know math to take this course?</summary>
+    <div class="faq-body">
+      <p><strong>No.</strong> We deliberately go in reverse: start by <em>running</em> a model on your laptop, then add math (attention, RoPE, softmax) only when you have already seen the thing it describes. That is the same teaching approach Andrej Karpathy uses in <em>Let's reproduce GPT-2</em>.</p>
+      <p>Lesson 1's section <a href="lessons/lesson-1-huggingface-beyond-upload.qmd#do-you-need-deep-math-for-this">"Do you need deep math for this?"</a> goes deeper. If you have the math, great — it speeds you up. If you don't, what you can't skip is willingness to read code and run experiments.</p>
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>Do I need a CS or tech background?</summary>
+    <div class="faq-body">
+      <p>You need comfort with reading code (any language) and running terminal commands. That's the floor.</p>
+      <p>Past learners have come from career switches, design, math/econ/physics, and self-taught backgrounds. There are <strong>no applications and no prerequisites</strong> — the <a href="roadmap.qmd">roadmap</a> and <a href="checklist.qmd">checklist</a> tell you exactly what to install on day one.</p>
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>Is this really free? What's the catch?</summary>
+    <div class="faq-body">
+      <p>Yes, free. No paywall, no upsell, no certificate-for-a-fee. For comparison, three current AI-engineering cohorts that audience-overlapping learners are already paying for:</p>
+      <table class="faq-compare">
+        <thead>
+          <tr><th></th><th>Length</th><th>Time / wk</th><th>Price</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Paid cohort A</td><td>4 weeks</td><td>~6 hrs</td><td><strong>$2,000</strong></td></tr>
+          <tr><td>Paid cohort B</td><td>8 weeks</td><td>10–12 hrs</td><td><strong>$2,000</strong></td></tr>
+          <tr><td>Paid cohort C</td><td>6 weeks</td><td>5+ hrs</td><td>(sold out)</td></tr>
+          <tr class="faq-compare-self"><td><strong>First Break AI</strong></td><td><strong>8 weeks</strong></td><td>5–8 hrs</td><td><strong>$0</strong></td></tr>
+        </tbody>
+      </table>
+      <p>Same scope, free, longer cohort window. The catch is you have to show up — the cohort works because <em>you</em> build in public, not because we chase you.</p>
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>How much time per week do I need to commit?</summary>
+    <div class="faq-body">
+      <p>Plan for <strong>5–8 hours a week</strong> to comfortably keep up — one lesson, Friday office hours, and the homework. Comparable paid cohorts ask for 5–12 hours per week, so this is in the same range.</p>
+      <p>Many learners spend more by choice; the roadmap goes deeper than the weekly minimum and the code is open. Cohort 01 runs <strong>1 May 2026 – 30 June 2026</strong>, but everything stays online afterward, so you can also move at your own pace.</p>
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>What hardware do I need? Mac, Windows, or do I need a GPU?</summary>
+    <div class="faq-body">
+      <p>Any modern laptop is enough to start. We design the lessons <strong>CPU-first</strong> — for example, <a href="lessons/lesson-1-huggingface-beyond-upload.qmd">Lesson 1</a> runs Qwen3-0.6B in pure C on your laptop's CPU with no GPU required.</p>
+      <p>Mac (Apple Silicon or Intel), Windows (with WSL), and Linux all work. When the cohort hits larger training experiments in Step 4, the <a href="setup.qmd">AI Setup</a> page covers free-tier cloud GPU options.</p>
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>Will I get a certificate or job placement?</summary>
+    <div class="faq-body">
+      <p>No certificate, no placement service. What you walk away with is a <strong>portfolio</strong>: a Quarto blog of everything you learned, a model you trained from scratch, a deployed AI product, and optionally a merged open-source contribution.</p>
+      <p>In 2026, that portfolio is a much stronger hiring signal than a course PDF. Recruiters can see your blog and your GitHub commits; they can't see your Coursera badge.</p>
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>What if I miss a session, or join mid-cohort?</summary>
+    <div class="faq-body">
+      <p>Everything is asynchronous-friendly. Office hours are recorded; AI-generated podcast summaries and lesson recaps go up on <a href="journey/">The Journey</a> within a few days; transcripts are interactive and searchable.</p>
+      <p>You can join Cohort 01 today, in three weeks, or after Cohort 01 ends — the materials stay online and the Discord stays active. Nobody is gated.</p>
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>How is this different from fast.ai, Karpathy's lectures, or HuggingFace's free course?</summary>
+    <div class="faq-body">
+      <p>First Break AI is <strong>openly inspired by Andrej Karpathy's <a href="https://www.youtube.com/watch?v=l8pRSuU81PU"><em>Let's reproduce GPT-2 (124M)</em></a> and <a href="https://github.com/karpathy/llm.c"><code>llm.c</code></a></strong> — the from-scratch, no-magic, run-it-in-pure-C approach to teaching how LLMs actually work. Those are still the gold standard for a single lecturer building a model in front of you, and they are the philosophical foundation under this entire cohort. The pure-C Qwen3 demo in <a href="lessons/lesson-1-huggingface-beyond-upload.qmd">Lesson 1</a> (<a href="https://github.com/thefirehacker/QWEN3-RunLocally">code</a> by William Song) is the direct intellectual descendant of <code>llm.c</code>.</p>
+      <p>We sit on top of that work and extend it in four directions:</p>
+      <ul>
+        <li><strong>Cohort-based.</strong> Live Friday office hours, 9–10 PM IST, where you can ask anything. Karpathy's lectures are one-way; this is two-way.</li>
+        <li><strong>2026-current stack.</strong> Qwen3 instead of GPT-2, <code>transformers</code> v5, vLLM, agent tooling, the HuggingFace supply-chain lens — but the teaching philosophy (run the model first, study the math after) is Karpathy's, applied to today's models.</li>
+        <li><strong>Shipping a product is in scope.</strong> Step 5 of the roadmap is building a deployed AI product, not just training a model in a notebook.</li>
+        <li><strong>Agent-readable, by design.</strong> The site ships structured data (<code>Course</code>, <code>FAQPage</code>) for AI answer engines, and <a href="lessons/lesson-1-huggingface-beyond-upload.qmd">Lesson 1</a> walks you through <a href="https://huggingface.co/docs/dataset-viewer/croissant">Croissant</a> — the same machine-readable lens, applied to model and dataset releases. Per-lesson manifests are on the roadmap.</li>
+      </ul>
+      <p>fast.ai and HuggingFace's free course are excellent complementary reads, and the <a href="roadmap.qmd">Roadmap</a> links to them where they fit.</p>
+    </div>
+  </details>
+
+</div>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "url": "https://cohort.bubblnet.com/",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Do I need to know math to take this course?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. We deliberately go in reverse: start by running a model on your laptop, then add math (attention, RoPE, softmax) only when you have already seen the thing it describes. That is the same teaching approach Andrej Karpathy uses in Let's reproduce GPT-2. Lesson 1 has a deeper section on this. If you have the math, great — it speeds you up. If you don't, what you can't skip is willingness to read code and run experiments."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need a CS or tech background?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You need comfort with reading code (any language) and running terminal commands. That's the floor. Past learners have come from career switches, design, math/econ/physics, and self-taught backgrounds. There are no applications and no prerequisites — the roadmap and checklist tell you exactly what to install on day one."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this really free? What's the catch?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, free. No paywall, no upsell, no certificate-for-a-fee. For comparison, three current AI-engineering cohorts that audience-overlapping learners are already paying for charge between $1,000 and $2,000 USD for 4 to 8 weeks, with 5 to 12 hours per week. First Break AI is 8 weeks, 5 to 8 hours per week, $0. Same scope, free, longer cohort window. The catch is you have to show up — the cohort works because you build in public, not because we chase you."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How much time per week do I need to commit?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Plan for 5 to 8 hours a week to comfortably keep up — one lesson, Friday office hours, and the homework. Comparable paid cohorts ask for 5 to 12 hours per week, so this is in the same range. Many learners spend more by choice; the roadmap goes deeper than the weekly minimum and the code is open. Cohort 01 runs 1 May 2026 to 30 June 2026, but everything stays online afterward, so you can also move at your own pace."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What hardware do I need? Mac, Windows, or do I need a GPU?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Any modern laptop is enough to start. We design the lessons CPU-first — for example, Lesson 1 runs Qwen3-0.6B in pure C on your laptop's CPU with no GPU required. Mac (Apple Silicon or Intel), Windows (with WSL), and Linux all work. When the cohort hits larger training experiments in Step 4, the AI Setup page covers free-tier cloud GPU options."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will I get a certificate or job placement?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No certificate, no placement service. What you walk away with is a portfolio: a Quarto blog of everything you learned, a model you trained from scratch, a deployed AI product, and optionally a merged open-source contribution. In 2026, that portfolio is a much stronger hiring signal than a course PDF. Recruiters can see your blog and your GitHub commits; they can't see your Coursera badge."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if I miss a session, or join mid-cohort?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Everything is asynchronous-friendly. Office hours are recorded; AI-generated podcast summaries and lesson recaps go up on The Journey within a few days; transcripts are interactive and searchable. You can join Cohort 01 today, in three weeks, or after Cohort 01 ends — the materials stay online and the Discord stays active. Nobody is gated."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is this different from fast.ai, Karpathy's lectures, or HuggingFace's free course?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "First Break AI is openly inspired by Andrej Karpathy's Let's reproduce GPT-2 (124M) and llm.c — the from-scratch, no-magic, run-it-in-pure-C approach to teaching how LLMs actually work. Those are still the gold standard for a single lecturer building a model in front of you, and they are the philosophical foundation under this entire cohort. The pure-C Qwen3 demo in Lesson 1 (code by William Song) is the direct intellectual descendant of llm.c. We sit on top of that work and extend it in four directions. First, cohort-based: live Friday office hours where you can ask anything. Second, a 2026-current stack: Qwen3 instead of GPT-2, transformers v5, vLLM, agent tooling, the HuggingFace supply-chain lens. Third, shipping a product is in scope — Step 5 of the roadmap is building a deployed AI product, not just training a model in a notebook. Fourth, agent-readable by design: the site ships structured data (Course, FAQPage) for AI answer engines, and Lesson 1 walks you through Croissant — the same machine-readable lens, applied to model and dataset releases. Per-lesson manifests are on the roadmap. fast.ai and HuggingFace's free course are excellent complementary reads, and the roadmap links to them where they fit."
+      }
+    }
+  ]
+}
+</script>
+```
+
 ::: {.ai-content-notice}
 **About AI-generated content:** Office hours transcripts and cohort material are used to create AI-generated podcast lessons, summaries, and other learning resources published on this site and [The Journey](journey/). All learner names are anonymized — no real names are used. By participating in office hours, you consent to your contributions being used in this way.
 :::
