@@ -2,6 +2,7 @@
 title: "Lesson 1: HuggingFace Beyond Upload"
 subtitle: "Run Qwen3 0.6B locally, tour HuggingFace properly, and see open models as a supply chain."
 description: "The full Lesson 1: the three intuitions about LLMs, why Qwen3 0.6B is the right teaching model, a guided tour of HuggingFace (LFS → Xet, model cards, config.json, Transformers), markdown for AI workflows, the math question, running Qwen3 in pure C with GGUF + system prompts + thinking + multi-turn, the training trajectory, and the new lens — HuggingFace as a supply chain (provenance, datasets, security, evals, runtime, agents). The companion video mirrors this page."
+title-block-style: none
 page-layout: full
 css:
   - ../styles/journey.css
@@ -245,7 +246,7 @@ There are three reasons to do this. The first is that, in pure C, every step fro
 
 To make this work we need a different file format. Where `transformers` likes `.safetensors`, our C program reads **`.gguf`** — a single self-contained file that bundles weights, tokenizer, and config together in a layout designed for CPU inference. It is the same format that `llama.cpp` and `ollama` use. The bundling matters: with `.safetensors`, the weights are in one file, the tokenizer in another, the config in a third, and a Python framework stitches them together at load time; with `.gguf`, all of that lives in a single memory-mappable file that a tiny C program can read without external help. The two formats are not competitors so much as different specialisations — `.safetensors` for the GPU/PyTorch world, `.gguf` for the CPU/laptop world.
 
-The cohort repository is [`github.com/thefirehacker/QWEN3-RunLocally`](https://github.com/thefirehacker/QWEN3-RunLocally). Clone it, follow the README. Inside that repo is a Git submodule pointing at [`thefirehacker/qwen3.c`](https://github.com/thefirehacker/qwen3.c/tree/a068f9cabd0d180b7160fabcbec368b7642c01d3), a tiny C file called `run.c` that runs Qwen3-shaped models on the CPU with no external ML libraries. If you have ever read Karpathy's `llama2.c`, this is the Qwen3-shaped sibling. Once you have built it, a single command runs the whole thing:
+The cohort repository is [`github.com/thefirehacker/QWEN3-RunLocally`](https://github.com/thefirehacker/QWEN3-RunLocally). Clone it, follow the README. Inside that repo is a Git submodule pointing at [`thefirehacker/qwen3.c`](https://github.com/thefirehacker/qwen3.c/tree/a068f9cabd0d180b7160fabcbec368b7642c01d3), a tiny C file called `run.c` that runs Qwen3-shaped models on the CPU with no external ML libraries. **The C code is originally by [William Song](https://github.com/gigit0000/qwen3.c)** — the cohort fork pins it to a known-good commit so the `make run` step in this lesson is reproducible. If you have ever read Karpathy's `llama2.c`, this is the Qwen3-shaped sibling. Once you have built it, a single command runs the whole thing:
 
 ```bash
 git clone https://github.com/thefirehacker/QWEN3-RunLocally
@@ -292,7 +293,7 @@ Here is the move that, more than anything else in this lesson, makes the abstrac
 
 Read that table top to bottom and notice that there is nothing magic happening in the Python — every concept has a direct C counterpart you can read, with your eyes, in roughly fifteen hundred lines. PyTorch is doing the *same arithmetic*; it is simply hidden behind autograd, GPU kernels, and a much friendlier API.
 
-The exercise we recommend, the first time you sit with both files open, is this: open [`modeling_qwen3.py`](https://github.com/huggingface/transformers/blob/main/src/transformers/models/qwen3/modeling_qwen3.py#L442) in one window and [`run.c`](https://github.com/thefirehacker/qwen3.c/tree/a068f9cabd0d180b7160fabcbec368b7642c01d3) in the other, pick one row from the table — RMSNorm is a good first choice — and read both implementations line by line. Twelve lines of C. Roughly ten lines of Python. Identical math. The first time you see it, something snaps into place that no amount of reading *about* transformers will ever produce. That moment is the point of this whole section.
+The exercise we recommend, the first time you sit with both files open, is this: open [`modeling_qwen3.py`](https://github.com/huggingface/transformers/blob/main/src/transformers/models/qwen3/modeling_qwen3.py#L442) in one window and [`run.c`](https://github.com/thefirehacker/qwen3.c/tree/a068f9cabd0d180b7160fabcbec368b7642c01d3) (originally by [William Song](https://github.com/gigit0000/qwen3.c)) in the other, pick one row from the table — RMSNorm is a good first choice — and read both implementations line by line. Twelve lines of C. Roughly ten lines of Python. Identical math. The first time you see it, something snaps into place that no amount of reading *about* transformers will ever produce. That moment is the point of this whole section.
 
 ---
 
