@@ -350,6 +350,184 @@ model = AutoModelForCausalLM.from_pretrained(
 
 If a model *requires* `trust_remote_code=True`, treat the situation the way you would treat running a stranger's compiled binary. Read the `.py` files in the repo. Or look for a safetensors-only alternative. The cost of the second option is almost always lower than the cost of the first one going wrong.
 
+## Datasets, Parquet, and Croissant — the queryable training surface
+
+Half of the supply chain we have been talking about is models. The other half is *datasets* — and the dataset side of HuggingFace has infrastructure that almost no one pays attention to until the day they need it. This cohort uses two datasets. It is worth knowing both intimately, because they represent two completely different points on the spectrum of how training data can be packaged.
+
+### The large one: FineWeb
+
+[`HuggingFaceFW/fineweb`](https://huggingface.co/datasets/HuggingFaceFW/fineweb) is a cleaned, deduplicated snapshot of the English web — 54.8 TB of text, 52 billion rows, built from Common Crawl. It is the dataset behind many of the open pre-training runs you will read about, including the GPT-2-scale experiments we follow in this cohort.
+
+Open the dataset on HuggingFace and click **Data Studio**. The viewer gives you a live, filterable grid over the data. It feels instant even on a 54 TB dataset because HuggingFace has silently done something behind the scenes: it has automatically converted the original text into **[Apache Parquet](https://parquet.apache.org/)** — a columnar binary format built for analytics. Parquet stores each column separately, so a query that only reads `token_count` does not touch a single byte of `text`. That is why the viewer is fast. When you eventually call `load_dataset("HuggingFaceFW/fineweb", streaming=True)`, it is those same Parquet shards you are streaming. *Parquet is the storage layer of the dataset hub.*
+
+The viewer also tells you what is in each row. FineWeb has **9 columns**:
+
+| Column | Type | What it contains |
+|--------|------|-----------------|
+| `text` | string | The full body of the crawled web page — the main training signal |
+| `id` | string | A stable URN-style identifier for each document |
+| `dump` | string | Which Common Crawl dump this document came from (e.g. `CC-MAIN-2025-26`) |
+| `url` | string | Source URL of the page |
+| `date` | string | Crawl timestamp |
+| `file_path` | string | Internal S3-style path to the source shard |
+| `language` | string | Detected language label |
+| `language_score` | float64 | Confidence score for the language detection |
+| `token_count` | int64 | Number of tokens in this document |
+
+`text` is the column that matters for training. The rest is provenance and filtering metadata.
+
+### What the `/croissant` endpoint adds that the viewer does not
+
+The Dataset Viewer is for you. The `/croissant` endpoint is for your code — and for anything that cannot open a browser. Append `/croissant` to any dataset API URL and you get a **machine-readable description** of the dataset's schema, licence, splits, and where the actual files live, in a format a program can parse directly.
+
+```bash
+curl -s https://huggingface.co/api/datasets/HuggingFaceFW/fineweb/croissant
+```
+
+The file you get back is **JSON-LD** — JSON "for Linking Data". The opening block makes the vocabulary explicit:
+
+```json
+{
+  "@context": {
+    "@language": "en",
+    "@vocab": "https://schema.org/",
+    "cr": "http://mlcommons.org/croissant/",
+    "sc": "https://schema.org/",
+    "column": "cr:column",
+    "dataType": { "@id": "cr:dataType", "@type": "@vocab" },
+    "field": "cr:field",
+    "recordSet": "cr:recordSet",
+    "extract": "cr:extract"
+  },
+  "@type": "Dataset",
+  "name": "fineweb",
+  "conformsTo": "http://mlcommons.org/croissant/1.1",
+  "license": "https://choosealicense.com/licenses/odc-by/",
+  "url": "https://huggingface.co/datasets/HuggingFaceFW/fineweb"
+}
+```
+
+Every key that looks like `cr:something` maps to `http://mlcommons.org/croissant/something`. Every key that looks like `sc:something` maps to `https://schema.org/something`. This is why the field called `license` is not just a string — it resolves to `https://schema.org/license`, which means the same thing in every Croissant document on the internet, whether it came from HuggingFace, Kaggle, or Google Dataset Search. That is what *interoperable* means: a program that knows the schema.org vocabulary can read any Croissant manifest without dataset-specific code.
+
+Deeper in the file, each column is described as a `cr:Field` entry. Here is what the `text` column looks like inside the manifest:
+
+```json
+{
+  "@type": "cr:Field",
+  "@id": "default/text",
+  "dataType": "sc:Text",
+  "source": {
+    "fileSet": { "@id": "parquet-files-for-config-default" },
+    "extract": { "column": "text" }
+  }
+}
+```
+
+This tells a program: in the Parquet file set called `parquet-files-for-config-default`, extract the column named `text`, and its type is `sc:Text`. No human needed to describe the column — HuggingFace generated this entry automatically when the dataset was uploaded. The same entry exists for all nine columns, with `dataType` set to `cr:Float64` for `language_score` and `cr:Int64` for `token_count`.
+
+To extract just the column names from the saved manifest in one shot:
+
+```python
+import json
+
+with open("curl-output.txt") as f:
+    d = json.load(f)
+
+cols = set()
+
+def walk(x):
+    if isinstance(x, dict):
+        ex = x.get("extract")
+        if isinstance(ex, dict) and "column" in ex:
+            cols.add(ex["column"])
+        for v in x.values():
+            walk(v)
+    elif isinstance(x, list):
+        for i in x:
+            walk(i)
+
+walk(d)
+print(sorted(cols))
+# ['date', 'dump', 'file_path', 'id', 'language', 'language_score', 'text', 'token_count', 'url']
+```
+
+Nine columns. The entire schema of a 54 TB dataset, in three seconds, without downloading a single row of training text.
+
+That format is called **[Croissant](https://huggingface.co/docs/dataset-viewer/croissant)**. It is not a HuggingFace invention — it is an open standard published by [MLCommons](https://mlcommons.org/working-groups/data/croissant/) in 2024, now adopted by HuggingFace, Kaggle, and Google's dataset search. *Every HuggingFace dataset has a Croissant manifest whether its author wrote one or not.* An AI agent that wants to pick a dataset no longer has to scrape the README; it hits `<dataset>/croissant` and understands the schema structurally.
+
+### The cohort dataset: `kjj0/fineweb10B-gpt2`
+
+The second dataset we use is [`kjj0/fineweb10B-gpt2`](https://huggingface.co/datasets/kjj0/fineweb10B-gpt2) — a 20.7 GB subset of FineWeb that has already been tokenized with the GPT-2 tokenizer. Open its HuggingFace page and you will immediately see something different from FineWeb: *Dataset Viewer is not available because its heuristics could not detect any supported data files.*
+
+That message is a clue, not a failure. The viewer works by detecting Parquet, CSV, or JSONL files and rendering rows. This repo has neither. Its file list is:
+
+```
+fineweb_train_000001.bin
+fineweb_train_000002.bin
+...
+fineweb_train_000103.bin
+fineweb_val_000000.bin
+```
+
+One hundred and three train shards and one validation shard, all `.bin`. There are no columns to show because there are no rows — just raw binary data.
+
+Hit the `/croissant` endpoint for this one:
+
+```bash
+curl -s https://huggingface.co/api/datasets/kjj0/fineweb10B-gpt2/croissant
+```
+
+The response is 668 bytes — a skeleton:
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  "name": "fineweb10B-gpt2",
+  "description": "This repo contains the GPT-2 tokens for fineweb10B...",
+  "license": "https://choosealicense.com/licenses/mit/",
+  "url": "https://huggingface.co/datasets/kjj0/fineweb10B-gpt2"
+}
+```
+
+No `recordSet`. No `field` entries. No columns. Croissant can only describe what it can structurally understand; `.bin` files are opaque to it.
+
+So how do you know what is inside the files? You follow the trail. The dataset card says it was generated using [KellerJordan/modded-nanogpt](https://github.com/KellerJordan/modded-nanogpt). That repo's training script contains the reader:
+
+```python
+def _load_data_shard(file: Path):
+    header = torch.from_file(str(file), False, 256, dtype=torch.int32)
+    assert header[0] == 20240520, "magic number mismatch in the data .bin file"
+    assert header[1] == 1, "unsupported version"
+    num_tokens = int(header[2])  # number of tokens in this shard
+    with file.open("rb", buffering=0) as f:
+        tokens = torch.empty(num_tokens, dtype=torch.uint16, pin_memory=True)
+        f.seek(256 * 4)          # skip the 256-int32 header (1024 bytes)
+        nbytes = f.readinto(tokens.numpy())
+        assert nbytes == 2 * num_tokens
+    return tokens
+```
+
+The binary layout of every `.bin` shard is:
+
+```
+Bytes 0–1023   : header — 256 × int32
+  header[0]    = 20240520     (magic number, identifies format)
+  header[1]    = 1            (version)
+  header[2]    = N            (number of tokens in this shard)
+  header[3..255] = reserved
+
+Bytes 1024–end : N × uint16  (GPT-2 token IDs, range 0–50256)
+```
+
+Each shard holds roughly 100 million tokens. The entire dataset is 10 billion tokens — the "10B" in the name — split across 103 train shards.
+
+Notice what has happened. `text` — the `sc:Text` column we saw in FineWeb — is **gone**. Every document's text has been converted into a sequence of integers from the GPT-2 vocabulary and written into a flat binary stream. There are no document boundaries visible in the token stream itself; a training loop simply slides a window of `max_seq_len` tokens across the flat array to generate batches. The `text` column existed in FineWeb so humans and tools could read the data. Once you are training, you do not need it — you need integers, and integers are what this dataset gives you.
+
+The contrast between the two datasets is the contrast between two points in a pipeline: FineWeb is the *human-and-tool-readable* source; `fineweb10B-gpt2` is the *training-ready* derivative. The viewer works for one and not the other because the viewer is built around tabular schemas, and a flat token stream is not a table.
+
+The lesson here is not about these two datasets specifically. It is that *the same question — what is in this thing? — gets answered in completely different ways depending on what kind of artifact you are looking at*. For a Parquet-backed tabular dataset, Croissant and the viewer both answer it in seconds. For a binary pre-tokenized shard, you read the code that wrote it. Knowing which tool to reach for, and why the other tools are silent, is what distinguishes an engineer who understands the stack from one who just follows tutorials.
+
 ## Evaluations, and what "state of the art" actually means
 
 The second layer worth dwelling on is evaluation, because almost every model card you will read makes claims about it, and almost none of them give you enough information to verify those claims.
@@ -358,7 +536,11 @@ Open any model card and you will see phrases like *strong reasoning, better codi
 
 A leaderboard without reproducibility is, at best, an interesting prior; at worst, it is marketing. If a model claims a benchmark score and you cannot find the prompts used, the decoding parameters, or the raw outputs, treat the claim as advertising rather than data.
 
-It is also worth remembering, even when reproducibility is solid, that accuracy is rarely the only number that matters in real product work. Latency, tokens-per-second, peak memory used, cost per hundred prompts, format-following score, and refusal behaviour all matter as much as the headline benchmark — sometimes more. The cheapest, fastest model that achieves ninety per cent of the quality often beats the prettiest leaderboard number that costs ten times more to serve. The leaderboard tells you which model is best at the benchmark. Your product tells you which model is best at your *job*.
+It also helps to know the major benchmarks by name, because almost every model card you read will reference at least a few of them, and the names themselves carry a lot of unstated information. The most-cited general-knowledge benchmark is **[MMLU](https://huggingface.co/datasets/cais/mmlu)** — *Massive Multitask Language Understanding* — fifty-seven multiple-choice subjects ranging from elementary mathematics to professional law, and it is the closest thing the field has to a default "is this model smart" number. **MMLU-Pro** is the harder revision with more reasoning. For math reasoning, **[GSM8K](https://huggingface.co/datasets/gsm8k)** (eight thousand grade-school word problems) is the standard early-stage check, while **MATH** and **AIME** ramp the difficulty up to competition level. For code, **[HumanEval](https://huggingface.co/datasets/openai_humaneval)** asks the model to complete one hundred and sixty-four Python functions from their docstrings; **MBPP** is the simpler sibling; **[SWE-Bench](https://huggingface.co/datasets/princeton-nlp/SWE-bench)** is the much harder cousin where the model has to resolve real GitHub issues from real open-source projects, end-to-end. For commonsense reasoning there is **HellaSwag**, **ARC** (science questions), and **TruthfulQA** (does the model fall for common misconceptions). For instruction-following, **IFEval** measures whether the model actually obeys format constraints, and **MT-Bench** measures whether it holds up across multi-turn conversation, with another LLM acting as the judge. And as the bundle-everything view, the **[Open LLM Leaderboard](https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard)** on HuggingFace aggregates several of these into a single ranking — useful as a first pass, dangerous as a final answer.
+
+The reason to memorise the names is that when a model card claims *"surpasses Llama-3 on reasoning,"* the next sentence almost always says *"on MMLU-Pro and BBH"* or *"on GSM8K and MATH,"* and knowing what those benchmarks actually measure is the difference between reading a model card and being sold a model card. MMLU rewards broad factual coverage. GSM8K rewards arithmetic chains. HumanEval rewards Python-shaped reasoning. None of them measure whether the model will be good *for your particular product*.
+
+Even when reproducibility is solid and you know what each benchmark measures, accuracy is rarely the only number that matters in real product work. Latency, tokens-per-second, peak memory used, cost per hundred prompts, format-following score, and refusal behaviour all matter as much as the headline benchmark — sometimes more. The cheapest, fastest model that achieves ninety per cent of the quality often beats the prettiest leaderboard number that costs ten times more to serve. The leaderboard tells you which model is best at the benchmark. Your product tells you which model is best at your *job*.
 
 ## Agent-readable manifests, and the next two years
 
@@ -382,7 +564,7 @@ The third layer is the one almost nobody has heard of yet, and it is the one tha
 }
 ```
 
-The point is not that this exact schema will become a standard — schemas come and go. The point is that the future of model distribution is *legible to other agents*, not just to humans. When you build something in this cohort, ask yourself: could an AI agent figure out how to use this without a human in the loop? If the answer is no, you have left work on the table. This is also the bridge to where the cohort is heading in Step 5, when we build a real AI product. The products that win over the next two years will be the ones that are legible to other agents, not the ones that are merely pretty for humans.
+The point is not that this exact schema will become a standard — schemas come and go. The point is that the future of model distribution is *legible to other agents*, not just to humans, and the dataset side of HuggingFace already proves the principle works. Croissant did this for datasets in 2024, automatically, for every dataset on the hub. The model-side equivalent does not exist yet at the same level of polish, which is precisely why it is interesting territory for this cohort to work in. When you build something in this cohort, ask yourself: could an AI agent figure out how to use this without a human in the loop? If the answer is no, you have left work on the table. This is also the bridge to where the cohort is heading in Step 5, when we build a real AI product. The products that win over the next two years will be the ones that are legible to other agents, not the ones that are merely pretty for humans.
 
 ---
 
@@ -400,19 +582,21 @@ If you want to go deeper on any of the threads we touched in this lesson, these 
 
 ## Homework — the supply-chain audit
 
-Pick one model on HuggingFace and audit it. We recommend [`Qwen/Qwen3-0.6B`](https://huggingface.co/Qwen/Qwen3-0.6B), because we will be using it throughout the cohort and you may as well know it intimately. Write a short blog post on your Quarto blog answering the following eleven questions for that model.
+Pick one model on HuggingFace and audit it. We recommend [`Qwen/Qwen3-0.6B`](https://huggingface.co/Qwen/Qwen3-0.6B), because we will be using it throughout the cohort and you may as well know it intimately. Write a short blog post on your Quarto blog answering the following thirteen questions for that model.
 
 1. **Where did it come from?** What paper, what base model, what organisation released it? Is there a verified badge? Is there a paper link?
 2. **What files define it?** List the repo's top-level files. Identify which are *data* and which are *code*.
 3. **Can I inspect the dataset it was trained on?** Is the pretraining corpus listed? Is the SFT data available?
-4. **Can I reproduce its benchmark claims?** Where are the raw outputs? Which prompts, which decoding parameters were used?
-5. **Is it safe to load?** Are the weights in `.safetensors` or pickle?
-6. **Does it require `trust_remote_code=True`?** If yes, what does that code do? Read it.
-7. **What licence applies?** Can you use it commercially? Is attribution required?
-8. **Can you run it locally?** Which runtime fits — `transformers`, `llama.cpp`, vLLM? Is there a `.gguf` variant?
-9. **Can you deploy it?** What is the cheapest path to a working endpoint?
-10. **What linked artefacts exist?** Spaces, derivative quantizations, datasets, papers, collections.
-11. **Could an AI agent answer all of these by reading the repo?** What is missing? What would a `model_context.json` for this model look like if you had to write one?
+4. **Pick one dataset linked from the model card.** Open its HuggingFace page, scroll through the Dataset Viewer, then append `/croissant` to the URL and read the JSON-LD manifest. What columns does the dataset have? What's the license? What does the Croissant manifest expose that the README does not?
+5. **Can I reproduce its benchmark claims?** Which benchmarks does the model card cite (MMLU, GSM8K, HumanEval, BBH, IFEval, MT-Bench, others)? Where are the raw outputs? Which prompts, which decoding parameters were used? Where does Qwen3-0.6B sit on the [Open LLM Leaderboard](https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard)?
+6. **Is it safe to load?** Are the weights in `.safetensors` or pickle?
+7. **Does it require `trust_remote_code=True`?** If yes, what does that code do? Read it.
+8. **What licence applies?** Can you use it commercially? Is attribution required?
+9. **Can you run it locally?** Which runtime fits — `transformers`, `llama.cpp`, vLLM? Is there a `.gguf` variant?
+10. **Can you deploy it?** What is the cheapest path to a working endpoint?
+11. **What linked artefacts exist?** Spaces, derivative quantizations, datasets, papers, collections.
+12. **Could an AI agent answer all of these by reading the repo?** What is missing? What would a `model_context.json` for this model look like if you had to write one — using the Croissant manifest you read in question 4 as your design reference?
+13. **What is the single thing you would change about this model's HuggingFace page** to make it more legible to AI agents in 2027? One paragraph.
 
 Drop the post in `#blog-share` on Discord when it is published. Bring the audit to Friday's office hours and we will dissect a few of them live.
 
