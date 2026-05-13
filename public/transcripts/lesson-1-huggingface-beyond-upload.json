@@ -1,114 +1,1317 @@
 {
-  "video_id": "r9uykyGAdJQ",
+  "video_id": "MjZio-A9oUY",
   "title": "Lesson 1: HuggingFace Beyond Upload",
-  "duration": 900,
+  "duration": 3042,
   "chapters": [
-    { "t": 0,   "title": "The shallow view, and the deep view" },
-    { "t": 70,  "title": "Recap — GitHub for models, and where most people stop" },
-    { "t": 160, "title": "The mental shift — a model is not a file" },
-    { "t": 250, "title": "The car analogy — what an open model actually needs" },
-    { "t": 330, "title": "Layer 1 — Provenance: where did this model come from?" },
-    { "t": 430, "title": "Layer 2 — Datasets as infrastructure" },
-    { "t": 520, "title": "Layer 3 — Security and trust_remote_code" },
-    { "t": 620, "title": "Layer 4 — Evals and reproducibility" },
-    { "t": 720, "title": "Layer 5 — Runtime routing" },
-    { "t": 800, "title": "Layer 6 — Agent-readable manifests" },
-    { "t": 860, "title": "Homework — the Supply-Chain Audit" }
+    {
+      "t": 0,
+      "title": "Lesson 01 Overview: Hugging Face Beyond Upload"
+    },
+    {
+      "t": 120,
+      "title": "First Break AI Cohort Setup and Lesson Page"
+    },
+    {
+      "t": 260,
+      "title": "Thought Experiment: What If Hugging Face Did Not Exist?"
+    },
+    {
+      "t": 380,
+      "title": "Three Core LLM Intuitions"
+    },
+    {
+      "t": 660,
+      "title": "Why We Use Qwen3-0.6B"
+    },
+    {
+      "t": 780,
+      "title": "Hugging Face as the GitHub of AI Models"
+    },
+    {
+      "t": 840,
+      "title": "Markdown, README.md, and Model Cards"
+    },
+    {
+      "t": 1200,
+      "title": "Why Hugging Face Exists Beyond GitHub"
+    },
+    {
+      "t": 1290,
+      "title": "Exploring Qwen3 Files on Hugging Face"
+    },
+    {
+      "t": 1440,
+      "title": "config.json: The Model Blueprint"
+    },
+    {
+      "t": 1500,
+      "title": "Transformers Code and Qwen3ForCausalLM"
+    },
+    {
+      "t": 1620,
+      "title": "Hugging Face Documentation Lookup"
+    },
+    {
+      "t": 1680,
+      "title": "Why Model Classes Matter"
+    },
+    {
+      "t": 1740,
+      "title": "Do You Need Math for This Cohort?"
+    },
+    {
+      "t": 1800,
+      "title": "Running Qwen3 in Pure C: Part 2 Preview"
+    },
+    {
+      "t": 1830,
+      "title": "Repo Walkthrough and run.c"
+    },
+    {
+      "t": 1980,
+      "title": "Two Worlds: Transformers vs Pure C"
+    },
+    {
+      "t": 2070,
+      "title": "Hugging Face Datasets Overview"
+    },
+    {
+      "t": 2120,
+      "title": "FineWeb and Dolly 15K Dataset Introduction"
+    },
+    {
+      "t": 2310,
+      "title": "Data Studio and Dataset Exploration"
+    },
+    {
+      "t": 2460,
+      "title": "Croissant Metadata Endpoint"
+    },
+    {
+      "t": 2580,
+      "title": "Colab Notebook Setup"
+    },
+    {
+      "t": 2700,
+      "title": "Loading Datasets with Python and Pandas"
+    },
+    {
+      "t": 2790,
+      "title": "Inspecting Dataset Columns and Categories"
+    },
+    {
+      "t": 2820,
+      "title": "Response Length Distribution Analysis"
+    },
+    {
+      "t": 2910,
+      "title": "Finding Short and Long Dataset Examples"
+    },
+    {
+      "t": 3000,
+      "title": "Lesson Wrap-up and Next Steps"
+    }
   ],
   "segments": [
-    { "start_time": 0,   "end_time": 6,   "text": "Welcome to Lesson 1." },
-    { "start_time": 6,   "end_time": 14,  "text": "Most tutorials teach you to download a model. This lesson teaches you something different." },
-    { "start_time": 14,  "end_time": 22,  "text": "The shallow view of HuggingFace is: find a model name, paste it into from_pretrained, run." },
-    { "start_time": 22,  "end_time": 30,  "text": "That works. A lot of careers stop there." },
-    { "start_time": 30,  "end_time": 40,  "text": "The deep view asks: where did this model come from, what files define it, can I trust it, can I reproduce it?" },
-    { "start_time": 40,  "end_time": 50,  "text": "That's the difference between using HuggingFace and understanding HuggingFace." },
-    { "start_time": 50,  "end_time": 60,  "text": "By the end of this lesson, HuggingFace should stop looking like a website." },
-    { "start_time": 60,  "end_time": 70,  "text": "It should start looking like the operating system for open AI." },
-
-    { "start_time": 70,  "end_time": 80,  "text": "Quick recap of where we were in the May 8 office hours." },
-    { "start_time": 80,  "end_time": 90,  "text": "HuggingFace is the GitHub for models. The model card is a README." },
-    { "start_time": 90,  "end_time": 100, "text": "Source code is small text. Model weights are gigabytes of binary." },
-    { "start_time": 100, "end_time": 112, "text": "GitHub caps individual files at around 100 megabytes. So HuggingFace built Git LFS on top, and then moved beyond it to Xet — content-addressed storage tuned for the way models are downloaded." },
-    { "start_time": 112, "end_time": 122, "text": "We talked about scale. One older model alone hit eighteen million downloads in a single month." },
-    { "start_time": 122, "end_time": 132, "text": "And we talked about the standard files in a model repo: README, config.json, tokenizer files, and the weights themselves as safetensors, dot bin, or gguf." },
-    { "start_time": 132, "end_time": 142, "text": "If that's where your mental model of HuggingFace stopped — you're still at the surface." },
-    { "start_time": 142, "end_time": 152, "text": "Because what HuggingFace is actually doing is way bigger than file hosting." },
-    { "start_time": 152, "end_time": 160, "text": "Let me show you." },
-
-    { "start_time": 160, "end_time": 170, "text": "Here's the mental shift this lesson is built around." },
-    { "start_time": 170, "end_time": 180, "text": "A model is not a file. A model is a node in a graph." },
-    { "start_time": 180, "end_time": 192, "text": "Every model has a lineage. A paper. A base checkpoint. A pretraining dataset. A supervised fine-tuning dataset. A preference dataset. Quantizations. Fine-tunes. Demos that use it. Apps built on it." },
-    { "start_time": 192, "end_time": 202, "text": "So when you see Qwen slash Qwen3 0.6B on a model page, that one line is the tip of a tree." },
-    { "start_time": 202, "end_time": 214, "text": "Underneath it are paper releases, dataset cards, evaluation runs, derivative quantizations, hosted spaces, third-party fine-tunes, and discussions." },
-    { "start_time": 214, "end_time": 224, "text": "The model hub looks like a website. Underneath, it's a graph database — models, datasets, spaces, papers, collections, eval results, commits, licences." },
-    { "start_time": 224, "end_time": 234, "text": "A good model page should answer four questions. What is this. Where did it come from. What depends on it. What can I safely do with it." },
-    { "start_time": 234, "end_time": 244, "text": "If a page doesn't answer those — that's a signal about the model itself." },
-    { "start_time": 244, "end_time": 250, "text": "And now we get to the analogy I want you to keep." },
-
-    { "start_time": 250, "end_time": 260, "text": "A model file is like an engine." },
-    { "start_time": 260, "end_time": 272, "text": "But a car is not an engine. A car needs a chassis. A fuel system. A safety certificate. A user manual. A service history. A dashboard. A road test. Ownership papers. A repair network." },
-    { "start_time": 272, "end_time": 282, "text": "An engine on the floor of a garage is not a car. It is a component." },
-    { "start_time": 282, "end_time": 294, "text": "An open model is the same. The weights are the engine. To turn them into something trustworthy and usable, you need a config, a tokenizer, metadata, a licence, evals, dataset lineage, a safety scan, runtime options, a demo, and community feedback." },
-    { "start_time": 294, "end_time": 304, "text": "Each of those is a layer of the supply chain. Each layer is something you can inspect." },
-    { "start_time": 304, "end_time": 314, "text": "We're going to walk through the six most important layers — provenance, datasets, security, evals, runtime, agents." },
-    { "start_time": 314, "end_time": 322, "text": "By the end you'll have a vocabulary to inspect any open model release in the world." },
-    { "start_time": 322, "end_time": 330, "text": "Let's start with provenance." },
-
-    { "start_time": 330, "end_time": 340, "text": "Layer one. Provenance. Where did this model come from?" },
-    { "start_time": 340, "end_time": 352, "text": "The naive question is: did this come from HuggingFace? That's not provenance. HuggingFace is the host. Provenance is who made it, when, from what." },
-    { "start_time": 352, "end_time": 362, "text": "Real questions: is this the official model? Is this a derivative? What paper introduced it? What dataset was used? Is there an instruct version? Is there a quantized version? What evals exist? Who is maintaining it?" },
-    { "start_time": 362, "end_time": 376, "text": "Here's why it matters. Right now if you search any popular model name on HuggingFace, you'll get the official repo — and you'll get dozens of forks, mirrors, and re-uploads from random accounts." },
-    { "start_time": 376, "end_time": 388, "text": "Some are legitimate quantizations from trusted maintainers. Some are people who downloaded the weights, re-uploaded them, and changed nothing. Some are forks with quietly modified code." },
-    { "start_time": 388, "end_time": 398, "text": "The official Qwen team's repo and a random account's repo can have identical model names. They are not the same artifact." },
-    { "start_time": 398, "end_time": 408, "text": "So your first habit: always trace the model back to the organisation that trained it. Check the verified badge. Read the paper link." },
-    { "start_time": 408, "end_time": 420, "text": "And start thinking of any model as a node in a tree — there is an official root, and there are branches. You want to know which one you're looking at." },
-    { "start_time": 420, "end_time": 430, "text": "Same habit, applied to datasets. That's layer two." },
-
-    { "start_time": 430, "end_time": 442, "text": "Layer two. Datasets. And the rule I want you to write down — bad data silently becomes bad model behaviour." },
-    { "start_time": 442, "end_time": 454, "text": "Most people think a dataset is something you call load_dataset on. That's the beginner view. A dataset is not a file. A dataset is a queryable training surface." },
-    { "start_time": 454, "end_time": 466, "text": "HuggingFace ships a Dataset Viewer on every dataset page. Most learners scroll past it. It is one of the most important pieces of infrastructure on the site." },
-    { "start_time": 466, "end_time": 480, "text": "It tells you what columns exist, how many rows, what splits, lets you preview rows, search inside the text, filter by category, see statistics, estimate token counts, find duplicates." },
-    { "start_time": 480, "end_time": 492, "text": "Before you train a model on data you didn't build, inspect it. Before you evaluate a model on a benchmark you didn't write, inspect the benchmark." },
-    { "start_time": 492, "end_time": 504, "text": "Half the surprises in model behaviour come from dataset quirks that nobody bothered to look at. Toxic rows. Mis-labelled categories. Duplicate prompts inflating eval scores. PII you weren't expecting." },
-    { "start_time": 504, "end_time": 514, "text": "The Dataset Viewer is not UI decoration. It's the difference between flying blind and flying with instruments." },
-    { "start_time": 514, "end_time": 520, "text": "Use it on every dataset. Even when it feels like overkill." },
-
-    { "start_time": 520, "end_time": 530, "text": "Layer three. Security. And the most important sentence of this lesson." },
-    { "start_time": 530, "end_time": 542, "text": "When you write trust_remote_code equals True in from_pretrained, you are giving a stranger permission to run their Python code on your machine." },
-    { "start_time": 542, "end_time": 552, "text": "Not metaphorically. Literally. The flag downloads modeling_dot_py files from the repo and executes them on import." },
-    { "start_time": 552, "end_time": 562, "text": "Beginners hit a load error, paste trust_remote_code equals True, the load works, and they move on. That's not a workaround. That's a security decision." },
-    { "start_time": 562, "end_time": 574, "text": "Here's the tiering I want you to internalise. Low risk files: config dot json, tokenizer dot json, model dot safetensors, README. These are data, not code." },
-    { "start_time": 574, "end_time": 586, "text": "Higher risk files: pytorch_model dot bin and other pickle formats — pickle can execute arbitrary code on load. Custom modeling underscore py files. Custom tokenization underscore py files. requirements dot txt that pulls who-knows-what. app dot py from a Space." },
-    { "start_time": 586, "end_time": 596, "text": "The professional habit: before you load a model from an unfamiliar repo, read its file list. If you see custom Python or pickle weights, slow down. Read the code. Or pick a different repo." },
-    { "start_time": 596, "end_time": 608, "text": "A model repo is a software supply chain artifact. The same way you wouldn't pip install a package nobody you trust has reviewed, you don't load a model from a stranger without checking what runs." },
-    { "start_time": 608, "end_time": 620, "text": "Most popular models — Qwen, Llama, Mistral, the well-known ones — ship safetensors and need no custom code. That is a feature. That is what you want." },
-
-    { "start_time": 620, "end_time": 632, "text": "Layer four. Evals and reproducibility. The shortest version of this layer is: a leaderboard without reproducibility is just marketing." },
-    { "start_time": 632, "end_time": 644, "text": "Open any model card. You will see phrases like strong reasoning, better coding, improved instruction following, fast inference, small but powerful." },
-    { "start_time": 644, "end_time": 656, "text": "The questions that turn marketing into evidence: compared to what? On which benchmark? With which prompt format? With which decoding settings? On which hardware? Can I reproduce it? Where are the raw outputs?" },
-    { "start_time": 656, "end_time": 670, "text": "A serious evaluation isn't a single number. It's a pipeline: benchmark dataset, prompt template, model runner, raw generations saved, scoring script, metrics, result file, leaderboard, and reproducibility notes." },
-    { "start_time": 670, "end_time": 682, "text": "If a model claims a score and you can't find the prompts used, the decoding parameters, or the raw outputs — treat the claim as advertising, not data." },
-    { "start_time": 682, "end_time": 694, "text": "And when you ship your own models later in this cohort, this is the standard you'll be held to. Not just score equals zero point seven two. The exact setup that produced it." },
-    { "start_time": 694, "end_time": 706, "text": "Measure more than accuracy. Measure latency. Tokens per second. Memory used. Cost per hundred prompts. Failure rate. Format-following score. Refusal behaviour." },
-    { "start_time": 706, "end_time": 720, "text": "Because in real product work, the cheapest, fastest model that hits 90 percent of the quality often beats the prettiest leaderboard number that costs ten times more to serve." },
-
-    { "start_time": 720, "end_time": 732, "text": "Layer five. Runtime routing. A model ID is not enough. You need a routing decision." },
-    { "start_time": 732, "end_time": 744, "text": "The same model — say Qwen3 0.6B — can run on local CPU through llama dot cpp with a gguf file. Or on your laptop GPU through transformers. Or on a hosted vLLM endpoint. Or via a third-party inference provider." },
-    { "start_time": 744, "end_time": 756, "text": "Each path has different latency, different cost, different privacy properties, different cold-start behaviour, different supported features. Some support streaming. Some support tool calling. Some support batching." },
-    { "start_time": 756, "end_time": 770, "text": "The right question is not can this model run. The right question is — where should this model run for this user, this task, and this budget?" },
-    { "start_time": 770, "end_time": 782, "text": "Cheapest path. Fastest path. Most private path. Highest quality path. Browser-only path. Demo path. These are different routes through the same artifact." },
-    { "start_time": 782, "end_time": 794, "text": "Most product teams pick one default and never revisit. The teams that do revisit — that maintain a routing layer in front of their models — ship faster, cheaper products." },
-    { "start_time": 794, "end_time": 800, "text": "Keep this layer in your head when you start building in Step 5." },
-
-    { "start_time": 800, "end_time": 812, "text": "Layer six. Agent-readable manifests. This is the layer most people haven't heard of yet, and the one that's going to matter most over the next two years." },
-    { "start_time": 812, "end_time": 824, "text": "Every model page on HuggingFace today is written for a human reading a screen. README files, prose paragraphs, screenshots. That's fine for humans." },
-    { "start_time": 824, "end_time": 836, "text": "But more and more of the actual model selection — for code completion, agent tools, RAG pipelines — is being done by AI agents calling APIs, not humans clicking links." },
-    { "start_time": 836, "end_time": 848, "text": "Agents need structured metadata. A JSON manifest that says: this model is for text generation, recommended runtimes are these, license is apache-2.0, safe to load is true, requires trust_remote_code is false, evals are these, related artifacts are these." },
-    { "start_time": 848, "end_time": 860, "text": "When you build something in this cohort, ask yourself — could an AI agent figure out how to use this without a human in the loop? If the answer is no, you've left work on the table." },
-
-    { "start_time": 860, "end_time": 870, "text": "Here's your homework. The Supply-Chain Audit." },
-    { "start_time": 870, "end_time": 882, "text": "Pick one model. I suggest Qwen slash Qwen3 0.6B because we're using it through the rest of the cohort. Write a short post on your Quarto blog answering eleven questions about it. The full list is on the lesson page below the player." },
-    { "start_time": 882, "end_time": 892, "text": "Most people just download. You're going to understand the system. Drop the post in the blog-share channel on Discord when it's up, and bring the audit to Friday's office hours." },
-    { "start_time": 892, "end_time": 900, "text": "See you in Step 2. Run a model locally." }
+    {
+      "start_time": 1,
+      "end_time": 14,
+      "text": "Hey, everyone. Welcome to lesson number one. Welcome to First Break AI. If you are really looking to break into AI, this lesson is where things get really interesting."
+    },
+    {
+      "start_time": 15,
+      "end_time": 26,
+      "text": "Lesson number one is Hugging Face Beyond Upload. This is the lesson where we will break down the entire ecosystem for you."
+    },
+    {
+      "start_time": 26,
+      "end_time": 39,
+      "text": "We will run Qwen3, which is a small six hundred million parameter model. Locally, we will think of open models as supply chain."
+    },
+    {
+      "start_time": 40,
+      "end_time": 50,
+      "text": "And not only that, we will also look at h- an actual model. We'll try to visualize how a model looks like."
+    },
+    {
+      "start_time": 51,
+      "end_time": 62,
+      "text": "What is it required to run that model? What does it take to build a hub like Hugging Face? What to do if you have large datasets?"
+    },
+    {
+      "start_time": 63,
+      "end_time": 71,
+      "text": "How to look at those large datasets? How to analyze them? We will look at GitHub. We will look at Markdown as a bonus."
+    },
+    {
+      "start_time": 71,
+      "end_time": 80,
+      "text": "We will look at how Markdown is used in almost all modern coding tools."
+    },
+    {
+      "start_time": 80,
+      "end_time": 90,
+      "text": "How is it— how it is supported in GitHub, how it is supported in Hugging Face and Discord."
+    },
+    {
+      "start_time": 91,
+      "end_time": 101,
+      "text": "We will also look at the three intuitions which drive this cohort, which is— which are very important right at the start."
+    },
+    {
+      "start_time": 103,
+      "end_time": 115,
+      "text": "We will also look at what are the model— what are the files when a model is uploaded to Hugging Face, what are the various files that are there, right?"
+    },
+    {
+      "start_time": 115,
+      "end_time": 129,
+      "text": "So we have quite a lot to break down. This will be a longer video, and I hope that you get to enjoy, learn, and build along this journey, right?"
+    },
+    {
+      "start_time": 130,
+      "end_time": 147,
+      "text": "So let's start our video with where we are at this point. So we are at First Break AI. First Break AI is a cohort which is open, and our goal in this cohort is to"
+    },
+    {
+      "start_time": 153,
+      "end_time": 163,
+      "text": "is to build and learn at the same time. So there'll be a gui— this is a guided journey for you from commit to capstone, right?"
+    },
+    {
+      "start_time": 164,
+      "end_time": 173,
+      "text": "This is a free and open cohort which allows you to upskill in training, inference, and AI product building."
+    },
+    {
+      "start_time": 176,
+      "end_time": 189,
+      "text": "Cohort has started If you have not joined or if you have joined just now, this cohort is open. You can drop in at any time and start looking at the material and start building, right?"
+    },
+    {
+      "start_time": 191,
+      "end_time": 206,
+      "text": "It's a— The first cohort is for two months, from 1st May twenty twenty-six till 30 June twenty twenty-six. Even beyond this, these lessons are open, and you can choose when and how you want to cover this, right?"
+    },
+    {
+      "start_time": 207,
+      "end_time": 222,
+      "text": "So we'll move to the first lesson. In order to reach the first lesson, you can either go to the Lessons link and view the lessons from there, or we have a ticker here."
+    },
+    {
+      "start_time": 223,
+      "end_time": 239,
+      "text": "Let's click on that. Actually, let me show you lessons. So this is the first lesson. And we have our introduction, and the second, this— lesson zero is our introduction, and we are at lesson one, which is Hugging Face Beyond Upload."
+    },
+    {
+      "start_time": 241,
+      "end_time": 256,
+      "text": "Right. So, yeah. So, as I mentioned, we— you must have covered lesson zero, Welcome to First Break AI, which basically deals with or enables you to build a blog"
+    },
+    {
+      "start_time": 257,
+      "end_time": 274,
+      "text": "using any coding, AI coding tool. So you build a blog, preferably Quarto blog, using any AI IDE, be it Cursor, be it Claude Code or, Codex, whatever is your choice."
+    },
+    {
+      "start_time": 276,
+      "end_time": 286,
+      "text": "Right. Now let's look at the lesson itself. Before we begin, let's think of... Let me zoom this a bit, yeah."
+    },
+    {
+      "start_time": 286,
+      "end_time": 297,
+      "text": "Let's think of a thought experiment. Let, let's build a thought experiment. Imagine for a moment that something like Hugging Face doesn't exist, right?"
+    },
+    {
+      "start_time": 297,
+      "end_time": 307,
+      "text": "By the way, Hugging Face is the, is the GitHub for AI models, right? So let's imagine something like this doesn't exist."
+    },
+    {
+      "start_time": 308,
+      "end_time": 321,
+      "text": "There is, there is no pip in, pip install transformers. There isn't any place where you can upload models, view datasets and all, right?"
+    },
+    {
+      "start_time": 322,
+      "end_time": 334,
+      "text": "Imagine you are only given one file, which is the— one file or set of files, which are the actual model files. And you are asked to build something like ChatGPT, Claude Chat."
+    },
+    {
+      "start_time": 334,
+      "end_time": 343,
+      "text": "Basically, build an app where you ask a question and you get a reply. So you are expected to deploy that AI model."
+    },
+    {
+      "start_time": 344,
+      "end_time": 357,
+      "text": "What would it take to deploy that model, right? If Transformers does not exist, if Hugging Face does not exist, right? So to answer this question, first we will have to— What we'll do is we'll build Parallel worlds."
+    },
+    {
+      "start_time": 357,
+      "end_time": 372,
+      "text": "In one world where Hugging Face exists, what are the moving parts? What are the critical areas within Hugging Face? for example, we look at Z storage, we will look at Transformers library, we"
+    },
+    {
+      "start_time": 372,
+      "end_time": 383,
+      "text": "look at datasets library, config.json, we look at tensor files, other things. And the second world, we will try and mirror this, you know."
+    },
+    {
+      "start_time": 383,
+      "end_time": 400,
+      "text": "So we'll try and run a model in Pure C and try and see, or try and map if Transformers does not exist, what do we have to do to run that file in our, in Pure C, right?"
+    },
+    {
+      "start_time": 401,
+      "end_time": 410,
+      "text": "So let's look at the three intuitions first. What are the three intuitions? Right."
+    },
+    {
+      "start_time": 410,
+      "end_time": 422,
+      "text": "So, the first intuition is that modern language models, this is modern LLMs, are a stack of repeated blocks, right?"
+    },
+    {
+      "start_time": 422,
+      "end_time": 432,
+      "text": "So you look at Qwen three, and you look at input text embedding, then decoder layer, RMSalom, linear, and then output, right?"
+    },
+    {
+      "start_time": 432,
+      "end_time": 443,
+      "text": "And this can be expanded. So if I'm to go to this site, which is an... Which is a site which helps you visualize models interactively."
+    },
+    {
+      "start_time": 444,
+      "end_time": 454,
+      "text": "It's called HF Viewer, and it allows you to move the granularity. So, the granu-granularity at this moment is at the lowest level."
+    },
+    {
+      "start_time": 454,
+      "end_time": 464,
+      "text": "We move it up a bit, and we can see more details within the model. We move it up a bit, and we can see even more details, right? But at this point, we do not care about all these layers."
+    },
+    {
+      "start_time": 464,
+      "end_time": 473,
+      "text": "We care about input, we care about output, and something happens in between for this lesson. So this is what model looks like."
+    },
+    {
+      "start_time": 474,
+      "end_time": 487,
+      "text": "The first intuition is, whenever you imagine a model, think of this stack. Yes."
+    },
+    {
+      "start_time": 488,
+      "end_time": 504,
+      "text": "So think of this stack. That is the first. The second intuition is that LLMs generate one token at a time. So if you look at something like this, so you can see it is generating one token at a time."
+    },
+    {
+      "start_time": 505,
+      "end_time": 517,
+      "text": "The input text, the question that is asked here is, \"Write a sonnet about love.\" So write a poem about love, and LLM starts writing a poem, but it's one token at a time, right?"
+    },
+    {
+      "start_time": 519,
+      "end_time": 531,
+      "text": "So that's the second intuition. Third intuition is that the LLM, and this is a critical intuition, which is something that a lot of people get wrong."
+    },
+    {
+      "start_time": 531,
+      "end_time": 541,
+      "text": "So first of all Models have a vocabulary. Like if I am speaking English, I have a set of vocabulary, set of words which I can use to construct sentences."
+    },
+    {
+      "start_time": 542,
+      "end_time": 550,
+      "text": "Similarly, Qwen three has a vocabulary of around one fifty-one thousand nine thirty-six tokens. So let's assume one fifty K tokens."
+    },
+    {
+      "start_time": 551,
+      "end_time": 559,
+      "text": "When you ask a question, what is the capital of India? The answer is Delhi. But LLM does not just spit out Delhi."
+    },
+    {
+      "start_time": 560,
+      "end_time": 576,
+      "text": "It will spit out probability for all the tokens. All one fifty K tokens in its vocabulary. We are simply sampling, which means we are simply picking the one that we want, which is in this case would be the one with the highest probability."
+    },
+    {
+      "start_time": 576,
+      "end_time": 590,
+      "text": "So Mumbai, Bangalore, Washington could be lower probability, and Delhi has a probability of zero point seven one. So we have picked the top three, and out of top three we are displaying the top token, which is Delhi."
+    },
+    {
+      "start_time": 590,
+      "end_time": 600,
+      "text": "That's how models work and think, and that's why we need decoding strategies, which is mentioned in this very nice blog by Hugging Face."
+    },
+    {
+      "start_time": 601,
+      "end_time": 621,
+      "text": "Decoding strategies in large language models, around twenty twenty-four article. Okay, so we'll go back to our session."
+    },
+    {
+      "start_time": 622,
+      "end_time": 631,
+      "text": "To our lesson actually. Yep. So once we have understood the three intuitions, repeating them."
+    },
+    {
+      "start_time": 631,
+      "end_time": 644,
+      "text": "Model is a stack of repeated blocks. LLMs are auto regressive. They spit out one token at a time. And number three, the model outputs a probability distribution over the entire vocab."
+    },
+    {
+      "start_time": 645,
+      "end_time": 654,
+      "text": "Yeah. So the same thing is mentioned in this office hours as well. I think I've mo-I've moved to this office hours instead of the lesson. Let me go back to the lesson."
+    },
+    {
+      "start_time": 655,
+      "end_time": 664,
+      "text": "Lesson. Go to lesson one. Hide this transcript. Yeah, we're good to go."
+    },
+    {
+      "start_time": 665,
+      "end_time": 677,
+      "text": "Right. Now, we will think about which is our model that we want to target. Right? We will target Qwen three zero point six B. Why are we targeting such a small model?"
+    },
+    {
+      "start_time": 677,
+      "end_time": 692,
+      "text": "Six hundred million parameter model. There are bigger models. You must be aware of frontier models. You must be using them daily, which is Claude Sonnet or Opus or GPT five point five or any other model that you're using."
+    },
+    {
+      "start_time": 692,
+      "end_time": 702,
+      "text": "Even open source models like Qwen three, Qwen three Coder, DeepSeek V3, V4, Min-Minimax, GLM."
+    },
+    {
+      "start_time": 703,
+      "end_time": 712,
+      "text": "I used an eight GB model quite a lot, which was called Microsoft... Microsoft model, which was called Phi-4 Multimodal instruct, right?"
+    },
+    {
+      "start_time": 712,
+      "end_time": 723,
+      "text": "But we are not going to use that. We are going to study Qwen three point six B. Well, always we have this temptation that, we assume these models to be uninteresting toy projects, right?"
+    },
+    {
+      "start_time": 724,
+      "end_time": 737,
+      "text": "But we must not forget that they are architecturally similar to these bigger models, and they offer us a good way to learn about LLM inferencing and training."
+    },
+    {
+      "start_time": 737,
+      "end_time": 746,
+      "text": "In fact, for most of the experiments, we'll be using the smaller GPT 2 model, right? So that GPT 2 model and Qwen three is what we'll be using."
+    },
+    {
+      "start_time": 747,
+      "end_time": 756,
+      "text": "Qwen three point six B has a newer cousin, which is called three point five zero point eight B. This is a multimodal model."
+    },
+    {
+      "start_time": 757,
+      "end_time": 771,
+      "text": "So these three are ones which we'll basically look at, right? Remember that this model is six hundred million parameter. Most of the models that you work with are at least two hundred times the size of this model or even more."
+    },
+    {
+      "start_time": 773,
+      "end_time": 782,
+      "text": "This Qwen three point five has had more than two point eight million downloads in a single month as per Hugging Face UI."
+    },
+    {
+      "start_time": 783,
+      "end_time": 792,
+      "text": "Right. Now let's move to Hugging Face. Hugging Face is the GitHub of models, and this is a good comparison, right? Now we will start thinking of models."
+    },
+    {
+      "start_time": 792,
+      "end_time": 806,
+      "text": "We saw the architecture of Qwen three point six B earlier over here, right? So we saw this. Now let's see how this model actually is— looks like on Hugging Face."
+    },
+    {
+      "start_time": 806,
+      "end_time": 815,
+      "text": "When the— When LLM teams upload these models onto Hugging Face or some other hub, what— how do they look like?"
+    },
+    {
+      "start_time": 815,
+      "end_time": 824,
+      "text": "That's our main focus right now. And Hugging Face, as I said, is the GitHub for models, right?"
+    },
+    {
+      "start_time": 824,
+      "end_time": 834,
+      "text": "If you understand, most of Hugging Fa— If you understand GitHub, you will sort of appreciate Hugging Face as well, right? It uses Git underneath."
+    },
+    {
+      "start_time": 834,
+      "end_time": 844,
+      "text": "So as you know, both GitHub and Hugging Face use Git under, Git underneath. Git is an open source tool, right?"
+    },
+    {
+      "start_time": 844,
+      "end_time": 854,
+      "text": "So s-similar to GitHub, this Hugging Face also, sort of has commits, branches, pull requests, and issues."
+    },
+    {
+      "start_time": 855,
+      "end_time": 863,
+      "text": "Right. Now, the model card that you see, is ac— it has a README.md just like GitHub. MD stands for Markdown."
+    },
+    {
+      "start_time": 864,
+      "end_time": 877,
+      "text": "It is used extensively in GitHub. It is used extensively in Hugging Face and in Discord, right? So let's look at what is a Markdown file, and why is README.md so special, right?"
+    },
+    {
+      "start_time": 877,
+      "end_time": 889,
+      "text": "So if you look at, any repo. So let's look at this repo. And if you create an issue A new issue."
+    },
+    {
+      "start_time": 891,
+      "end_time": 901,
+      "text": "So we are creating a new issue. Let's click on New Issue. Right. We can actually... So new issue, right?"
+    },
+    {
+      "start_time": 902,
+      "end_time": 910,
+      "text": "And so let's put an heading here, that first issue for my code."
+    },
+    {
+      "start_time": 911,
+      "end_time": 924,
+      "text": "So when you preview this, you, you can instantly write code naturally using special symbols, and it will be rendered very beautifully."
+    },
+    {
+      "start_time": 924,
+      "end_time": 933,
+      "text": "So you can, you can write headings, you can write first subheading, right?"
+    },
+    {
+      "start_time": 933,
+      "end_time": 943,
+      "text": "And it gets rendered very nicely. So you can do all the formatting. You can write whatever you want in plain text, it gets rendered nicely."
+    },
+    {
+      "start_time": 943,
+      "end_time": 957,
+      "text": "Lists can get rendered, task lists can get rendered. Code blocks can be created, right? And these code blocks are nice because instead of a messy sort of setup, you can... you have a copyable code block over here, right?"
+    },
+    {
+      "start_time": 959,
+      "end_time": 974,
+      "text": "So to do a little bit more deep dive into this, we have got dillinger.io. This is a website where the author is basically showing us the full extent of Markdown."
+    },
+    {
+      "start_time": 974,
+      "end_time": 990,
+      "text": "So not only can you write, not only can you write headings, subheadings via text formatting, you can write lists, and lists are, lists are formatted in this manner."
+    },
+    {
+      "start_time": 990,
+      "end_time": 999,
+      "text": "As we showed, we can write task lists. You can write links and images. You can write block quotes. You can see block quotes look really nice."
+    },
+    {
+      "start_time": 999,
+      "end_time": 1011,
+      "text": "In fact, let's try block quotes. It looks really pretty. This is the block quote we go to."
+    },
+    {
+      "start_time": 1018,
+      "end_time": 1028,
+      "text": "So we'll write it at the bottom. Kind of duplicate."
+    },
+    {
+      "start_time": 1029,
+      "end_time": 1037,
+      "text": "We'll remove this. Let's preview. Yeah, so you can see there's a nice, vertical line which separates."
+    },
+    {
+      "start_time": 1037,
+      "end_time": 1049,
+      "text": "Very, very pleasing, very good aesthetics, right? So you can write block quotes as well. So this is a good sort of a first look, and it can render math, equations very easily."
+    },
+    {
+      "start_time": 1049,
+      "end_time": 1074,
+      "text": "So you have got sort of MathJax-like, formatting which allows you to use. So let's try this as well Yeah, you can see it just rendered the inline math very well, very, very cleanly."
+    },
+    {
+      "start_time": 1075,
+      "end_time": 1092,
+      "text": "This is what we want. So Markdown very, very helpful, right? And what is the purpose of README.md? In GitHub, if you have a Markdown... If you have a README.md file, Markdown file, it's going to get rendered on UI immediately, on GitHub UI."
+    },
+    {
+      "start_time": 1092,
+      "end_time": 1104,
+      "text": "So on this route, I have a README.md, it's going to get rendered here. In lesson one, I have got two Markdown files. I can read this Markdown file as well by clicking on it, no problem."
+    },
+    {
+      "start_time": 1105,
+      "end_time": 1114,
+      "text": "But the README.md is going to get rendered by default and so you can keep on writing Markdown files. Very good for write."
+    },
+    {
+      "start_time": 1114,
+      "end_time": 1126,
+      "text": "Quarto uses Markdown file by default, so you can just write things regularly, format them and build really good blogs and content with ease."
+    },
+    {
+      "start_time": 1127,
+      "end_time": 1140,
+      "text": "So... And a side note on Markdown, which is given here. Markdown is the lingua franca or the language of choice of AI-assisted work."
+    },
+    {
+      "start_time": 1141,
+      "end_time": 1152,
+      "text": "and this is like a small unglamorous skill. I don't think it's unglamorous, but it, it has a big payback. it helps you a lot, right? So every model card is Markdown, every issue is Markdown."
+    },
+    {
+      "start_time": 1152,
+      "end_time": 1161,
+      "text": "Discord messages help are like in Markdown. You have Cursor Claude, which reads Markdown files very, very nicely, planning files and everything."
+    },
+    {
+      "start_time": 1162,
+      "end_time": 1177,
+      "text": "In fact, there is a post by Andrej Karpathy where he talks about building a personal LLM knowledge base, and he's basically suggesting that let AI tools sort of index and work out how your knowledge is—"
+    },
+    {
+      "start_time": 1179,
+      "end_time": 1189,
+      "text": "how your knowledge exists on your laptop or on Obsidian or wherever. You have a list of— You have a bunch of Markdown files."
+    },
+    {
+      "start_time": 1189,
+      "end_time": 1199,
+      "text": "Let LLM build a personal knowledge base out of that. Let it connect things and understand what— how do you think about the world, you know."
+    },
+    {
+      "start_time": 1200,
+      "end_time": 1209,
+      "text": "So basically, it will be a personal LLM knowledge base, and this tweet went viral. So even there, Markdown was the cornerstone of his tweet, right?"
+    },
+    {
+      "start_time": 1211,
+      "end_time": 1226,
+      "text": "We spoke about GitHub.md. sorry, README.md, right? So this post is, this part is covered. Now we will look at something... we'll go back to our... Yeah, we'll go back to this part."
+    },
+    {
+      "start_time": 1227,
+      "end_time": 1236,
+      "text": "So first is why does Hugging Face exist? and why not use GitHub, right? Because Hugging Face is trying to solve different problems."
+    },
+    {
+      "start_time": 1236,
+      "end_time": 1250,
+      "text": "There are engineering constraints. Like the biggest constraint is there with GitHub is that it won't allow a file which is more than hundred MB. There is a hard limit that GitHub puts on every file."
+    },
+    {
+      "start_time": 1251,
+      "end_time": 1261,
+      "text": "I think it's hundred MB, and it has not changed. You can commit those files, but when you try and push it to GitHub, it'll get rejected outrightly. GitHub has solved this problem."
+    },
+    {
+      "start_time": 1261,
+      "end_time": 1276,
+      "text": "It's not that this is— this problem has not been solved. So there is something called as Git LFS, which allows you to store large files, specifically blobs, large blobs, and LLM models are like large blobs, right?"
+    },
+    {
+      "start_time": 1277,
+      "end_time": 1295,
+      "text": "So you can have a separate storage for them, and you only leave a small pointer to the repository. So you have normal files, your, your Python files, your React files, your TypeScript files, any other file that you have just gets uploaded,"
+    },
+    {
+      "start_time": 1296,
+      "end_time": 1314,
+      "text": "gets committed, and pushed normally. There are pointers to these large files, and your single repo then works really well. So GitHub was using LFS— Hugging Face was using LFS, and they have transitioned to another package called Z in twenty twenty-five."
+    },
+    {
+      "start_time": 1314,
+      "end_time": 1329,
+      "text": "So let's look at any model, right? Now, to— Let's first figure out how to... Let's first figure out how to locate a model."
+    },
+    {
+      "start_time": 1330,
+      "end_time": 1339,
+      "text": "So one of the best ways is if you know the model, like I know Qwen three point six B, and it will display under models, and I can look at it."
+    },
+    {
+      "start_time": 1340,
+      "end_time": 1351,
+      "text": "The other way, if I do not know the model name, I can go through the organization and collections. So Qwen has published a lot of models, so it has around thirty-three collections."
+    },
+    {
+      "start_time": 1351,
+      "end_time": 1362,
+      "text": "We click on Collections, we go down. There is Qwen three point six, three point five, but we want Qwen three. Here is Qwen three. We click on it, and somewhere for..."
+    },
+    {
+      "start_time": 1370,
+      "end_time": 1382,
+      "text": "Yeah. So this is Qwen three point six B. As I mentioned, README.md is always the model card is README.md, and it is shown here."
+    },
+    {
+      "start_time": 1383,
+      "end_time": 1393,
+      "text": "So the README.md file is sort of rendered or displayed here. Now we look at files and versions. We click on Files and Version, and these are the bunch of files that are there."
+    },
+    {
+      "start_time": 1394,
+      "end_time": 1409,
+      "text": "The license, there is README.md, there is config.json, then there is this model file, safetensors. I want you to look at wherever there is Z written, and specifically for large files, those are blobs."
+    },
+    {
+      "start_time": 1409,
+      "end_time": 1421,
+      "text": "So this is the actual Qwen3.6B file, model.safetensor. Remaining files have their own purposes, and they are needed to run this model, right?"
+    },
+    {
+      "start_time": 1423,
+      "end_time": 1434,
+      "text": "This is what is mentioned here. We have got— If you open the repository of Qwen3.6B, you will— If you click on files and versions, you will see these bunch of files."
+    },
+    {
+      "start_time": 1434,
+      "end_time": 1444,
+      "text": "README.md, we have discussed. config.json is a critical file which we will discuss here. Apart from that, we will only discuss model.safetensor."
+    },
+    {
+      "start_time": 1444,
+      "end_time": 1456,
+      "text": ".safetensor.gguf.bin are the weights themselves. Right."
+    },
+    {
+      "start_time": 1457,
+      "end_time": 1466,
+      "text": "Let's look at config.json file. It is the blueprint, and then transformer is the builder. So you can think of it like that."
+    },
+    {
+      "start_time": 1467,
+      "end_time": 1475,
+      "text": "We will look at, architecture. We will look at hidden size. For now, we will look at vocab size. That's all that we care about, right?"
+    },
+    {
+      "start_time": 1477,
+      "end_time": 1486,
+      "text": "Let me zoom. Yeah. So the same thing is visible on the model card. Not this, not the model card. Yeah. So let's click on config.json."
+    },
+    {
+      "start_time": 1487,
+      "end_time": 1497,
+      "text": "There is the architecture then, um, somewhere below, yeah. Right at the bottom, vocab_size is one five one nine three six."
+    },
+    {
+      "start_time": 1497,
+      "end_time": 1506,
+      "text": "For our purposes, we will call— we will say that the vocab size is one fifty k for the discussion in, in this lesson. Right."
+    },
+    {
+      "start_time": 1506,
+      "end_time": 1519,
+      "text": "What we'll do is we'll copy this, right, and we will go to Google. We'll type transformer, transformer and paste this blindly."
+    },
+    {
+      "start_time": 1520,
+      "end_time": 1531,
+      "text": "I just have to put a q in front. Yeah, paste this blindly. Now we see, Qwen3 for Causal LM. This is the class for Qwen3.6B."
+    },
+    {
+      "start_time": 1531,
+      "end_time": 1542,
+      "text": "You will be able to see the actual file, the actual code in Transformers. Transformers is a library supported by Hugging Face."
+    },
+    {
+      "start_time": 1542,
+      "end_time": 1554,
+      "text": "So you can click on this, and you're going to see, you're going to see the actual code, right? On the right-hand side, I think you can see classes as well."
+    },
+    {
+      "start_time": 1554,
+      "end_time": 1562,
+      "text": "This is a relatively new UI by GitHub. I think maybe a year or a couple of years back they started this."
+    },
+    {
+      "start_time": 1562,
+      "end_time": 1572,
+      "text": "So you can click on this, and you can see this file. Oh, this is the model file. No worries."
+    },
+    {
+      "start_time": 1572,
+      "end_time": 1588,
+      "text": "Yeah. This is a class, right? So... In it, we have forward, right?"
+    },
+    {
+      "start_time": 1588,
+      "end_time": 1612,
+      "text": "And Okay."
+    },
+    {
+      "start_time": 1630,
+      "end_time": 1644,
+      "text": "Now let's look at the documentation as well. So we will go back to... We will go back to Google and write Transformers and doc."
+    },
+    {
+      "start_time": 1645,
+      "end_time": 1655,
+      "text": "And documentation is in the top left. So again, you can write Qwen three for causal."
+    },
+    {
+      "start_time": 1655,
+      "end_time": 1670,
+      "text": "Just copy-paste the class, and you are going to get this transformers.qwen3 for causal LM. Right. You will see all the parameters here"
+    },
+    {
+      "start_time": 1675,
+      "end_time": 1686,
+      "text": "and one example as well, and other classes are visible here as well. Right."
+    },
+    {
+      "start_time": 1686,
+      "end_time": 1698,
+      "text": "So we are back at our model card. Right. So as we said, we are going to focus on hidden size, but mostly we are going to focus on vocab."
+    },
+    {
+      "start_time": 1698,
+      "end_time": 1709,
+      "text": "So which is one fifty K. Architecture for this model is Qwen three for causal LM. Config.json, what it contains I've already mentioned."
+    },
+    {
+      "start_time": 1709,
+      "end_time": 1719,
+      "text": "These are all fields from there. For three point five, you will see that the, that the classes Qwen three, five for conditional generation, right?"
+    },
+    {
+      "start_time": 1720,
+      "end_time": 1734,
+      "text": "So wh-why does this class even exist? Because the weight is a bag of numbers, bag of tensors. And we, we want the— we want our— we want, we want these tensors to—"
+    },
+    {
+      "start_time": 1734,
+      "end_time": 1744,
+      "text": "We, we have to multiply and these tensors have to work together, right? These— There is, there is multiplication, there are other operations involved, and then everything gets wired into a forward pass."
+    },
+    {
+      "start_time": 1745,
+      "end_time": 1754,
+      "text": "So in order for these operations, you need to create these classes and work with them."
+    },
+    {
+      "start_time": 1754,
+      "end_time": 1769,
+      "text": "So right now, Transformer library is doing the heavyweight with, with, with all these causal LM classes, and we will have to work and build our own Class in C to mirror this."
+    },
+    {
+      "start_time": 1769,
+      "end_time": 1779,
+      "text": "As I said, there'll be two worlds. One where transformer exists and when— one where transformer is not there, and we need to build our own class. So we have seen Hugging Face documentation page as well, right?"
+    },
+    {
+      "start_time": 1780,
+      "end_time": 1789,
+      "text": "This part we have already covered. Do we need math for this, particular course? The question comes up— has come up early and is an important question."
+    },
+    {
+      "start_time": 1789,
+      "end_time": 1798,
+      "text": "the answer is no. We will go the reverse way. We will first build, and we'll look at math, for example, in RoPE, in attention."
+    },
+    {
+      "start_time": 1798,
+      "end_time": 1810,
+      "text": "Wherever math is required, we'll look at that, right? The heart of this lesson, which we will be picking up in the second part, there'll be a-another video lesson, lesson one-B."
+    },
+    {
+      "start_time": 1810,
+      "end_time": 1819,
+      "text": "We'll be running Qwen3 in pure C, right? And as we said, this is part two, second world where Qwen does not exist."
+    },
+    {
+      "start_time": 1820,
+      "end_time": 1829,
+      "text": "We will mirror what transformer and Qwen3 for Causal LM has done in C itself. To do that, we— I have created a repo."
+    },
+    {
+      "start_time": 1830,
+      "end_time": 1845,
+      "text": "So here is it. And this repository contains like a sub repo in it, and you have to click... So this is the repository."
+    },
+    {
+      "start_time": 1846,
+      "end_time": 1860,
+      "text": "And in this, there is this run.c file. So what we'll do is we'll— This is a core file. We have over here, if we look at... Let me open this repo in Cursor."
+    },
+    {
+      "start_time": 1866,
+      "end_time": 1875,
+      "text": "Yeah. So what we'll be doing is run.c will be creating a binary, and that binary is going to— will execute that binary."
+    },
+    {
+      "start_time": 1875,
+      "end_time": 1893,
+      "text": "So if you look at this repo. Hmm. This was completely unnecessary because it's already open."
+    },
+    {
+      "start_time": 1894,
+      "end_time": 1905,
+      "text": "So here it is. I have to switch. Yeah. So this is the repo."
+    },
+    {
+      "start_time": 1912,
+      "end_time": 1926,
+      "text": "And this is the run.c file. Okay."
+    },
+    {
+      "start_time": 1926,
+      "end_time": 1940,
+      "text": "Now, this has all the code that is required to run the, the model itself, right? And you can see that this is the actual file or actual model that is there."
+    },
+    {
+      "start_time": 1940,
+      "end_time": 1955,
+      "text": "So we are going to basically- Do something like this. We'll run using the GGUF file, and we have a system, we have all these flags as well, right?"
+    },
+    {
+      "start_time": 1956,
+      "end_time": 1969,
+      "text": "So with this, we'll be running that model file on your local, just like you run... just like you chat with ChatGPT or, with Cloud Chat, right?"
+    },
+    {
+      "start_time": 1969,
+      "end_time": 1978,
+      "text": "You'll get similar prompt, and you can ask a question, maybe what is the capital of US or why is attention required?"
+    },
+    {
+      "start_time": 1978,
+      "end_time": 1989,
+      "text": "Which is the best, how do you work with AI agents? Whatever you want to ask, right? So... And you can even set flags like thinking on, multi-turn on, and we'll see that."
+    },
+    {
+      "start_time": 1990,
+      "end_time": 1999,
+      "text": "The advantage of working with this is that we are going to basically understand everything like what are— what is temperature?"
+    },
+    {
+      "start_time": 1999,
+      "end_time": 2008,
+      "text": "how does it impact your output? We'll look at different flags within the model. We'll look at thinking on and off, right?"
+    },
+    {
+      "start_time": 2008,
+      "end_time": 2020,
+      "text": "And this is a table which basically compares the two worlds. If you have Python, you basically are using NN module a lot, and here you are doing the same thing using transformer weight."
+    },
+    {
+      "start_time": 2020,
+      "end_time": 2032,
+      "text": "So you have to create this. Similarly, for attention, you have to build from scratch. So all the heavy lifting that was being done by transformers, you'll have to do that."
+    },
+    {
+      "start_time": 2032,
+      "end_time": 2041,
+      "text": "So this, repo is basically a fork of the... Original repo comes from William, William Song's repo."
+    },
+    {
+      "start_time": 2042,
+      "end_time": 2050,
+      "text": "So just I'll click on this. Yeah. This is the original repo by William Song. It's called Qwen3.C. It's a fork of that."
+    },
+    {
+      "start_time": 2050,
+      "end_time": 2061,
+      "text": "You can view that repo as well. Okay."
+    },
+    {
+      "start_time": 2061,
+      "end_time": 2070,
+      "text": "So this part basically focuses on these areas. In the next segment of this video lesson itself, we'll look at datasets."
+    },
+    {
+      "start_time": 2070,
+      "end_time": 2086,
+      "text": "So I'll take a small pause here, and then we'll move on to the next, next session. Okay, let's look— Let's start with the part two of this"
+    },
+    {
+      "start_time": 2087,
+      "end_time": 2097,
+      "text": "lesson, which is datasets. Datasets is also a very powerful offering by Hugging Face. There are three ways to look at datasets."
+    },
+    {
+      "start_time": 2098,
+      "end_time": 2107,
+      "text": "Three ways in which we can interact with datasets, do some analysis on the datasets before we move on to our main task, right?"
+    },
+    {
+      "start_time": 2107,
+      "end_time": 2123,
+      "text": "Of actually downloading the dataset or using them. So there are three ways to go about it. So, what we're going to do is we are going to look at a few... First, let's see"
+    },
+    {
+      "start_time": 2123,
+      "end_time": 2135,
+      "text": "which datasets we're going to look at. So the primary dataset that we are going to look at is Fine Web. And Fine Web, there is a smaller version of Fine Web which will be used in experiments quite a lot."
+    },
+    {
+      "start_time": 2135,
+      "end_time": 2146,
+      "text": "And for this lesson, let's look at this fifteen K datasets called Databricks Dolly fifteen K, right? It's a instruction-tuning, beginner-friendly dataset."
+    },
+    {
+      "start_time": 2147,
+      "end_time": 2161,
+      "text": "And what will we analyze in this? We look at the dataset and try and see what are the columns that are there. There is a— And what are the various unique values in certain columns,"
+    },
+    {
+      "start_time": 2161,
+      "end_time": 2173,
+      "text": "specifically columns like category and what is the length of certain fields, critical fields in that, right? So we want to understand the distribution, how, how big is the output."
+    },
+    {
+      "start_time": 2174,
+      "end_time": 2189,
+      "text": "So looking at this particular dataset, first, let's look at Fine Web, which is a very big dataset. You can see that this has got almost fifty-four point eight TB, and I think it has around eighteen trillion tokens."
+    },
+    {
+      "start_time": 2189,
+      "end_time": 2199,
+      "text": "Let's go below. I think it mentioned everything here. Yeah. So they had fifteen trillion tokens, and now this new dataset has eighteen point five trillion tokens."
+    },
+    {
+      "start_time": 2199,
+      "end_time": 2208,
+      "text": "You can see various slices or subset of this dataset here. This is a common crawl dataset, and there are— It's very clean dataset."
+    },
+    {
+      "start_time": 2208,
+      "end_time": 2221,
+      "text": "It's de-duplicated. I think most LLMs use this dataset itself. Probably they have even a better de-duplicated and cleaner data pipeline with them ready, right?"
+    },
+    {
+      "start_time": 2221,
+      "end_time": 2230,
+      "text": "So, for example, you can look at the latest one, twenty twenty-five, twenty twenty-six here. And this is the dataset. Sorry, this is the dataset."
+    },
+    {
+      "start_time": 2231,
+      "end_time": 2240,
+      "text": "And important point here, you can click on any of them and see, see the prompt, see other things that make sense to you."
+    },
+    {
+      "start_time": 2256,
+      "end_time": 2280,
+      "text": "I'll just move... Sorry, just move this Entire window here, so it'll be easier. Right."
+    },
+    {
+      "start_time": 2280,
+      "end_time": 2295,
+      "text": "So this is the data set. We'll go back, and you ca— There are three ways to look at this data set. The first way is that you can basically..."
+    },
+    {
+      "start_time": 2318,
+      "end_time": 2328,
+      "text": "This is Find Web. So let me just open here itself. Find Web again."
+    },
+    {
+      "start_time": 2337,
+      "end_time": 2351,
+      "text": "Here, one is the data set, viewer that you can see in front of you. So this is a data set card. Again, there are files and versions here, but this UI enables you to look at data set and go to Data Studio."
+    },
+    {
+      "start_time": 2351,
+      "end_time": 2371,
+      "text": "For this, it's not available, so what we'll do is we'll go back to our... Yeah. So we can go to Data Studio, and we can further search the data set and even there is a..."
+    },
+    {
+      "start_time": 2377,
+      "end_time": 2389,
+      "text": "Yeah, there is an, there is an console here as well, right? So for example, you can see all these data sets here, and you can even use agent to work with these data sets."
+    },
+    {
+      "start_time": 2390,
+      "end_time": 2401,
+      "text": "Maybe it's here. Yeah. So you can use agents to work with the data set, right? So for example, I have asked, this agent to... So first of all, this particular Dolly 15K has..."
+    },
+    {
+      "start_time": 2404,
+      "end_time": 2414,
+      "text": "It has instruction, context, response, and token count. So there is an instruction like, \"Name some famous rock bands from sixties,\" and then there is an answer to that."
+    },
+    {
+      "start_time": 2415,
+      "end_time": 2424,
+      "text": "So what we are trying to figure out is under, under the category, right? If you look at the original one, this is under category."
+    },
+    {
+      "start_time": 2424,
+      "end_time": 2435,
+      "text": "What are the unique categories? So we have listed one, two, three, four, five, six, seven, eight. Eight categories. There are these eight unique categories in this 15K data set, and what are the count under these?"
+    },
+    {
+      "start_time": 2435,
+      "end_time": 2445,
+      "text": "So OpenQA has three thousand seven hundred Brainstorming has one seven six six, creative writing has seven zero nine, right? And you can even write complex queries from here itself."
+    },
+    {
+      "start_time": 2445,
+      "end_time": 2460,
+      "text": "So this is a community query which is very interesting. I think this is the one. This is the one. Yeah. So basically, this will list out all the records, all the rows which are under twenty-five to seventy-five percentile of the token count."
+    },
+    {
+      "start_time": 2460,
+      "end_time": 2471,
+      "text": "So if you run this query, you're going to get something like this. So these token counts are going to be bit— not too high, not too less, between twenty-five and seventy-five percentile."
+    },
+    {
+      "start_time": 2471,
+      "end_time": 2487,
+      "text": "So not too— responses which are not too small, responses which are not too large. This is one, one of the ways to look at it. The other one is called croissant endpoint slash croissant and if you look at..."
+    },
+    {
+      "start_time": 2491,
+      "end_time": 2501,
+      "text": "Yeah, this is the endpoint. It's going to, if you, if you hit... Like this is the curl command. Curl, give the dataset slash croissant, you will get dataset."
+    },
+    {
+      "start_time": 2502,
+      "end_time": 2515,
+      "text": "You will get, JSON LD or you will get metadata format in that, right? So this is also useful, specifically when there are very large datasets, large number of columns and some meta information that you need."
+    },
+    {
+      "start_time": 2515,
+      "end_time": 2526,
+      "text": "So I have, I have already ex-done the curl command and using this particular JSON LD playground, trying to clean— trying to visualize this file."
+    },
+    {
+      "start_time": 2527,
+      "end_time": 2537,
+      "text": "So you can see that this particular... This is for Findweb. So it is giving you URL, it is giving you, other, other key columns like ID, URL."
+    },
+    {
+      "start_time": 2537,
+      "end_time": 2546,
+      "text": "What else is there? Token count is there. What else is there? Text, date, language, language score."
+    },
+    {
+      "start_time": 2548,
+      "end_time": 2567,
+      "text": "Yeah. So all of this is mentioned over here. So, so this is basically following some standard, metadata formats, which is from schema.org and Parakeet and JSON LD formats are used,"
+    },
+    {
+      "start_time": 2567,
+      "end_time": 2584,
+      "text": "frequently within Hugging Face. So you get information from through this manner also. Number one is data. So there are three ways. Number one is data, data viewer, which is the UI given by Data Studio, which"
+    },
+    {
+      "start_time": 2584,
+      "end_time": 2592,
+      "text": "is UI given by Hugging Face themselves. Number two is, Parakeet. Number three is like the most interesting one, right?"
+    },
+    {
+      "start_time": 2592,
+      "end_time": 2602,
+      "text": "So number three is here. Is the most interesting one. This is using something called as datasets and load underscore datasets."
+    },
+    {
+      "start_time": 2602,
+      "end_time": 2614,
+      "text": "So we'll be doing a lot of data analysis here, and this is the, file through which we'll be doing The data analysis. Now, just to let you know, this is a notebook."
+    },
+    {
+      "start_time": 2614,
+      "end_time": 2623,
+      "text": "And notebooks are basically environments where you do not have to, They work really well. They have a kernel environment, and they work right out of the box."
+    },
+    {
+      "start_time": 2624,
+      "end_time": 2632,
+      "text": "Very good for learning. And via Colab, you can basically connect Colab."
+    },
+    {
+      "start_time": 2633,
+      "end_time": 2642,
+      "text": "basically, if you open this in Colab, you get access to GPUs directly. So you can, run this for free in Colab, and it's pretty useful."
+    },
+    {
+      "start_time": 2642,
+      "end_time": 2651,
+      "text": "So one of the checkpoints was to... One of the checklist was to have to set up a Colab account."
+    },
+    {
+      "start_time": 2653,
+      "end_time": 2663,
+      "text": "And once you have a Colab account, all you need to do is you need to go to your Colab and then go to File."
+    },
+    {
+      "start_time": 2665,
+      "end_time": 2680,
+      "text": "Go to File, go to Open Notebook, go to GitHub, and this particular file is hosted on one repo, which is first break AI code."
+    },
+    {
+      "start_time": 2680,
+      "end_time": 2694,
+      "text": "And you go to this repo, and you copy this. And then I'll just paste it here, hit Enter, and it'll list down all the, all the, notebooks that are there."
+    },
+    {
+      "start_time": 2695,
+      "end_time": 2705,
+      "text": "This is already listing this, right? You can select this, and it'll open. And then you can click on Connect, which is here, Connect, and set your runtime."
+    },
+    {
+      "start_time": 2705,
+      "end_time": 2719,
+      "text": "In this case, we don't need to change runtime to a GPU, and this will start working. Okay. So this is the thing with this file."
+    },
+    {
+      "start_time": 2719,
+      "end_time": 2732,
+      "text": "I'll zoom it a, zoom, zoom it a bit for now. Right. So we are at lesson one, and we are basically trying to do data loading and initial inspection."
+    },
+    {
+      "start_time": 2733,
+      "end_time": 2741,
+      "text": "So we are going to use, datasets, pandas, and Matplotlib in this particular file. Datasets is again a library provided by Hugging Face."
+    },
+    {
+      "start_time": 2741,
+      "end_time": 2756,
+      "text": "We are going to use load underscore dataset. we're going to use load underscore dataset, pandas as pd. Right. So first we just capture the dataset name and pass it, to load dataset along with split that we want."
+    },
+    {
+      "start_time": 2757,
+      "end_time": 2772,
+      "text": "And then we pass it to pandas. And we can print the shape and, and like first few, rows from this. So the shape is obviously fif— As the dataset is fifteen- Instead of a messy sort of setup, you can— you have a copyable Okay."
+    },
+    {
+      "start_time": 2772,
+      "end_time": 2785,
+      "text": "As I was saying that, the shape is, this is, has around fifteen k records. Right. So the shape is there, fifteen zero one one. these are, these are the first few, first few records Right."
+    },
+    {
+      "start_time": 2785,
+      "end_time": 2798,
+      "text": "So now what we're going to do is we— This is just a duplication. We'll do some initial, inspection. We want to, for example, know if there are any NaN, records in this data set, which is zero."
+    },
+    {
+      "start_time": 2799,
+      "end_time": 2810,
+      "text": "we want to know the columns that are there. There are four columns which we show in the, which we saw in the shape earlier as well. Instruction, context, response, and categories, right?"
+    },
+    {
+      "start_time": 2810,
+      "end_time": 2819,
+      "text": "we want to know what are the categories and what is the count, which is the same thing we did via, Data Studio via SQL queries earlier, right?"
+    },
+    {
+      "start_time": 2819,
+      "end_time": 2830,
+      "text": "So it's the same count and everything is here, right? Now we want to know the length distribution. For example, we want to know for these three columns, what is the count?"
+    },
+    {
+      "start_time": 2830,
+      "end_time": 2839,
+      "text": "We have the count. What is the mean? And let's, so again, same records here as well, right? And then we'll plot something very interesting."
+    },
+    {
+      "start_time": 2839,
+      "end_time": 2850,
+      "text": "We'll plot, the response length distribution. So one field, which is a response, we want to see, for example, response is here. And what is the twenty-fifth percentile?"
+    },
+    {
+      "start_time": 2850,
+      "end_time": 2860,
+      "text": "What is the seventy-fifth percentile? And we want to see... Is there a max here? There is like two thousand. It says two thousand, right?"
+    },
+    {
+      "start_time": 2860,
+      "end_time": 2870,
+      "text": "So you can see there are few records that are at two thousand. the seventy-five and twenty-five percentile is between seventy-eight and four hundred and thirty, right?"
+    },
+    {
+      "start_time": 2870,
+      "end_time": 2883,
+      "text": "So we know most of the records are between, have token count of seventy-eight and four hundred and thirty. so we understand what is the mean respon— what is the mean— what is the size of the response."
+    },
+    {
+      "start_time": 2883,
+      "end_time": 2893,
+      "text": "So for example, if you are expecting very, very large, very, very large... Is this twenty-six thousand?"
+    },
+    {
+      "start_time": 2893,
+      "end_time": 2908,
+      "text": "Something is wrong. If you are expecting very, very large token sizes, so you would, this data set then would not be right for you. So you can check right now using this and this plot, both these, analysis, if this data set is sound for you."
+    },
+    {
+      "start_time": 2908,
+      "end_time": 2918,
+      "text": "you can do various checks like this. You'll have to do it because, you have to train models, you have to fine-tune. So you have to basically test the data set for that."
+    },
+    {
+      "start_time": 2918,
+      "end_time": 2928,
+      "text": "Now, you can look at few short examples, and you can look at few larger examples, right? So as, the record number one eight six seven, what is console war in video game?"
+    },
+    {
+      "start_time": 2928,
+      "end_time": 2942,
+      "text": "Apparently that summarization is the biggest with twenty-six thousand characters. So everything is matching here, right? We, we see this maximum and somewhere above this is the record, the maximum record."
+    },
+    {
+      "start_time": 2942,
+      "end_time": 2950,
+      "text": "So we have actually located the maximum record also. Let's see if we can locate the smallest one. which is what? One. Okay."
+    },
+    {
+      "start_time": 2951,
+      "end_time": 2964,
+      "text": "So one, I think there would be very— a lot of one, a lot of records with one. very long, very small. Yeah, so there is like one word answer, Perseus and, Yeah, though we have small answers, right, so that's also true."
+    },
+    {
+      "start_time": 2966,
+      "end_time": 2978,
+      "text": "So we have like the top ten biggest responses. So you can basically guess. You can have top ten. You can even print count, you know, beyond number."
+    },
+    {
+      "start_time": 2979,
+      "end_time": 2987,
+      "text": "Like if you want to see what part of this dataset has more than thousand. From here, you can see the count is going to be very, very small, right?"
+    },
+    {
+      "start_time": 2988,
+      "end_time": 2997,
+      "text": "Like, like this between five hundred to thousand tokens, you know, you have around two thousand. So this count is pretty low."
+    },
+    {
+      "start_time": 2997,
+      "end_time": 3009,
+      "text": "Like, you know, with more than two thousand, you have barely any tokens. I can even plot a more granular graph, and you will see that. So this just in one view, you come to know a lot about the dataset."
+    },
+    {
+      "start_time": 3010,
+      "end_time": 3019,
+      "text": "That's how you analyze datasets. Very, very critical skill in the field of AI, inferencing, in, learning, even agentic AI."
+    },
+    {
+      "start_time": 3019,
+      "end_time": 3029,
+      "text": "This is very, very important, right? So, this concludes this lesson. We'll have a second part to this lesson where we look at Qwen3, running it locally, looking at the code."
+    },
+    {
+      "start_time": 3029,
+      "end_time": 3040,
+      "text": "Also looking at Transformers library deep dive. I hope this was useful for you. again, welcome to, FirstBreak AI. I, I hope you have a good time building things with us."
+    },
+    {
+      "start_time": 3040,
+      "end_time": 3042,
+      "text": "Happy learning. See you. Goodbye."
+    }
   ]
 }

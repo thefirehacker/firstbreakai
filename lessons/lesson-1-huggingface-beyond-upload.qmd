@@ -12,7 +12,7 @@ css:
 ::: {.lesson-hero}
 ::: {.lesson-hero-tags}
 [Lesson 01 · First Break AI]{.lesson-hero-eyebrow}
-[● Draft · Under Review]{.lesson-hero-status .lesson-hero-status-review}
+[● Published]{.lesson-hero-status .lesson-hero-status-published}
 :::
 
 # HuggingFace Beyond Upload {.lesson-hero-title}
@@ -26,10 +26,6 @@ css:
 
 This is the **full lesson** — everything you need is on this page. The video mirrors what's written here; the transcript is interactive, so you can click any line to jump the video to that point. Read it, watch it, do the homework, bring it to office hours.
 
-::: {.callout-note appearance="minimal"}
-**Video placeholder.** The Lesson 1 recording is being produced. The player below is wired with the Lesson 0 video for now so chapters and interactive transcript work end-to-end while you read along — the new recording drops into the same slot when it's published.
-:::
-
 ## Navigate by roadmap
 
 | Step | Topic | This lesson |
@@ -42,19 +38,19 @@ This is the **full lesson** — everything you need is on this page. The video m
 
 
 ```{=html}
-<div class="lesson-page lesson-page-theatre" data-size="compact">
+<div class="lesson-page lesson-page-theatre" data-size="wide">
 
   <div class="lesson-deck">
     <div class="lesson-video-wrap">
       <div id="ytPlayer"
-           data-video-id="r9uykyGAdJQ"
+           data-video-id="MjZio-A9oUY"
            data-transcript="lesson-1-huggingface-beyond-upload.json"></div>
     </div>
 
     <div class="lesson-meta">
       <div class="lesson-now-playing">
         <span class="lesson-now-label">Chapter</span>
-        <span class="lesson-chapter-title" id="lessonChapterTitle">The shallow view, and the deep view</span>
+        <span class="lesson-chapter-title" id="lessonChapterTitle">Lesson 01 Overview: Hugging Face Beyond Upload</span>
       </div>
       <div class="lesson-controls">
         <div class="lesson-size-group" role="group" aria-label="Video size">
