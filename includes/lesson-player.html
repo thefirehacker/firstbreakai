@@ -172,15 +172,10 @@
     requestAnimationFrame(tick);
   }
 
-  if (transcriptPanel) {
-    /* Theatre layout: transcript starts visible (it has its own column) */
-    transcriptPanel.classList.add('visible');
-  }
-
   /* ── Video size toggle (compact / theatre / wide) ── */
   var pageEl = document.querySelector('.lesson-page-theatre');
   var sizeBtns = document.querySelectorAll('.lesson-size-btn');
-  var lastNonWideSize = 'compact';
+  var lastNonWideSize = 'theatre';
 
   function applySize(size) {
     if (!pageEl) return;

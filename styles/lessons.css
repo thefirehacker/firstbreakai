@@ -168,10 +168,10 @@ main .table tbody td {
   transition: grid-template-columns 0.25s ease;
 }
 .lesson-page-theatre[data-size="compact"] {
-  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
 }
 .lesson-page-theatre[data-size="theatre"] {
-  grid-template-columns: minmax(0, 9fr) minmax(0, 4fr);
+  grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
 }
 .lesson-page-theatre[data-size="wide"] {
   grid-template-columns: minmax(0, 1fr);
@@ -344,18 +344,29 @@ main .table tbody td {
 
 /* ── Stack on narrower screens ── */
 @media (max-width: 1024px) {
-  .lesson-page-theatre {
-    grid-template-columns: minmax(0, 1fr);
+  /* Flatten the two-column grid into a single flex column so we can
+     reorder transcript above chapters (otherwise transcript sits 1000px+
+     below the viewport after the entire chapter list on mobile). */
+  .lesson-page-theatre,
+  .lesson-page-theatre[data-size="compact"],
+  .lesson-page-theatre[data-size="theatre"],
+  .lesson-page-theatre[data-size="wide"] {
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: none;
   }
   .lesson-deck {
+    display: contents;
     position: static;
     max-height: none;
     overflow: visible;
   }
-  .lesson-transcript {
-    position: static;
-    max-height: 600px;
-  }
+  .lesson-video-wrap { order: 1; }
+  .lesson-meta       { order: 2; }
+  .lesson-transcript { order: 3; position: static; max-height: 600px; }
+  .lesson-chapters   { order: 4; }
+  /* Size chips are meaningless once the grid is stacked */
+  .lesson-size-group { display: none; }
 }
 
 /* ── Mobile tweaks ── */
