@@ -1,6 +1,6 @@
 ---
 name: First Break AI MCP Server
-overview: Build an MCP server inside this repo as a Cloudflare Pages Function at `cohort.bubblnet.com/mcp`, using the official Cloudflare Agents SDK (`createMcpHandler`) and the MCP TypeScript SDK. Phase 1 ships 5 read-only tools wrapping public cohort content and HuggingFace data, with no auth, deployed via the existing GitHub Actions pipeline. Compatible with Cursor, Claude Code, Claude Desktop, HuggingChat, and VS Code / GitHub Copilot out of the box.
+overview: Build an MCP server inside this repo as a Cloudflare Pages Function at `cohort.bubblnet.com/mcp`, using the official Cloudflare Agents SDK (`createMcpHandler`) and the MCP TypeScript SDK. Phase 1 ships 5 read-only tools wrapping public cohort content and HuggingFace data, with no auth, deployed via the existing GitHub Actions pipeline. Phase 2 adds cohort progress tracking (D1 + HF token auth + auto-verified self-reports + Reddit-style points/streaks/trophies) without any Discord dependency. Compatible with Cursor, Claude Code, Claude Desktop, HuggingChat, and VS Code / GitHub Copilot out of the box.
 todos:
   - id: deps
     content: Add agents, @modelcontextprotocol/sdk, zod to package.json
@@ -25,6 +25,27 @@ todos:
     status: pending
   - id: lesson-update
     content: Add a short section to lesson-1 (or new lesson-2) showing students how to add the MCP server URL in their tool
+    status: pending
+  - id: phase2-d1
+    content: "Phase 2 — Provision D1 database + binding in wrangler.jsonc; create migrations/ folder with students + events schema"
+    status: pending
+  - id: phase2-auth
+    content: "Phase 2 — Add HF token passthrough (Authorization: Bearer header → huggingface.co/api/whoami → cache hf_username on context)"
+    status: pending
+  - id: phase2-verify
+    content: "Phase 2 — Build functions/lib/verify.ts with verify_blog_post, verify_hf_model, verify_github_pr (auto-verification before points awarded)"
+    status: pending
+  - id: phase2-write-tools
+    content: "Phase 2 — Add write tools: submit_artifact, complete_lesson, set_privacy"
+    status: pending
+  - id: phase2-read-tools
+    content: "Phase 2 — Add read tools: my_progress, leaderboard, cohort_stats, student_profile"
+    status: pending
+  - id: phase2-trophies
+    content: "Phase 2 — Define trophies table + milestone triggers (first model, lesson-1 done, 7-day streak, etc.)"
+    status: pending
+  - id: phase2-footer
+    content: "Phase 2 — Add per-response footer (Streak / Points / Rank) injected into every tool result"
     status: pending
 isProject: false
 ---
@@ -133,6 +154,141 @@ export const onRequest = handler;
 **Phase 1: no auth.** All Phase 1 tools call public endpoints. Friction-free onboarding for cohort students.
 
 **Phase 2 (deferred):** Add HuggingFace token passthrough — students send `Authorization: Bearer <hf-token>` in the MCP "HTTP Headers" field; server validates by calling `huggingface.co/api/whoami`. Then we can add tools like `get_my_uploaded_models()`, `submit_homework_link(...)` that touch private/user-specific data.
+
+---
+
+## Phase 2: Cohort progress + Reddit-style points
+
+Self-reported homework, auto-verified server-side, gamified with points/streaks/trophies. Pure MCP, no Discord required (but Discord bot can later share the same backend).
+
+### Why pure MCP fits
+
+Students live inside their AI tool. `submit_artifact("blog_post", "https://...")` from inside Cursor or Claude Code has zero context-switch cost. Verification + leaderboards happen on the server, not in the AI prompt.
+
+### Storage: Cloudflare D1
+
+D1 is SQLite at the edge — same Cloudflare account, no new service. Bind it in [wrangler.jsonc](wrangler.jsonc), expose it as `env.DB` inside the MCP handler.
+
+```sql
+-- migrations/0001_init.sql
+CREATE TABLE students (
+  hf_username      TEXT PRIMARY KEY,
+  discord_handle   TEXT,
+  github_handle    TEXT,
+  joined_at        INTEGER NOT NULL,
+  privacy          TEXT DEFAULT 'private'  -- 'public' | 'anonymous' | 'private'
+);
+
+CREATE TABLE events (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  hf_username   TEXT NOT NULL,
+  type          TEXT NOT NULL,   -- 'lesson_complete' | 'blog_post' | 'model_upload' | 'pr_merged' | 'office_hours_attended'
+  payload       TEXT NOT NULL,   -- JSON
+  points        INTEGER NOT NULL,
+  verified      INTEGER NOT NULL DEFAULT 0,
+  created_at    INTEGER NOT NULL,
+  FOREIGN KEY (hf_username) REFERENCES students(hf_username)
+);
+
+CREATE TABLE trophies (
+  hf_username   TEXT NOT NULL,
+  trophy_id     TEXT NOT NULL,   -- 'first_model', 'lesson_1_done', '7_day_streak', etc.
+  awarded_at    INTEGER NOT NULL,
+  PRIMARY KEY (hf_username, trophy_id)
+);
+
+CREATE INDEX events_user_time ON events(hf_username, created_at);
+CREATE INDEX events_type_time ON events(type, created_at);
+```
+
+### Identity = HF token passthrough
+
+Students send `Authorization: Bearer <hf-token>` (one of the very tokens they already create in Lesson 1). The MCP middleware:
+
+1. Reads the header
+2. Calls `https://huggingface.co/api/whoami-v2` to validate
+3. Caches `hf_username` on the request context for the tool handler
+4. Auto-creates a `students` row on first call (privacy defaults to `private`)
+
+No login flow, no separate auth server.
+
+### Auto-verification (the trust layer)
+
+Self-report is the *interface*; verification is the *backend*. Points are only written after server-side checks pass. Logic lives in [functions/lib/verify.ts](functions/lib/verify.ts):
+
+- `verify_blog_post(url)` — `fetch(url)`, look for required cohort backlink (`cohort.bubblnet.com/lessons/...`), confirm `<time>` tag is recent.
+- `verify_hf_model(repo_id, hf_username)` — call HF API, confirm repo exists and `author == hf_username`.
+- `verify_github_pr(pr_url, github_handle)` — call GitHub API, confirm PR is merged and author matches.
+
+If verification fails: event recorded with `verified = 0`, no points awarded, error returned.
+
+### Reddit-style mechanics
+
+Three distinct primitives, all mapped:
+
+- **Points (cumulative, never decrease):**
+  - Complete lesson: 100
+  - Publish homework blog: 50
+  - Upload model to HF: 200
+  - Merged PR to firstbreakai repo: 150
+  - Attend office hours: 75
+  - Daily streak bonus: +10/day, multiplier at 7/14/30 days
+- **Trophies (one-time milestones):** `first_model`, `lesson_1_done`, `7_day_streak`, `30_day_streak`, `first_pr_merged`, `cohort_graduate`. Inserted into `trophies` table by triggers in tool handlers.
+- **Streak (consecutive days with at least one verified event):** computed on read from `events` table; reset on miss.
+
+### New write tools (Phase 2)
+
+- `submit_artifact(type, url, description?)` — generic submission. Routes to the right verifier, records event, awards points if verified.
+- `complete_lesson(lesson_number, blog_post_url)` — convenience wrapper; verifies the blog post and marks lesson done.
+- `set_privacy(mode: "public" | "anonymous" | "private")` — controls leaderboard visibility.
+- `link_handles(discord_handle?, github_handle?)` — student attaches their Discord/GitHub names to their HF username. Required before GH-PR verification works.
+
+### New read tools (Phase 2)
+
+- `my_progress()` — current student's points, streak, trophies, last 10 events.
+- `leaderboard(period: "week" | "month" | "all_time")` — top 10 by points; respects each student's privacy setting.
+- `cohort_stats()` — totals across cohort (models uploaded, blog posts, PRs merged, etc.).
+- `student_profile(hf_username)` — public profile if that student is `public`; anonymous summary if `anonymous`; "not visible" if `private`.
+
+### Per-response footer (gamification surface)
+
+Every tool result gets a small footer appended by the server:
+
+```
+Streak: 7 | Points: 425 | Rank: #12 of 47 | Next trophy: 14-day streak (7 days to go)
+```
+
+This means *every* MCP call — even a read like `search_lesson` — reminds students of their progress. Cheap, sticky, no new UI.
+
+### Privacy posture
+
+Default: `private`. Three opt-in modes:
+
+- `public` — appears on leaderboard with HF handle.
+- `anonymous` — appears as "Student #047" with points, no handle.
+- `private` — never appears; only `my_progress()` works.
+
+### Discord bot is later, shares the same D1
+
+```mermaid
+flowchart LR
+    Cursor --> MCP
+    ClaudeCode --> MCP
+    DiscordUser["Discord user"] --> Bot["Discord bot (later)"]
+    MCP["MCP server (this repo)"] --> D1[("D1 database")]
+    Bot --> D1
+    Verify["verify.ts"] --> HF["HF API"]
+    Verify --> GH["GitHub API"]
+    MCP --> Verify
+```
+
+Discord bot becomes the **social layer** (announce milestones, post weekly leaderboard, react to streaks). MCP server is the **developer layer** (submit, query). Single source of truth in D1.
+
+### Cohort-narrative payoff
+
+Lesson 1 ends with *"could an AI agent figure out how to use this without a human in the loop?"*. Phase 2 is the live answer: a student's AI agent can submit homework, check streaks, see the leaderboard — entirely without a browser. The supply-chain idea, applied to the cohort itself.
+
+---
 
 ## Setup snippets students will paste
 
