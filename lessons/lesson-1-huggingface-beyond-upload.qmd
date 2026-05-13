@@ -20,7 +20,7 @@ css:
 ##### Run Qwen3-0.6B locally, tour HuggingFace properly, and see open models as a supply chain. {.lesson-hero-subtitle}
 
 ::: {.lesson-hero-meta}
-[~25 min read]{.lesson-hero-chip} [Cohort 01](../office-hours/2026-05-08.qmd){.lesson-hero-chip} [Run a model locally](../roadmap.qmd){.lesson-hero-chip}
+[~40 min read]{.lesson-hero-chip} [Cohort 01](../office-hours/2026-05-08.qmd){.lesson-hero-chip} [Run a model locally](../roadmap.qmd){.lesson-hero-chip}
 :::
 :::
 
@@ -529,6 +529,317 @@ The contrast between the two datasets is the contrast between two points in a pi
 
 The lesson here is not about these two datasets specifically. It is that *the same question — what is in this thing? — gets answered in completely different ways depending on what kind of artifact you are looking at*. For a Parquet-backed tabular dataset, Croissant and the viewer both answer it in seconds. For a binary pre-tokenized shard, you read the code that wrote it. Knowing which tool to reach for, and why the other tools are silent, is what distinguishes an engineer who understands the stack from one who just follows tutorials.
 
+## From pretraining to SFT — the other half of the data supply chain
+
+FineWeb and `fineweb10B-gpt2` are *pretraining* data. They are what makes a base model possible. But a base model on its own is not yet a useful assistant — it can continue text fluently but it does not follow instructions, hold a conversation, or refuse harmful requests. The work that turns a base model into something like Claude or ChatGPT happens *after* pretraining, on a completely different shape of dataset. If you only ever look at FineWeb, you have seen half the supply chain. The other half is what this section is about.
+
+Four datasets are worth knowing intimately, because together they cover the post-pretraining stages we walked through earlier — SFT, preference, and chat. Each is a public artifact you can open in the browser today.
+
+[`databricks/databricks-dolly-15k`](https://huggingface.co/datasets/databricks/databricks-dolly-15k) is the easiest place to start. Fifteen thousand instruction–response pairs, human-written by Databricks employees, organised into eight task categories (open QA, classification, brainstorming, summarisation, and so on). It is small enough that you can scroll through it in an afternoon, which makes it the right "first dataset to inspect" for everyone in the cohort. Look at the **category** distribution and the **response length** spread — both tell you what the dataset is biased toward.
+
+[`HuggingFaceH4/ultrachat_200k`](https://huggingface.co/datasets/HuggingFaceH4/ultrachat_200k) is the dataset behind the Zephyr family of fine-tunes — two hundred thousand multi-turn conversations distilled by GPT-4 from earlier UltraChat. It is split into `train_sft` / `test_sft` for supervised fine-tuning and `train_gen` / `test_gen` for generation-ranking work, which makes it the canonical example of *one dataset, several training stages*. Look at conversation **turn counts**, **prompt length distribution**, and the relationship between prompt and completion length — that is where the texture of an SFT dataset lives.
+
+[`OpenAssistant/oasst1`](https://huggingface.co/datasets/OpenAssistant/oasst1) is structurally different from the other two: instead of flat `(prompt, response)` rows, it is a tree of messages with roles (`prompter` / `assistant`), languages, and human ratings. It is the public artifact behind the OpenAssistant project — human-generated, multilingual, with quality scores attached to each message. Look at **language distribution**, **role alternation patterns** (do the assistant turns really follow prompter turns?), and **rating distributions** by language.
+
+[`Anthropic/hh-rlhf`](https://huggingface.co/datasets/Anthropic/hh-rlhf) — *helpfulness and harmlessness* — is the canonical *preference* dataset: each row contains a prompt and two completions, one marked `chosen` and one marked `rejected` by human labellers. This is the data shape DPO and RLHF feed on. Look at the **length bias** (do chosen responses tend to be longer than rejected? — there is a well-documented length effect in RLHF), and the **balance** between the helpfulness and harmlessness splits.
+
+| Dataset | Purpose | What to analyse |
+|---|---|---|
+| [`databricks/databricks-dolly-15k`](https://huggingface.co/datasets/databricks/databricks-dolly-15k) | Instruction tuning, beginner-friendly | Category distribution, instruction/response length, missing context, task diversity |
+| [`HuggingFaceH4/ultrachat_200k`](https://huggingface.co/datasets/HuggingFaceH4/ultrachat_200k) | Multi-turn SFT (Zephyr-style) | Turn count, prompt/completion length, train/test SFT split, suspiciously short prompts |
+| [`OpenAssistant/oasst1`](https://huggingface.co/datasets/OpenAssistant/oasst1) | Human conversation trees, multilingual | Role alternation, languages, ratings, conversation structure |
+| [`Anthropic/hh-rlhf`](https://huggingface.co/datasets/Anthropic/hh-rlhf) | Preference (RLHF/DPO) | Length bias in chosen vs rejected, helpfulness/harmlessness balance |
+
+The thing to internalise is that these four datasets do not just have *different content* — they have different *shapes*. A flat `(instruction, response)` table is not the same artefact as a tree of role-labelled messages, which is not the same artefact as a `(prompt, chosen, rejected)` triple. *Analysis depends on what the data is supposed to teach the model.* We will come back to that idea in the cheat-sheet table at the end of the module.
+
+## The dataset card reading checklist — seven questions before any code
+
+Before you write a single line of Python, open the dataset's page on HuggingFace and answer seven questions. This is the same move you already do for models, applied to the upstream artefact.
+
+1. **What is this dataset *for*?** Pretraining, supervised fine-tuning, preference training, evaluation, or RAG corpus? The answer changes which columns matter, which statistics matter, and what "good" looks like.
+2. **What is the licence?** Can you use it commercially? Is attribution required? Is there a downstream-use clause? FineWeb is ODC-By; Dolly is CC-BY-SA; some HH datasets are research-only. Read the licence before you train on it.
+3. **What are the splits?** `train` / `validation` / `test` is the minimum. SFT datasets often add `train_sft` / `test_sft`. Preference datasets add `helpful` / `harmless`. Knowing the splits tells you the dataset's intended training shape.
+4. **What are the columns?** `text`, `prompt`, `response`, `messages`, `chosen`, `rejected`, `language`, `score` — the column list is the *signature* of the dataset. A column called `messages` means conversational; `chosen`/`rejected` means preference; `text` alone means pretraining.
+5. **What is the shape?** How many rows? How big on disk? What is the average text length? What is the token length distribution under your tokenizer? You should know these numbers before you decide whether to download or stream.
+6. **What is the quality story?** Was it filtered? Deduplicated? Human-written or synthetic? Multilingual? Safety-filtered? The dataset card should answer these; if it does not, treat the dataset as you would treat an unsigned model release.
+7. **What can go wrong?** Duplicates. Empty rows. Suspiciously short rows. Suspiciously long rows. Train/test leakage. Benchmark contamination. Bad role formatting. Toxic content. The next sections of this module are mechanical checks for each of these.
+
+The reason to make this a checklist is the same reason airline pilots use checklists: it is not that you don't *know* these questions, it is that under time pressure you will skip one. Run the checklist every time. After a dozen datasets, it takes ninety seconds.
+
+## Hands-on, browser-only — the HuggingFace SQL Console
+
+The fastest way to start is to never leave the browser. Open [`HuggingFaceH4/ultrachat_200k`](https://huggingface.co/datasets/HuggingFaceH4/ultrachat_200k), find the **Data Studio** panel, and switch from the row-grid view to **SQL Console**. The console runs **DuckDB compiled to WebAssembly** entirely inside your browser tab — no install, no kernel, no signup, no rate limit. It is the most under-used piece of infrastructure HuggingFace ships, and it changes how you think about a dataset on day one. *A dataset is a database. Queries are how you interview it.*
+
+Four queries get you most of what you need. Start with shape:
+
+```sql
+SELECT COUNT(*) AS rows FROM train_sft;
+```
+
+Then the length-distribution one-liner:
+
+```sql
+SELECT
+  AVG(length(prompt))     AS avg_prompt_chars,
+  AVG(length(completion)) AS avg_completion_chars,
+  MIN(length(prompt))     AS min_prompt_chars,
+  MAX(length(prompt))     AS max_prompt_chars
+FROM train_sft;
+```
+
+The third query is where it gets interesting — the *suspiciously short prompt* hunt. SFT datasets are full of rows that look fine on average but contain hundreds of one-word or templated prompts that teach the model bad habits. Find them:
+
+```sql
+SELECT prompt, completion
+FROM train_sft
+WHERE length(prompt) < 20
+LIMIT 25;
+```
+
+And the inverse: completions so long they might exceed your training context window or just signal a different kind of distributional weirdness:
+
+```sql
+SELECT prompt,
+       length(completion) AS completion_chars,
+       completion
+FROM train_sft
+ORDER BY completion_chars DESC
+LIMIT 10;
+```
+
+Run those four queries on every SFT dataset you ever consider using before you write any training code. It is five minutes of work; it has saved entire fine-tune runs from being wasted on data that was visibly broken.
+
+## Hands-on, in a notebook — `datasets`, `pandas`, and Dolly-15K
+
+When the browser console runs out of room — when you need a histogram, or a custom function over every row, or you want to save the analysis as an artefact you can rerun — drop into a notebook. We use Google Colab because it requires nothing on the learner's machine; the same code runs locally in Jupyter or Cursor if you prefer.
+
+The cohort's companion notebook for this module is [`HF_DataSet_Analysis.ipynb`](https://github.com/thefirehacker/FirstBreakAI-Code/blob/main/Lesson01/HF_DataSet_Analysis.ipynb) in the [`FirstBreakAI-Code`](https://github.com/thefirehacker/FirstBreakAI-Code) repo. **Click here to open it directly in Colab** → [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/thefirehacker/FirstBreakAI-Code/blob/main/Lesson01/HF_DataSet_Analysis.ipynb). Run it cell by cell; what follows below is a guided tour of the moves so you understand *why* each cell exists, not just what it does.
+
+The first move is to load Dolly into pandas:
+
+```python
+!pip install -q datasets pandas matplotlib duckdb
+
+from datasets import load_dataset
+import pandas as pd
+import matplotlib.pyplot as plt
+
+ds = load_dataset("databricks/databricks-dolly-15k", split="train")
+df = ds.to_pandas()
+
+print(df.shape)   # (15011, 4)
+df.head()
+```
+
+Then schema. *Always* look at the schema before anything else.
+
+```python
+print(df.columns)        # ['instruction', 'context', 'response', 'category']
+print(df.dtypes)         # all object (strings)
+print(df.isna().sum())   # 0 nulls across the board — Dolly is clean
+```
+
+Then category counts — the cheapest possible distribution check, and the one that immediately tells you what the dataset is *biased toward*:
+
+```python
+df["category"].value_counts()
+# open_qa                   3742
+# general_qa                2191
+# classification            2136
+# closed_qa                 1773
+# brainstorming             1766
+# information_extraction    1506
+# summarization             1188
+# creative_writing           709
+```
+
+Open-QA dominates. That is fine for a generalist instruction dataset, but if you were fine-tuning a *summarisation* assistant, you would immediately know Dolly under-represents your target task.
+
+Length distribution comes next:
+
+```python
+df["instruction_chars"] = df["instruction"].str.len()
+df["response_chars"]    = df["response"].str.len()
+df["context_chars"]     = df["context"].fillna("").str.len()
+
+df[["instruction_chars", "response_chars", "context_chars"]].describe()
+```
+
+The `describe()` output is dense and useful. Pay attention to the gap between the median and the maximum — for Dolly's `response_chars`, the median is 186 and the max is 26,018. That is two orders of magnitude. A model trained on this without filtering will see very long examples occasionally; a tokenizer with a fixed `max_length` will truncate them; and you should know about the truncation before it silently happens.
+
+Then plot, because numbers in a `describe()` row do not look like distributions:
+
+```python
+df["response_chars"].hist(bins=50)
+plt.title("Response length distribution")
+plt.xlabel("Characters")
+plt.ylabel("Rows")
+plt.xlim(0, 5000)        # tail goes much higher; chop for visibility
+plt.show()
+```
+
+Finally, filter the *short* and *long* tails to look at concrete examples. Short:
+
+```python
+df[df["response_chars"] < 50][["instruction", "response", "category"]].head(20)
+```
+
+And long:
+
+```python
+df.sort_values("response_chars", ascending=False)[
+    ["instruction", "response", "category", "response_chars"]
+].head(10)
+```
+
+The short-row table is where you find templated or weak examples (*"Tope"*, *"Vermeer"*, *"Casablanca"* — one-word responses that may or may not be teaching the model what you want). The long-row table is where you find creative-writing and summarisation pieces that approach 26,000 characters — easily over 6,000 tokens, which exceeds the practical training context window of a small model. Both edges of the distribution are interesting; the middle is just the dataset.
+
+## From characters to tokens — the cost lens
+
+Character length is a free first pass. The number that actually matters for training is **token length** — that is what your model sees, what your loss is computed over, and what every cost calculation in a training run multiplies by.
+
+Re-run the length analysis with the Qwen3-0.6B tokenizer, because that is the model the cohort uses:
+
+```python
+!pip install -q transformers
+from transformers import AutoTokenizer
+
+tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen3-0.6B")
+
+def count_tokens(text):
+    return len(tokenizer.encode(str(text or "")))
+
+df["instruction_tokens"] = df["instruction"].apply(count_tokens)
+df["response_tokens"]    = df["response"].apply(count_tokens)
+
+df[["instruction_tokens", "response_tokens"]].describe()
+```
+
+The token numbers will be smaller than the character numbers — Qwen3's 151,936-vocab tokenizer averages roughly four characters per token on English text — but the *shape* of the distribution is what matters, and it is not always the same shape as the character distribution. Some rows have unusual token-per-character ratios; those are the multilingual rows, the code rows, the rows full of numbers or formatting.
+
+Find the rows that would not fit in a 512-token training context:
+
+```python
+df[df["response_tokens"] > 512][
+    ["instruction", "response", "category", "response_tokens"]
+].head(10)
+```
+
+This connects back to Intuition 3 from earlier in the lesson — the same tokenizer that decides which of 151,936 candidate tokens gets sampled at inference time is what determines training cost at fine-tuning time. *The vocabulary is a single object with two jobs.*
+
+## Streaming a multi-terabyte dataset — inspecting FineWeb without downloading it
+
+For pretraining-scale datasets, downloading is not an option. FineWeb is 54.8 TB. You will run out of laptop disk before you finish copying a single dump. The `datasets` library knows this and offers a streaming mode that pulls samples one at a time from HuggingFace's servers without downloading the whole archive:
+
+```python
+from datasets import load_dataset
+from itertools import islice
+
+ds = load_dataset(
+    "HuggingFaceFW/fineweb",
+    name="sample-10BT",
+    split="train",
+    streaming=True
+)
+
+sample = list(islice(ds, 1000))   # pull the first 1,000 rows
+print(sample[0].keys())            # the 9 FineWeb columns from earlier
+```
+
+A thousand rows is enough to start asking questions. Convert to a DataFrame and look at text length:
+
+```python
+import pandas as pd
+
+df = pd.DataFrame(sample)
+df["text_chars"] = df["text"].str.len()
+df["text_chars"].describe()
+```
+
+Then look at the shortest and longest documents:
+
+```python
+df.sort_values("text_chars").head(10)[["text", "text_chars"]]
+df.sort_values("text_chars", ascending=False).head(5)[["text", "text_chars"]]
+```
+
+The shortest rows reveal the floor of FineWeb's filtering — what made it past the quality filters but is still close to noise. The longest rows reveal the ceiling — full long-form articles. Streaming lets you form opinions about a 54 TB dataset in five minutes. *You are not training yet. You are learning to smell the data.*
+
+## SFT-readiness — a small mechanical rubric
+
+Data quality is partially subjective, but a surprising amount of it can be caught with a half-dozen mechanical rules. The point of a rubric is not that it replaces human review; it is that it focuses human review on the rows worth reading.
+
+Apply this to Dolly:
+
+```python
+def sft_quality_flag(row):
+    issues = []
+    instruction = str(row.get("instruction", ""))
+    response    = str(row.get("response", ""))
+
+    if len(instruction.strip()) < 20:
+        issues.append("short_instruction")
+
+    if len(response.strip()) < 50:
+        issues.append("short_response")
+
+    if len(response) > 4000:
+        issues.append("very_long_response")
+
+    if instruction.strip().lower() in response.strip().lower():
+        issues.append("response_copies_instruction")
+
+    return issues
+
+df["issues"]      = df.apply(sft_quality_flag, axis=1)
+df["issue_count"] = df["issues"].apply(len)
+
+df[df["issue_count"] > 0][["instruction", "response", "issues"]].head(20)
+```
+
+Four rules. None of them are sophisticated. Together they will surface dozens of rows that you would skip past in a scroll-through. Expand the rubric as you go — *for a code dataset, add a "missing code fence" check; for a translation dataset, add a "languages don't match" check.* The rubric is the artefact, not the specific rules.
+
+## Duplicates, and why FineWeb cost so much to build
+
+The single highest-leverage check on any new dataset is *duplicate detection*. Duplicates make a model look like it is generalising when it is actually memorising. A row that appears five times in training and once in evaluation is a contamination event that will only show up later as inexplicably strong eval numbers.
+
+Two passes. First, exact duplicates with normalisation:
+
+```python
+df["instruction_norm"] = df["instruction"].str.lower().str.strip()
+df["response_norm"]    = df["response"].str.lower().str.strip()
+
+duplicates = df.duplicated(subset=["instruction_norm", "response_norm"]).sum()
+print(f"exact (normalised) duplicate rows: {duplicates}")
+```
+
+Then prompt frequency — the same instruction appearing across many rows is a softer signal but often more interesting:
+
+```python
+df["instruction_norm"].value_counts().head(20)
+```
+
+If a prompt appears 50 times in a 15,000-row dataset, the model will see it 50 times during one epoch of training. That memorisation effect compounds.
+
+The connection back to FineWeb is the punchline of the whole module. The reason FineWeb's pipeline is famous is that *deduplicating Common Crawl at trillion-token scale is one of the hardest engineering problems in modern ML*. HuggingFace built [`huggingface/datatrove`](https://github.com/huggingface/datatrove) specifically for that job — a library for large-scale text data processing, filtering, and deduplication that runs in shards across thousands of CPUs. When the FineWeb card says *"cleaned and deduplicated,"* the work behind those three words is what DataTrove exists to do. *Duplicates make training look better than it is. The cleaner the data, the more honest the model.*
+
+## Dataset shape by task type — the cheat sheet
+
+The last thing to leave with — and the table that earns its keep as a reference long after the cohort — is the *shape* of data by *task type*. There is no single "dataset analysis." Analysis depends on what the data is supposed to teach the model. Memorise the rough shapes:
+
+| Dataset type | Typical columns | What to analyse |
+|---|---|---|
+| **Pretraining corpus** | `text`, `source`, `url`, `dump`, `language` | Length, language mix, source distribution, duplicates, quality filters, crawl coverage |
+| **SFT dataset** | `instruction`, `input`, `output`, `messages` | Prompt quality, answer length, role formatting, task diversity, weak/templated rows |
+| **Chat dataset** | `messages` (list of `{role, content}`), `conversation_id` | Turn count, role alternation, malformed conversations, multi-turn coherence |
+| **Preference dataset** | `prompt`, `chosen`, `rejected` | Length bias (chosen often longer), weak preference pairs, harmlessness/helpfulness split |
+| **Eval dataset** | `question`, `answer`, `choices`, `label` | Leakage risk, ambiguity, formatting, answer-distribution balance, contamination |
+| **RAG corpus** | `text`, `title`, `url`, `metadata` | Chunk size, source quality, duplication, retrieval-field completeness |
+
+If you internalise this table, you will know within ninety seconds of opening any dataset on HuggingFace what the first five questions to ask are. That is the whole point of this module.
+
+The deeper claim, the one to leave with: a model is the shadow of its training data. If you have never looked at the data, you do not understand the model. *Never train on data you have not looked at.*
+
 ## Evaluations, and what "state of the art" actually means
 
 The second layer worth dwelling on is evaluation, because almost every model card you will read makes claims about it, and almost none of them give you enough information to verify those claims.
@@ -603,6 +914,38 @@ Drop the post in `#blog-share` on Discord when it is published. Bring the audit 
 
 ---
 
+## Homework — the Dataset X-Ray Report
+
+The supply-chain audit above is the *model-side* output. This second artefact is the *dataset-side* output — the upstream half. Pick **one** of the four cohort datasets (or any other public HF dataset you want to study) and produce a single short blog post called *"X-Ray Report: \<dataset name\>"* with the twelve fields below.
+
+**Pick your dataset:**
+
+- **Easy mode** — [`databricks/databricks-dolly-15k`](https://huggingface.co/datasets/databricks/databricks-dolly-15k). Small, clean, fits in memory, scrollable. Best first dataset.
+- **Intermediate** — [`HuggingFaceH4/ultrachat_200k`](https://huggingface.co/datasets/HuggingFaceH4/ultrachat_200k). Real SFT shape, multiple splits, run your analysis through the **SQL Console** in the browser before the notebook.
+- **Hard** — [`OpenAssistant/oasst1`](https://huggingface.co/datasets/OpenAssistant/oasst1). Tree-shaped messages, multiple languages, ratings — bring the *role alternation* check.
+- **Advanced** — [`HuggingFaceFW/fineweb`](https://huggingface.co/datasets/HuggingFaceFW/fineweb) (`sample-10BT` config, streaming only — do **not** download the full thing).
+
+**The twelve fields:**
+
+1. **Dataset name and HuggingFace URL.**
+2. **Intended use** — pretraining / SFT / preference / chat / eval / RAG?
+3. **Licence** — exact text from the dataset card. Can you use it commercially?
+4. **Row count** — exact, from the dataset card or `len(ds)`.
+5. **Splits** — list every split with its row count.
+6. **Columns** — every column with its `dtype`. Identify the *signature* column that defines the dataset's shape (e.g. `messages` for chat, `chosen`/`rejected` for preference).
+7. **Three example rows** — quote them verbatim in your post. Pick rows that *teach* something about the dataset, not the first three.
+8. **Length distribution** — `describe()` table for character lengths *and* token lengths under the Qwen3-0.6B tokenizer. Comment on the gap between median and max.
+9. **Three suspicious rows** — apply the [SFT-readiness rubric](#sft-readiness-a-small-mechanical-rubric) from earlier in this lesson. Show three rows that fail at least one rule and say *why* each is suspect.
+10. **Duplicate-row count** — exact (normalised) duplicates, plus the top-5 most-repeated prompts.
+11. **One chart** — a length-distribution histogram. Save it and embed it in the post.
+12. **Final verdict** — would you train on this dataset? For what task? What would you filter or remove first? One paragraph.
+
+**Submit the post to `#blog-share` on Discord** along with your supply-chain audit from the previous homework. Together those two artefacts — one *model* X-Ray, one *dataset* X-Ray — are a portfolio piece that proves you can read both halves of the supply chain. That is the thing a hiring manager wants to see in 2026.
+
+**Companion notebook for this homework** → [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/thefirehacker/FirstBreakAI-Code/blob/main/Lesson01/HF_DataSet_Analysis.ipynb). Start there with Dolly; adapt for whichever dataset you choose.
+
+---
+
 ## Next steps
 
-When you are ready, do four things. **Watch** the lesson video with the transcript open and click around the chapters until the mental model has settled. **Do** the supply-chain audit above; pick a model, answer all eleven questions, publish the post. **Run** Qwen3-0.6B locally using [QWEN3-RunLocally](https://github.com/thefirehacker/QWEN3-RunLocally), with your own system prompt and `--thinking on` and `--multi-turn on`. And then **continue** to [Step 2 — Run a model locally](../roadmap.qmd) with the supply-chain frame fresh in your head: every model you load from here on is an artefact in a graph, and you now know how to read the graph.
+When you are ready, do five things. **Watch** the lesson video with the transcript open and click around the chapters until the mental model has settled. **Do** the supply-chain audit; pick a model, answer all thirteen questions, publish the post. **Do** the Dataset X-Ray Report above on your chosen dataset; publish that too. **Run** Qwen3-0.6B locally using [QWEN3-RunLocally](https://github.com/thefirehacker/QWEN3-RunLocally), with your own system prompt and `--thinking on` and `--multi-turn on`. And then **continue** to [Step 2 — Run a model locally](../roadmap.qmd) with both halves of the supply chain fresh in your head: every model you load from here on is an artefact in a graph, and every dataset you train on is the upstream half of that same graph.
