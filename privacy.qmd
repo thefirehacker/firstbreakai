@@ -1,0 +1,127 @@
+---
+title: "Privacy Policy"
+subtitle: "How First Break AI handles your data"
+description: "Privacy Policy for First Break AI. Aligned with India's Digital Personal Data Protection (DPDP) Act, 2023. Covers what we collect, why, third-party sharing, retention, your rights, under-18 handling, and grievance contact."
+date-meta: "2026-05-15"
+---
+
+*Last updated: 15 May 2026*
+
+First Break AI is operated by **AIEdx Private Limited** ([bubblspace.com](https://www.bubblspace.com/)) ("we", "us"). This Privacy Policy explains what personal data we process when you use the **First Break AI website, Discord community, office hours, lessons, and related material** (the "**Service**"), why we process it, and the choices you have. It is written to align with India's **Digital Personal Data Protection (DPDP) Act, 2023**.
+
+This is a free, community-led educational cohort. We deliberately collect as little personal data as we reasonably can.
+
+## 1. Who is responsible
+
+**Data fiduciary (controller):** AIEdx Private Limited, operating as [bubblspace.com](https://www.bubblspace.com/).
+**Contact:** `contact@bubblspace.com`
+**Grievance officer:** the same address, marked *"DPDP grievance"* in the subject line.
+
+## 2. What we collect
+
+We **do not run a website registration or login** for the cohort. Most participation happens on third-party platforms (Discord, GitHub, Hugging Face). The data we touch falls into these categories:
+
+| Source | Data | When |
+|---|---|---|
+| Website analytics | IP address (truncated), country, device, browser, pages visited, referrer | Every page visit (see [Cookies](cookies.qmd)) |
+| Discord profile | Your Discord username, avatar, server activity | Only if you join our Discord server |
+| GitHub | Your GitHub username, public commits, issues, PRs | Only if you contribute to our repo |
+| Office hours | Your voice, screen content you choose to share, transcripts of what you say, chat messages | Only if you join a live session |
+| Email | Your email address, the contents of your message | Only if you write to us |
+| Project showcase | Code, links, screenshots you choose to post | Only if you submit work |
+
+We **do not** ask you to give us, and you should not share in public cohort channels: your phone number, home address, school/college ID, government ID, financial details, exact location, passwords, API keys, or family details.
+
+## 3. Why we use it (purposes under DPDP § 4–6)
+
+We process the data above to:
+
+- **Operate the cohort** — host the website, run Discord, hold office hours, publish lessons.
+- **Improve the learning material** — turn anonymized transcripts into AI-generated podcasts, summaries, and lesson recaps (see [Terms § 6](terms.qmd)).
+- **Communicate with you** — answer questions you send us, share cohort announcements on Discord.
+- **Keep the community safe** — moderate, remove abuse, prevent spam, comply with applicable law.
+- **Understand traffic** — aggregate, anonymized site analytics so we can tell what is useful.
+
+Your processing is based on either your **consent** (e.g., joining office hours, emailing us) or on the **legitimate uses** recognised under the DPDP Act (e.g., what you've voluntarily shared in a public channel for the purpose of receiving the Service).
+
+## 4. AI-generated content from office hours
+
+Office hours transcripts may be **summarised, transformed, and converted into AI-generated podcasts and lessons** published on this site and on [The Journey](journey/). When we do this:
+
+- **Learner names are anonymised** — we don't use real names in published material.
+- **Voices in podcast episodes are AI-generated**, not your real voice, unless you have explicitly given separate permission to use your recorded voice.
+- If you participate in an office-hours session and later want a specific contribution removed, email `contact@bubblspace.com`.
+
+## 5. Who we share data with
+
+We rely on third-party "data processors" to run the Service. They receive only what they need:
+
+| Third party | What they receive | Why |
+|---|---|---|
+| Cloudflare Pages | IP, requests | Website hosting and delivery |
+| Google Analytics | Pageviews, device info | Aggregated traffic stats |
+| YouTube (Google) | Video playback events | Embedded lesson videos |
+| Discord | Whatever you share on the server | The community itself |
+| GitHub | Whatever you contribute publicly | Code, issues, PRs |
+| Hugging Face | Whatever you do on their platform | Model and dataset interaction |
+| Email provider | Emails you send/receive with us | Communication |
+
+Each of these has its own privacy policy. Your interaction with them is governed by **their** terms, not just ours.
+
+We **do not sell your personal data**. We do not run targeted advertising on this site.
+
+## 6. Cross-border transfer
+
+Some of the third parties above (Google, Discord, Cloudflare, GitHub, Hugging Face) process data **outside India**. The DPDP Act allows such transfers except to countries the Government of India specifically restricts. We will update this policy if any such restriction affects how we use these services.
+
+## 7. How long we keep data
+
+| Data | Retention |
+|---|---|
+| Google Analytics records | 14 months (default GA retention) |
+| Office-hours recordings (raw) | Up to 12 months after the session, then deleted |
+| Office-hours transcripts and AI-generated material | Kept indefinitely in anonymised form as part of the published cohort archive |
+| Emails to `contact@bubblspace.com` | Up to 24 months unless an active conversation is ongoing |
+| Discord messages | Stored by Discord under their policy, not ours |
+
+## 8. Your rights under DPDP
+
+If we hold personal data about you, you have the right to:
+
+- **Access** — ask what we hold about you.
+- **Correct** — ask us to fix inaccuracies.
+- **Update** — ask us to refresh outdated information.
+- **Erase** — ask us to delete data we are not legally required to keep.
+- **Withdraw consent** — for processing that was based on your consent.
+- **Grievance redressal** — raise a complaint about how we handle your data.
+
+To exercise any of these, email `contact@bubblspace.com`. We aim to respond within 30 days. If you are not satisfied, you may approach the **Data Protection Board of India**.
+
+## 9. Children and under-18 learners
+
+The Service is **recommended for learners aged 16 and above**. If you are **under 18**, you may participate only with parent or guardian permission.
+
+Under the DPDP Act, all persons under 18 are treated as children. For minors we take the following precautions:
+
+- We **do not knowingly collect** personal data from anyone under the applicable minimum age.
+- We **do not target advertising** at minors. (We don't run advertising on this site at all today.)
+- We **do not track** minors for behavioural monitoring.
+- We ask minors **not to share** phone numbers, home addresses, exact location, school/college IDs, government IDs, financial details, or private photos anywhere in our community.
+
+If you believe we have inadvertently collected information from a child without proper consent, email `contact@bubblspace.com` and we will delete it.
+
+## 10. Security
+
+We use HTTPS site-wide, rely on reputable third-party platforms (Cloudflare, Discord, Google), and limit access to any data we directly hold. No online service can promise perfect security, but we will tell affected users and the Data Protection Board promptly if a personal data breach occurs as required under the DPDP Act.
+
+## 11. Cookies
+
+See our separate [Cookie Policy](cookies.qmd) for what cookies and similar technologies are used on this site, and how to opt out.
+
+## 12. Changes to this policy
+
+We may update this Privacy Policy. The "Last updated" date at the top of this page will change. Material changes will also be announced on the [Discord server](https://discord.gg/hRPese4H3F).
+
+## 13. Contact
+
+For any privacy question, request, or grievance: **contact@bubblspace.com**.

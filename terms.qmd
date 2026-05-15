@@ -1,0 +1,95 @@
+---
+title: "Terms of Use"
+subtitle: "The ground rules for using First Break AI"
+description: "Terms of Use for First Break AI — a free educational AI cohort. Covers acceptable use, no-guarantee disclaimer, cost responsibility, content ownership, office hours recording, and governing law."
+date-meta: "2026-05-15"
+---
+
+*Last updated: 15 May 2026*
+
+These Terms of Use ("**Terms**") govern your access to and use of the First Break AI website, Discord community, office hours, lessons, and any related materials (together, the "**Service**"). The Service is operated by **AIEdx Private Limited** ([bubblspace.com](https://www.bubblspace.com/)) ("we", "us"). By using the Service, you agree to these Terms. If you do not agree, please do not use the Service.
+
+## 1. What First Break AI is
+
+First Break AI is a **free, open educational cohort** about AI training, inference, datasets, and AI product building. The Service is provided for **learning and experimentation** — so for anything in a regulated domain (legal, financial, medical, etc.) please confirm with a qualified professional before acting on it.
+
+Over time we may also introduce **value-added services** within the cohort — for example, deeper workshops, hands-on labs, mentorship, partner programs, or specialised tracks. Some of these may be paid or have their own additional terms. Where that's the case, we'll tell you clearly up front before you opt in, and participation will always be optional.
+
+## 2. No guarantees
+
+We do not promise any specific outcome from your participation. Specifically:
+
+- **No job, internship, or placement** is guaranteed.
+- **No certificate, degree, or accreditation** is issued.
+- **No income, funding, admission, or career outcome** is guaranteed.
+- Cohort content, schedule, lessons, office hours, and links may change at any time.
+
+## 3. Your responsibilities
+
+You are responsible for:
+
+- Your own cloud bills, GPU credits, API keys, and dataset license costs.
+- The legality of how you use models, datasets, code, and tools you learn about here.
+- Backing up your own code, notebooks, and project work.
+- Following the rules of any third-party platform you connect through us (Hugging Face, GitHub, Discord, YouTube, Google Colab, etc.).
+
+We are not liable for charges you incur on third-party services, lost work, or misuse of tools you discover through First Break AI.
+
+## 4. Acceptable use
+
+When using the Service or the Discord community, you must not:
+
+- Post or share **pirated** courses, cracked software, leaked credentials, leaked API keys, or stolen datasets.
+- Use the Service to plan or build **scams, phishing, malware, deepfake abuse, credential theft, harassment, or evasion of safety systems**.
+- Harass, bully, or abuse anyone — including based on caste, religion, gender, race, or sexuality.
+- Share **NSFW** content or behave inappropriately toward minors.
+- Spam, mass-DM, or run aggressive self-promotion, referral, or affiliate schemes.
+- Misrepresent your identity, age, or affiliation.
+
+See our [Community Guidelines](community-guidelines.qmd) for the full list.
+
+## 5. Age
+
+The Service is **recommended for learners aged 16 and above**. If you are **under 18**, you may participate only with the permission of a parent or guardian. Some jurisdictions (including India under the DPDP Act) treat all persons under 18 as children for personal-data purposes. We do not knowingly collect personal information from anyone under the applicable minimum age. See our [Privacy Policy](privacy.qmd) for details.
+
+## 6. Office hours, recordings, and AI-generated content
+
+Office hours are live sessions. By participating you agree that:
+
+- Sessions may be **recorded, transcribed, summarized, and converted into AI-generated podcast episodes** and lesson material published on this site and [The Journey](journey/).
+- **Learner names are anonymized** wherever possible.
+- Voices and conversations in podcast episodes may be **entirely AI-generated** from transcripts.
+
+If you do not want your contributions used this way, do not share them in office hours or public community channels.
+
+## 7. Your content
+
+You retain ownership of the projects, code, notes, and other content you create. By posting in public First Break AI channels — Discord, GitHub discussions, project showcase, office hours — you grant us a non-exclusive, royalty-free, worldwide licence to **reference, quote, summarize, or showcase** your contribution as part of First Break AI learning material, with reasonable attribution. You can ask us to remove your contribution at any time by emailing the address in Section 12.
+
+## 8. Our content
+
+Lessons, blog posts, the Journey, the roadmap, diagrams, podcasts, and other material we publish are made available for your personal, non-commercial learning. Unless we say otherwise, you may not repackage, resell, or republish our material as your own.
+
+## 9. Third-party services
+
+The Service links to and depends on third-party platforms — Discord, GitHub, Hugging Face, Google (YouTube, Analytics, Colab), Cloudflare Pages, and others. Your use of those platforms is governed by **their** terms and privacy policies, not ours. We are not responsible for what they do with your data once you interact with them directly.
+
+## 10. Removal and termination
+
+We may remove content, mute or ban users from Discord, or restrict access to the Service if we believe these Terms or the [Community Guidelines](community-guidelines.qmd) have been broken. Moderators have final say on what stays on the server.
+
+## 11. Disclaimer and limitation of liability
+
+The Service is provided **"as is"** and **"as available"**, without warranty of any kind. To the maximum extent permitted by law, we are not liable for any indirect, incidental, special, or consequential damages arising from your use of the Service — including lost data, lost income, or third-party charges. Nothing in these Terms limits liability that cannot be limited by law.
+
+## 12. Changes to these Terms
+
+We may update these Terms from time to time. The "Last updated" date at the top of this page will change. Material changes will also be announced on the [Discord server](https://discord.gg/hRPese4H3F). Continued use of the Service after a change means you accept the updated Terms.
+
+## 13. Governing law
+
+These Terms are governed by the laws of **India**. Any dispute that is not resolved informally will be subject to the courts of competent jurisdiction in India.
+
+## 14. Contact
+
+Questions about these Terms: **contact@bubblspace.com**.

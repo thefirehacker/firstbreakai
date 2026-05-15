@@ -1,0 +1,88 @@
+---
+title: "Community Guidelines"
+subtitle: "How we behave in First Break AI"
+description: "Community Guidelines for First Break AI — the same rules pinned in our Discord #rules channel. Covers age, safety, respect, on-topic discussion, no piracy, no harmful AI use, privacy, and moderation."
+date-meta: "2026-05-15"
+---
+
+*Last updated: 15 May 2026*
+
+These are the same rules pinned in our [Discord](https://discord.gg/hRPese4H3F) `#rules` channel. They apply to the website, the Discord server, office hours, and anywhere else First Break AI operates as a community.
+
+By joining, you agree to follow these rules. They sit alongside our [Terms of Use](terms.qmd) and [Privacy Policy](privacy.qmd).
+
+## 1. Age & safety
+
+This community is **recommended for learners aged 16+**.
+
+If you are **under 18**, join only with parent or guardian permission.
+
+Do not share personal information such as phone number, address, school or college ID, government ID, private photos, exact location, passwords, API keys, or family details.
+
+No NSFW content, sexual content, grooming behaviour, harassment, or unsafe DMs. Suspicious behaviour toward minors will lead to an immediate ban.
+
+## 2. Be respectful
+
+No insults, bullying, hate speech, caste/religion/gender-based abuse, racism, sexism, or mocking beginners.
+
+Disagree with ideas, not people.
+
+## 3. Help people learn
+
+Beginners are welcome.
+
+Ask clear questions. Share what you tried, the error you got, and any relevant screenshots or logs.
+
+Do not shame basic questions.
+
+## 4. Stay on topic
+
+Keep discussions related to AI, ML, LLMs, training, inference, Hugging Face, datasets, agents, tools, research, and projects.
+
+Avoid political fights, religious debates, random spam, and unrelated content.
+
+## 5. No spam or aggressive self-promotion
+
+Do not drop links without context.
+
+No affiliate spam, referral spam, repeated promotion, unrelated job posts, or mass advertising.
+
+Ask a mod before promoting a course, product, community, event, or paid service.
+
+## 6. No piracy or illegal content
+
+Do not share pirated courses, cracked software, leaked API keys, stolen datasets, malware, credential dumps, or illegal material.
+
+Do not ask for help bypassing licences, paywalls, exams, platform limits, or security systems.
+
+## 7. No harmful AI use
+
+Do not ask for help with scams, phishing, malware, impersonation, deepfake abuse, harassment, credential theft, or bypassing safety systems.
+
+This server is for **learning AI engineering responsibly**.
+
+## 8. Respect privacy
+
+Do not share private DMs, screenshots, personal details, or someone else's work without permission.
+
+Do not cold-DM members for sales, hiring, mentoring, dating, or promotion.
+
+## 9. Use the right channels
+
+Post in the correct channel so the server stays useful.
+
+Use `#introductions`, `#help-and-questions`, `#debugging`, `#resources`, and `#project-showcase` properly.
+
+## 10. Mods have final say
+
+Mods may remove posts, warn, mute, or ban users to protect the community.
+
+Repeated rule-breaking will lead to removal.
+
+---
+
+## Our goal
+
+Learn deeply. Build real projects. Show your work. Help others get better.
+
+If you see a violation, ping a mod or email `contact@bubblspace.com`.

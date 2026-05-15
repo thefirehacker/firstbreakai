@@ -1,0 +1,72 @@
+---
+title: "Cookie Policy"
+subtitle: "Cookies and similar technologies on First Break AI"
+description: "Cookie Policy for First Break AI. Describes the cookies set by the site, Google Analytics, and embedded third-party content (YouTube, Discord, GitHub). Includes opt-out instructions."
+date-meta: "2026-05-15"
+---
+
+*Last updated: 15 May 2026*
+
+This Cookie Policy explains how the First Break AI website uses cookies and similar technologies. It supplements our [Privacy Policy](privacy.qmd).
+
+## What cookies are
+
+Cookies are small text files stored in your browser when you visit a website. We use them only to operate the site and to understand how it is used. **We do not use cookies for advertising or retargeting.**
+
+## What we use
+
+### Necessary
+
+Used for the site itself — page rendering, security, content delivery via Cloudflare. The site will not work properly without these.
+
+### Analytics — Google Analytics
+
+We use **Google Analytics 4** to count pageviews and understand which lessons and pages people find useful. Google Analytics sets cookies (typically `_ga`, `_ga_*`) and collects:
+
+- A truncated IP address (used to estimate country).
+- The pages you visit and the order you visit them.
+- Device and browser type.
+- Referrer (the link that brought you here).
+
+This data is aggregated. We do not try to identify you personally from it. GA default retention is **14 months**.
+
+You can **opt out** of Google Analytics in any of these ways:
+
+- Install Google's official [Google Analytics opt-out browser add-on](https://tools.google.com/dlpage/gaoptout).
+- Use your browser's "Do Not Track", privacy mode, or a content blocker.
+- Use a privacy-focused browser (Brave, Firefox with strict tracking protection, etc.).
+
+### Embedded third-party content
+
+Some pages embed content from other services. When that content loads, those services may set their own cookies — we cannot control them from this site.
+
+| Embed | Cookies set by | Where it appears |
+|---|---|---|
+| YouTube video player | `youtube.com`, `google.com` | Lesson pages, journey, blog |
+| Discord widgets / invite links | `discord.com` | Office hours page, CTAs |
+| GitHub gists / cards | `github.com` | Some blog and project posts |
+
+Each of those services has its own privacy and cookie policy.
+
+## No advertising cookies
+
+We **do not run advertising** on this site today. We do not use retargeting pixels, marketing cookies, or social-media tracking pixels. If that ever changes, we will update this policy and seek consent where required by law.
+
+## Managing cookies
+
+You can clear, block, or limit cookies in your browser settings:
+
+- [Chrome](https://support.google.com/chrome/answer/95647)
+- [Safari](https://support.apple.com/guide/safari/manage-cookies-sfri11471/mac)
+- [Firefox](https://support.mozilla.org/kb/cookies-information-websites-store-on-your-computer)
+- [Edge](https://support.microsoft.com/microsoft-edge/delete-cookies-in-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09)
+
+Blocking strictly-necessary cookies may break parts of the site. Blocking analytics or third-party cookies should not affect lesson content.
+
+## Changes to this policy
+
+We will update the "Last updated" date at the top of this page when this policy changes. If we ever add advertising or marketing cookies, we will announce it on the [Discord server](https://discord.gg/hRPese4H3F) and seek consent where required.
+
+## Contact
+
+Questions about cookies: **contact@bubblspace.com**.
