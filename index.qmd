@@ -101,6 +101,10 @@ This is a free, community-driven cohort. To join, sign up on Discord — that's 
 
 **Office Hours:** Every Friday, 9:00 — 10:00 PM IST. Meeting link shared on Discord.
 <span class="office-hours-local"></span>
+
+::: {.cta-fineprint}
+Recommended for learners aged **16+**. If you are under 18, please join only with parent or guardian permission. By joining you agree to our [Community Guidelines](community-guidelines.qmd), [Terms](terms.qmd), and [Privacy Policy](privacy.qmd).
+:::
 :::
 
 ```{=html}

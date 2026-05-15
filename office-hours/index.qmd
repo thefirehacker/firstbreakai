@@ -10,8 +10,10 @@ Office Hours are live cohort sessions where we go deeper on roadmap topics, debu
 **To join office hours:** join the [Fetchlens.ai Discord server](https://discord.gg/hRPese4H3F) — that's where we share the meeting link, time, and reminders.
 
 ::: {.callout-important}
-## AI-generated content notice
+## AI-generated content & consent notice
 Office hours transcripts are used to create AI-generated podcast lessons and other learning resources published on this site, including [The Journey](../journey/). All learner names are anonymized — no real names are used. Voices and conversation in podcast episodes are entirely AI-generated. By participating in office hours, you consent to your contributions being used in this way.
+
+**Age:** Office hours are recommended for learners aged **16+**. Under 18: join only with parent or guardian permission. Please do not share personal information (phone, address, IDs, exact location, etc.) during sessions. See our [Privacy Policy](../privacy.qmd) and [Terms](../terms.qmd) for the full details.
 :::
 
 ## [Cohort 01]{.oh-section-tag .cohort} Live sessions {.oh-section-heading}

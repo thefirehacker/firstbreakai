@@ -101,9 +101,92 @@ table a:hover {
 /* ── Footer ── */
 .nav-footer {
   background: #2c2417;
-  color: #d4c9b8;
+  color: #d4c9b8 !important;
+  padding: 1rem 1.5rem;
+  font-size: 0.9rem;
 }
-.nav-footer a { color: #e0d8cb; }
+.nav-footer,
+.nav-footer p,
+.nav-footer li,
+.nav-footer .nav-footer-left,
+.nav-footer .nav-footer-center,
+.nav-footer .nav-footer-right {
+  color: #d4c9b8 !important;
+}
+.nav-footer p {
+  margin: 0;
+}
+.nav-footer a {
+  color: #e0d8cb !important;
+  text-decoration: none;
+  border-bottom: none;
+}
+.nav-footer a:hover {
+  color: #ffffff !important;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.nav-footer .nav-footer-center {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.75rem;
+  justify-content: center;
+  align-items: center;
+}
+.nav-footer .nav-footer-center .footer-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  align-items: center;
+}
+.nav-footer .nav-footer-center .footer-items .nav-item {
+  margin: 0;
+  padding: 0;
+}
+.nav-footer .nav-footer-center .footer-items .nav-link {
+  padding: 0;
+  font-weight: 500;
+}
+.nav-footer .nav-footer-center > * + *::before {
+  content: none;
+}
+/* Hide repo-actions (Edit this page / View source) inside the footer —
+   they're dev-facing and clutter the legal footer. They still exist on
+   article pages via the page-level TOC actions. */
+.nav-footer .toc-actions {
+  display: none !important;
+}
+@media (max-width: 640px) {
+  .nav-footer {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+    padding: 1.25rem 1rem;
+  }
+  .nav-footer .nav-footer-left,
+  .nav-footer .nav-footer-right {
+    text-align: center;
+  }
+}
+
+/* CTA fine-print under the Discord button on the home page */
+.cta-fineprint {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #5a4d36;
+  opacity: 0.9;
+}
+.cta-fineprint a {
+  color: #7a5518;
+  font-weight: 600;
+}
+.cta-fineprint a:hover {
+  color: #5a3e0e;
+}
 
 /* ══════════════════════════════════════════
    Mermaid diagrams — warm paper styling

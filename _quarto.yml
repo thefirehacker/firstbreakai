@@ -64,6 +64,18 @@ website:
       - icon: github
         href: "https://github.com/thefirehacker/firstbreakai"
         text: Repo
+  page-footer:
+    left: "© 2026 First Break AI — Powered by [fetchlens.ai](https://fetchlens.ai)"
+    center:
+      - text: "Terms"
+        href: terms.qmd
+      - text: "Privacy"
+        href: privacy.qmd
+      - text: "Cookies"
+        href: cookies.qmd
+      - text: "Community"
+        href: community-guidelines.qmd
+    right: "contact@bubblspace.com"
 
 format:
   html:
