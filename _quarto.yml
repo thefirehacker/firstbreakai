@@ -22,7 +22,7 @@ website:
   description: "A narrative-driven AI cohort — scroll through an immersive storyboard from first commit to capstone. Free, open, guided by AI podcast. Get your first break in AI."
   site-url: "https://cohort.bubblnet.com/"
   favicon: public/images/favicon_io/favicon.ico
-  google-analytics: "G-V1B8R98P79"
+  google-analytics: "G-VB604Y51JX"
   repo-url: "https://github.com/thefirehacker/firstbreakai"
   repo-actions: [edit, source]
   open-graph:
@@ -41,16 +41,14 @@ website:
         text: Home
       - href: about.qmd
         text: About
-      - href: journey/index.qmd
-        text: The Journey
       - href: roadmap.qmd
         text: Roadmap
+      - href: lessons/index.qmd
+        text: Lessons
       - href: checklist.qmd
         text: Checklist
       - href: setup.qmd
         text: AI Setup
-      - href: lessons/index.qmd
-        text: Lessons
       - href: blog/index.qmd
         text: Blog
       - href: project-watch/index.qmd
