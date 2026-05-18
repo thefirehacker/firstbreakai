@@ -78,6 +78,28 @@ css: styles/home.css
     </a>
   </div>
 </div>
+
+<section class="paths-strip" aria-labelledby="paths-headline">
+  <div class="paths-strip-head">
+    <span class="paths-eyebrow">Start here</span>
+    <h2 class="paths-headline" id="paths-headline">Two ways into First Break AI</h2>
+    <p class="paths-sub">Pick a path — they're built to work together. Most learners ping-pong between the map and the lessons.</p>
+  </div>
+  <div class="paths-grid">
+    <a href="roadmap.html" class="path-card path-card-roadmap">
+      <span class="path-card-step">01 · The map</span>
+      <span class="path-card-title">Roadmap</span>
+      <span class="path-card-desc">Six steps from first commit to capstone. Know where you're going before you start running.</span>
+      <span class="path-card-cta">Open the roadmap <span class="path-card-arrow" aria-hidden="true">→</span></span>
+    </a>
+    <a href="lessons/" class="path-card path-card-lessons">
+      <span class="path-card-step">02 · The build</span>
+      <span class="path-card-title">Lessons</span>
+      <span class="path-card-desc">Hands-on deep dives — HuggingFace, training, inference, and shipping AI-powered products.</span>
+      <span class="path-card-cta">Start with Lesson 1 <span class="path-card-arrow" aria-hidden="true">→</span></span>
+    </a>
+  </div>
+</section>
 ```
 
 ::: {.content-section}
