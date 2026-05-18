@@ -3,42 +3,97 @@
   "@context": "https://schema.org",
   "@graph": [
     {
-      "@type": "WebSite",
+      "@type": "Organization",
+      "@id": "https://cohort.bubblnet.com/#organization",
       "name": "First Break AI",
+      "alternateName": "FirstBreak AI",
       "url": "https://cohort.bubblnet.com/",
-      "description": "A narrative-driven AI cohort — scroll through an immersive storyboard from first commit to capstone. Free, open, guided by AI podcast."
-    },
-    {
-      "@type": "Course",
-      "name": "First Break AI — The Journey",
-      "description": "A free, community-driven cohort for anyone who wants their first break in AI. Learn inference, training, and product building through a narrative-driven, scroll-powered storyboard with AI-generated podcast guidance.",
-      "provider": {
+      "logo": "https://cohort.bubblnet.com/public/images/favicon_io/android-chrome-512x512.png",
+      "image": "https://cohort.bubblnet.com/public/images/og-image.png",
+      "description": "A free, community-driven AI cohort for inference, training, and AI product building, operated by AIEDX Private Limited.",
+      "parentOrganization": {
+        "@type": "Organization",
+        "@id": "https://www.bubblspace.com/#organization",
+        "name": "AIEDX Private Limited",
+        "alternateName": "BubblSpace",
+        "url": "https://www.bubblspace.com/"
+      },
+      "sameAs": [
+        "https://www.bubblspace.com/",
+        "https://fetchlens.ai/",
+        "https://github.com/thefirehacker/firstbreakai",
+        "https://discord.gg/hRPese4H3F",
+        "https://www.youtube.com/playlist?list=PLEzXCZNdmgBm-SbXuXHxn9_vXpvFbrKKL",
+        "https://twitter.com/thefirehacker"
+      ],
+      "founder": {
         "@type": "Person",
         "name": "TheFireHacker",
         "url": "https://thefirehacker.github.io/"
-      },
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://cohort.bubblnet.com/#website",
+      "name": "First Break AI",
+      "url": "https://cohort.bubblnet.com/",
+      "description": "A narrative-driven AI cohort — scroll through an immersive storyboard from first commit to capstone. Free, open, guided by AI podcast.",
+      "publisher": { "@id": "https://cohort.bubblnet.com/#organization" },
+      "inLanguage": "en"
+    },
+    {
+      "@type": "Course",
+      "@id": "https://cohort.bubblnet.com/#course",
+      "name": "First Break AI — The Journey",
+      "description": "A free, community-driven cohort for anyone who wants their first break in AI. Learn inference, training, and product building through a narrative-driven, scroll-powered storyboard with AI-generated podcast guidance.",
+      "url": "https://cohort.bubblnet.com/",
+      "provider": { "@id": "https://cohort.bubblnet.com/#organization" },
       "isAccessibleForFree": true,
+      "inLanguage": "en",
+      "educationalLevel": "Beginner to Intermediate",
+      "about": [
+        "Artificial Intelligence",
+        "Large Language Models",
+        "Model Training",
+        "Inference",
+        "Hugging Face",
+        "AI Product Building"
+      ],
       "offers": {
         "@type": "Offer",
         "price": "0",
-        "priceCurrency": "USD"
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
       },
       "hasCourseInstance": {
         "@type": "CourseInstance",
         "courseMode": "online",
         "startDate": "2026-05-01",
-        "endDate": "2026-06-30"
+        "endDate": "2026-06-30",
+        "location": {
+          "@type": "VirtualLocation",
+          "url": "https://cohort.bubblnet.com/"
+        },
+        "instructor": {
+          "@type": "Person",
+          "name": "TheFireHacker",
+          "url": "https://thefirehacker.github.io/"
+        }
       }
     },
     {
       "@type": "PodcastSeries",
+      "@id": "https://cohort.bubblnet.com/journey/#podcast",
       "name": "The Journey — First Break AI Podcast",
       "description": "AI-generated podcast episodes that guide you through each step of your first break in AI — from shipping a Quarto blog to training models and building products.",
       "url": "https://cohort.bubblnet.com/journey/",
       "webFeed": "https://cohort.bubblnet.com/journey/",
+      "inLanguage": "en",
+      "publisher": { "@id": "https://cohort.bubblnet.com/#organization" },
       "author": {
         "@type": "Person",
-        "name": "TheFireHacker"
+        "name": "TheFireHacker",
+        "url": "https://thefirehacker.github.io/"
       }
     }
   ]
