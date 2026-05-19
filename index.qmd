@@ -221,7 +221,7 @@ Recommended for learners aged **16+**. If you are under 18, please join only wit
     <summary>Will I get a certificate or job placement?</summary>
     <div class="faq-body">
       <p>No certificate, no placement service. What you walk away with is a <strong>portfolio</strong>: a Quarto blog of everything you learned, a model you trained from scratch, a deployed AI product, and optionally a merged open-source contribution.</p>
-      <p>In 2026, that portfolio is a much stronger hiring signal than a course PDF. Recruiters can see your blog and your GitHub commits; they can't see your Coursera badge.</p>
+      <p>In 2026, that portfolio is a much stronger hiring signal than a course PDF. Recruiters can see your blog and your GitHub commits; they can't see a certificate badge.</p>
     </div>
   </details>
 
@@ -301,7 +301,7 @@ Recommended for learners aged **16+**. If you are under 18, please join only wit
       "name": "Will I get a certificate or job placement?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "No certificate, no placement service. What you walk away with is a portfolio: a Quarto blog of everything you learned, a model you trained from scratch, a deployed AI product, and optionally a merged open-source contribution. In 2026, that portfolio is a much stronger hiring signal than a course PDF. Recruiters can see your blog and your GitHub commits; they can't see your Coursera badge."
+        "text": "No certificate, no placement service. What you walk away with is a portfolio: a Quarto blog of everything you learned, a model you trained from scratch, a deployed AI product, and optionally a merged open-source contribution. In 2026, that portfolio is a much stronger hiring signal than a course PDF. Recruiters can see your blog and your GitHub commits; they can't see a certificate badge."
       }
     },
     {

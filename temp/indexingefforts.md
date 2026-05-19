@@ -1,6 +1,6 @@
 # SEO & Indexing Efforts Log — cohort.bubblnet.com
 
-> Single source of truth for all SEO work on `cohort.bubblnet.com`. Owner: TheFireHacker. Last updated: **18 May 2026**.
+> Single source of truth for all SEO work on `cohort.bubblnet.com`. Owner: TheFireHacker. Last updated: **18 May 2026 (afternoon — major trust-signal shipment)**.
 
 This document records every technical fix, every Google Search Console interaction, every backlink built, the current state, and explicit instructions for any human or AI agent who needs to continue the work.
 
@@ -51,28 +51,36 @@ This document records every technical fix, every Google Search Console interacti
 
 ## Section 2 — Snapshot
 
-**As of 18 May 2026:**
+**As of 18 May 2026 (afternoon):**
 
 | Metric | Value | Trend |
 | --- | --- | --- |
-| Pages indexed in Google | **0** | flat |
-| Pages "Crawled - currently not indexed" | 11 | growing |
-| Latest validation cycle | **Failed** (started 13 May, failed 16 May) | — |
-| Validation: pending URLs | 7 | stale (last crawled 24 Apr – 3 May) |
-| Validation: failed URLs | 3 | crawled fresh 15 May, Google still declined |
+| Pages indexed in Google | **0** | flat — but trust signals just changed materially |
+| Pages "Crawled - currently not indexed" | 11 | unchanged from morning |
+| Latest validation cycle | Failed 16 May 2026 | superseded by new shipment — see below |
 | Sitemap status | Processed successfully | 26 URLs, last read 11 May |
 | GA traffic (28 days) | 558 active users, 6.2K events, 2.2K views | +169% users vs prev period |
 | Site uptime | 100% | Cloudflare Pages |
 | TTFB (homepage) | 0.35s | excellent |
-| Average page word count | ~6.3K (homepage), 17K (lesson-1) | not thin |
+| **`bubblnet.com/` parent landing page** | **LIVE (HTTP 200)** | **NEW — shipped 18 May PM** |
+| **`Organization` + `parentOrganization` JSON-LD on cohort** | **LIVE** | **NEW — shipped 18 May PM** |
+| **`Organization` + `parentOrganization` JSON-LD on bubblnet.com** | **LIVE** | **NEW — shipped 18 May PM** |
+| GSC: bubblnet.com domain property | Being added | NEW — 18 May PM |
 
-**Currently failed URLs (validation 16 May 2026):**
+**What changed today (afternoon, 18 May 2026):**
+
+1. **Apex `bubblnet.com` is no longer a redirect shell.** Old Cloudflare Redirect Rule disabled. A real static landing page now served via a separate Cloudflare Worker, attached as a custom domain on that Worker. Page introduces Bubblnet as the AIEDX project network and links to First Break AI cohort, BubblSpace, and FetchLens.
+2. **Trust-graph JSON-LD shipped on both ends.** Both `cohort.bubblnet.com` and `bubblnet.com` now carry `Organization` + `parentOrganization` schema connecting them to AIEDX / BubblSpace. `sameAs` links also added.
+3. **Dofollow link from new parent → cohort verified** (`<a href="https://cohort.bubblnet.com/">Visit First Break AI Cohort</a>`).
+4. **GSC**: `bubblnet.com` being added as a **Domain property** (covers root + all subdomains). Existing cohort URL-prefix property retained.
+
+**Currently failed URLs (validation 16 May 2026 — pre-shipment):**
 
 - `https://cohort.bubblnet.com/` — homepage
 - `https://cohort.bubblnet.com/roadmap`
 - `https://cohort.bubblnet.com/lessons/lesson-1-huggingface-beyond-upload`
 
-**Currently pending URLs (validation, last crawled Apr 24 – May 3):**
+**Currently pending URLs (validation, last crawled Apr 24 – May 3 — pre-shipment):**
 
 - `https://cohort.bubblnet.com/office-hours/`
 - `https://cohort.bubblnet.com/about`
@@ -82,7 +90,7 @@ This document records every technical fix, every Google Search Console interacti
 - `https://cohort.bubblnet.com/office-hours/2026-04-24`
 - `https://cohort.bubblnet.com/journey/`
 
-**Diagnosis as of this snapshot:** Site is technically perfect (clean URLs, valid sitemap, no noindex anywhere, rich JSON-LD, fast TTFB, generous word counts, unique titles). The blocker is **trust budget**: subdomain on a content-empty parent, in a competitive niche, with mostly nofollow inbound links. See [Section 6](#section-6--backlink--authority-strategy) and [Section 9](#section-9--pending-high-leverage-actions).
+**Diagnosis as of this snapshot:** The trust-budget gap identified in the morning has been substantially closed. The biggest 3 missing signals (parent JSON-LD on cohort, parent JSON-LD on bubblnet, real content on bubblnet.com) all shipped together. **Expected re-crawl response window: 1–3 weeks.** No further structural fixes are needed; the remaining lift is external authority (NPM, HN, newsletter — Section 9.4–9.6).
 
 ---
 
@@ -121,10 +129,11 @@ Every technical SEO foundation that's in place. All entries verified working as 
 
 ### 3.4 JSON-LD structured data
 
-- **Status:** Done (basic), see [Section 9 #1, #2](#section-9--pending-high-leverage-actions) for gaps
+- **Status:** Done — **expanded 18 May 2026 PM** with trust-graph schema
 - **File:** [includes/schema.html](../includes/schema.html) — injected via `_quarto.yml` `include-in-header`
-- **Schemas present on homepage:** `WebSite`, `Course`, `PodcastSeries`, `FAQPage`
-- **Schemas missing (HIGH-leverage gap):** `Organization` with `parentOrganization` pointing to bubblspace.com, business contact info, NPM/PyPI `sameAs` links. See [Section 9](#section-9--pending-high-leverage-actions) action #1.
+- **Schemas present on homepage:** `WebSite`, `Course`, `PodcastSeries`, `FAQPage`, **`Organization` with `parentOrganization` pointing to AIEDX / BubblSpace**, **`sameAs` links to GitHub repo, bubblspace.com/firstbreakai, thefirehacker.github.io**.
+- **Mirror schema on `bubblnet.com`:** `Organization` with `parentOrganization` (AIEDX), `sameAs` to cohort + bubblspace + fetchlens, `contactPoint` with general email. See [Section 5.1](#51-apex-bubblnetcom--real-parent-landing-page).
+- **Still missing (lower-leverage):** Business `Organization` schema with full address/phone/email on the cohort homepage (Section 9.2 — partial mitigation via `bubblnet.com` `contactPoint`).
 
 ### 3.5 Open Graph + Twitter Card
 
@@ -202,12 +211,22 @@ project:
 
 ## Section 5 — Redirect Bridge
 
-### 5.1 Apex domain → cohort subdomain
+### 5.1 Apex `bubblnet.com` → real parent landing page
 
-- **Status:** Done
-- **Mechanism:** Cloudflare Redirect Rule on `bubblnet.com` account, named "Redirect bubblnet.com and www to cohort"
-- **Rule:** `http.host eq "bubblnet.com"` OR `http.host eq "www.bubblnet.com"` → 301 redirect (dynamic, preserves path) to `https://cohort.bubblnet.com{path}`
-- **Verified:** `curl -I https://bubblnet.com/` → HTTP 301, `location: https://cohort.bubblnet.com/`
+- **Status:** **REPLACED 18 May 2026 PM.** Previously a 301 redirect (Cloudflare Redirect Rule). Now serves a real static HTML landing page via a Cloudflare Worker (static assets).
+- **Why changed:** A content-empty parent that only 301s gives the cohort subdomain nothing to inherit from. Google flags "dormant parent" patterns. A real parent page with unique content + outbound dofollow link to the cohort gives the trust graph somewhere to root.
+- **Mechanism:**
+  - Separate Cloudflare Worker (not the `firstbreakai` Pages project) with static HTML asset.
+  - Worker has `bubblnet.com` attached as a custom domain.
+  - Old Redirect Rule disabled (kept in account history for rollback).
+- **Page content:** "Bubblnet — Projects by AIEDX". Three project cards: First Break AI (→ `cohort.bubblnet.com`), BubblSpace (→ `bubblspace.com`), FetchLens (→ `fetchlens.ai`). Footer with `mailto:contact@bubblspace.com`.
+- **JSON-LD on the page:** `Organization` with `parentOrganization` (AIEDX Private Limited / bubblspace.com), `sameAs` to cohort + bubblspace + bubblspace/firstbreakai + fetchlens.ai, `contactPoint` with email.
+- **Canonical:** `<link rel="canonical" href="https://bubblnet.com/">` (self-canonical).
+- **Verified:**
+  - `curl -I https://bubblnet.com/` → `HTTP/2 200`, `content-type: text/html`, `server: cloudflare`, `cf-cache-status: HIT`.
+  - `curl -s https://bubblnet.com/ | grep cohort.bubblnet.com` → includes `<a href="https://cohort.bubblnet.com/">Visit First Break AI Cohort</a>`.
+  - `curl -s https://bubblnet.com/ | grep parentOrganization` → match present.
+- **`www.bubblnet.com`:** Not yet configured (shows "Not secure"). Low priority — see [Section 5.7](#57-known-not-yet-configured-www-hosts).
 
 ### 5.2 Old GitHub Pages → new domain (homepage)
 
@@ -246,6 +265,30 @@ project:
 - **What happened:** Submitted `/sitemap.xml` to `thefirehacker.github.io/firstbreakai/` property. Returned "Couldn't fetch" because the path no longer serves a sitemap file (or returns 404).
 - **Why we don't want to fix this:** Even if we hosted a sitemap there, listing old URLs would only signal "pay attention to old domain" — opposite of intent. Submitting new domain URLs is rejected (cross-domain).
 
+### 5.6 Cloudflare custom-domain topology (current state — updated 18 May 2026 PM)
+
+- **Status:** Done (current config is correct)
+- **`firstbreakai` Pages project:**
+  - Custom domains attached: only `cohort.bubblnet.com` (Active, healthy)
+  - **DO NOT attach `bubblnet.com` / `www.bubblnet.com` here.** They belong on the separate Worker. Attaching here would serve cohort content from two hostnames and split signals.
+- **Separate Cloudflare Worker (Bubblnet parent landing):**
+  - Custom domains attached: `bubblnet.com` (Active)
+  - Serves the static HTML landing page described in [Section 5.1](#51-apex-bubblnetcom--real-parent-landing-page).
+  - **Different content** from the Pages project — the only correct way to give the apex its own origin.
+- **Why this split matters for SEO:** Two distinct origins (`cohort.bubblnet.com` = cohort site; `bubblnet.com` = parent index), each with its own canonical, JSON-LD, and outbound links. Google sees a real parent → child relationship instead of a redirect shell. This mirrors how `fetchlens.ai` is structured.
+
+### 5.7 Known not-yet-configured `www` hosts
+
+- **Status:** Pending (LOW priority — not blocking indexing)
+- **Not configured today:**
+  - `www.bubblnet.com` — shows "Not secure"
+  - `www.cohort.bubblnet.com` — also not configured
+- **Why low priority:** Canonical targets are the bare hosts (`https://bubblnet.com/`, `https://cohort.bubblnet.com/`). Without inbound traffic to the `www` variants, missing config is invisible.
+- **Optional cleanup (when convenient):**
+  - `www.bubblnet.com` → 301 → `https://bubblnet.com/`
+  - `www.cohort.bubblnet.com` → 301 → `https://cohort.bubblnet.com/`
+- **Acceptance:** `curl -I https://www.bubblnet.com/` returns HTTP 301 to apex with valid TLS.
+
 ---
 
 ## Section 6 — Backlink & Authority Strategy
@@ -261,20 +304,22 @@ project:
 | GitHub repo README + DEVELOPMENT.md | Dofollow on github.com | Weak (GitHub mutes authority pass) | Done |
 | YouTube playlist + Lesson 0 video description | nofollow | zero (but brand signal) | Done |
 
-### 6.2 Comparison: why fetchlens.ai got indexed in 2 days and we haven't
+### 6.2 Comparison: fetchlens.ai vs cohort.bubblnet.com (updated 18 May 2026 PM)
 
-`fetchlens.ai` was created on **9 April 2026** — younger than the cohort subdomain. It was indexed within 2 days. What it has that we don't:
+`fetchlens.ai` was created on **9 April 2026** and indexed within 2 days. Gaps that existed this morning have largely closed by this afternoon.
 
-| Signal | fetchlens.ai | cohort.bubblnet.com |
+| Signal | fetchlens.ai | cohort.bubblnet.com (was → now) |
 | --- | --- | --- |
-| Apex vs subdomain | Apex (`.ai`) | Subdomain on dormant parent |
-| `parentOrganization` JSON-LD | Yes → `https://bubblspace.com` | **No** |
-| NPM/PyPI backlinks | 3 (`@aiedx/fetchlens-next`, `@aiedx/fetchlens-cloudflare`, `@aiedx/fetchlens-core`) | **None** |
-| Visible business signals (address, phone, email) | Yes (Mumbai address, phone, email in footer) | **None visible** |
-| Organization schema | Yes | **No** |
-| Parent domain has content | n/a (apex) | **No** (bubblnet.com is just a redirect) |
+| Apex vs subdomain | Apex (`.ai`) | Subdomain on parent — but parent now serves real content |
+| `parentOrganization` JSON-LD | Yes → `https://bubblspace.com` | **Was: No → Now: Yes** (shipped 18 May PM) |
+| Organization schema on site | Yes | **Was: No → Now: Yes** (shipped 18 May PM) |
+| Parent domain has content | n/a (apex) | **Was: redirect shell → Now: real landing page** (shipped 18 May PM) |
+| `parentOrganization` JSON-LD on parent | n/a | **Now: Yes** (on `bubblnet.com`) |
+| NPM/PyPI backlinks | 3 packages | **Still: None** (Section 9.4 pending) |
+| Visible business signals on cohort | Address + phone + email in footer | Email only (via `bubblnet.com` `contactPoint`) — Section 9.2 still partial |
+| External authority mentions (HN, newsletter) | Yes | **None** (Section 9.5, 9.6 pending) |
 
-**Conclusion:** The trust-graph signal is the gap, not site quality. See [Section 9](#section-9--pending-high-leverage-actions) for the action items that close this gap.
+**Conclusion as of this update:** The structural / on-page trust-graph gap is closed. What remains is **external authority** — NPM package + one HN/PH/newsletter mention. Those are the only Section 9 items still moving the needle.
 
 ### 6.3 What's been verified about traffic
 
@@ -302,9 +347,15 @@ Append-only chronological log of every Google Search Console interaction. Newest
 | 2026-05-15 | cohort.bubblnet.com | Auto-recrawl | `/`, `/roadmap`, `/lessons/lesson-1-huggingface-beyond-upload` | Crawled - currently not indexed (the 3 failed URLs) |
 | 2026-05-16 | cohort.bubblnet.com | Previous validation cycle | various | **Passed** (older batch resolved) |
 | 2026-05-16 | thefirehacker.github.io/firstbreakai | Change of Address tool attempted | n/a | **Blocked** — Step 2 greyed out, URL-prefix property cannot trigger Change of Address |
-| 2026-05-18 | — | This document created | — | — |
+| 2026-05-18 (AM) | — | This document created | — | — |
+| 2026-05-18 (PM) | cohort.bubblnet.com (deployment) | `Organization` + `parentOrganization` + `sameAs` JSON-LD added | site-wide via `includes/schema.html` | Shipped (action 9.1 ✅) |
+| 2026-05-18 (PM) | Cloudflare (account-level) | Disabled Redirect Rule "bubblnet.com → cohort" | apex + www | Done (kept in history for rollback) |
+| 2026-05-18 (PM) | Cloudflare Worker (new) | Deployed Bubblnet parent landing page; attached `bubblnet.com` custom domain | `bubblnet.com` | HTTP 200 verified (action 9.3 ✅) |
+| 2026-05-18 (PM) | bubblnet.com | Verified `<a href="https://cohort.bubblnet.com/">` link present | `curl` grep | Pass |
+| 2026-05-18 (PM) | bubblnet.com | Verified `parentOrganization` JSON-LD present | `curl` grep | Pass |
+| 2026-05-18 (PM) | GSC | Added `bubblnet.com` as **Domain property** (in progress) | bubblnet.com domain | Started; covers root + all subdomains |
 
-**Pattern noted:** Repeated "Validate Fix" clicks without underlying changes are tracked by GSC and reduce future validation priority. **Stop clicking it.** See [Section 10](#section-10--ai-agent-instructions) DO NOT list.
+**Pattern noted:** Repeated "Validate Fix" clicks without underlying changes are tracked by GSC and reduce future validation priority. **Today is the exception:** with the 18 May PM shipment of new JSON-LD + new parent page, *one* Request Indexing pass on `https://cohort.bubblnet.com/` and `https://bubblnet.com/` is now justified. After that, wait again. See [Section 10](#section-10--ai-agent-instructions).
 
 ---
 
@@ -314,11 +365,11 @@ Update this table every Monday (or whenever new GSC data is reviewed). **Append 
 
 | Week starting | Indexed | Not indexed | Pending | Failed | Sitemap URLs | GA users (28d) | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2026-05-18 | 0 | 11 | 7 | 3 | 26 | 558 | Baseline. Validation failed 16 May. No high-leverage actions taken yet. |
-| 2026-05-25 | _TBD_ | _TBD_ | _TBD_ | _TBD_ | _TBD_ | _TBD_ | |
+| 2026-05-18 | 0 | 11 | 7 | 3 | 26 | 558 | **Baseline + trust-signal shipment.** PM 18 May: shipped 9.1 (parent JSON-LD on cohort) and 9.3 (real `bubblnet.com/` landing page). Expected re-crawl response 1–3 weeks. |
+| 2026-05-25 | _TBD_ | _TBD_ | _TBD_ | _TBD_ | _TBD_ | _TBD_ | First post-shipment data point. Watch for indexed > 0 on cohort homepage or bubblnet.com root. |
 | 2026-06-01 | _TBD_ | _TBD_ | _TBD_ | _TBD_ | _TBD_ | _TBD_ | |
 | 2026-06-08 | _TBD_ | _TBD_ | _TBD_ | _TBD_ | _TBD_ | _TBD_ | |
-| 2026-06-15 | _TBD_ | _TBD_ | _TBD_ | _TBD_ | _TBD_ | _TBD_ | |
+| 2026-06-15 | _TBD_ | _TBD_ | _TBD_ | _TBD_ | _TBD_ | _TBD_ | If still 0 indexed by this week, ship Section 9.4 (NPM stub) and 9.5 (Show HN) — external authority lift. |
 
 **Trigger thresholds:**
 
@@ -333,57 +384,23 @@ Update this table every Monday (or whenever new GSC data is reviewed). **Append 
 
 Prioritized backlog. Each item has leverage, effort, blocker, and acceptance criteria. **When an action ships, move it to a "Completed actions" subsection at the bottom of this section with the date.**
 
-### 9.1 Add `parentOrganization` + `sameAs` JSON-LD on homepage
+### 9.1 ~~Add `parentOrganization` + `sameAs` JSON-LD on homepage~~ ✅ SHIPPED 18 May 2026 PM
 
-- **Leverage:** HIGH
-- **Effort:** 30 minutes
-- **Why:** Tells Google explicitly that cohort.bubblnet.com is owned by AIEDX (which owns bubblspace.com). Connects the cohort to the existing org graph, closing the #1 gap vs fetchlens.ai.
-- **File:** [includes/schema.html](../includes/schema.html)
-- **Implementation sketch:**
-  ```json
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "First Break AI",
-    "url": "https://cohort.bubblnet.com",
-    "parentOrganization": {
-      "@type": "Organization",
-      "name": "AIEDX Private Limited",
-      "url": "https://bubblspace.com"
-    },
-    "sameAs": [
-      "https://github.com/thefirehacker/firstbreakai",
-      "https://www.bubblspace.com/firstbreakai",
-      "https://thefirehacker.github.io/"
-    ]
-  }
-  ```
-- **Acceptance:** `curl -s https://cohort.bubblnet.com/ | grep parentOrganization` returns a match after next deploy.
-- **Status:** Pending
+> **Moved to [Completed actions](#completed-actions)** — see entry C-1.
 
 ### 9.2 Add business `Organization` JSON-LD with address/phone/email
 
-- **Leverage:** HIGH
+- **Leverage:** MEDIUM (partially mitigated 18 May PM by `contactPoint` email on `bubblnet.com`)
 - **Effort:** 15 minutes
-- **Why:** Visible "real business" signals (address, phone, email) help Google's spam/trust classifiers. Fetchlens has these prominently in their footer.
-- **File:** [includes/schema.html](../includes/schema.html) (extend the Organization schema from #9.1)
-- **Add:** `address`, `telephone`, `email`, `contactPoint` fields using AIEDX Private Limited's Mumbai office details (already present on fetchlens.ai footer for reference).
-- **Acceptance:** Schema validates in Google Rich Results Test.
+- **Why:** Visible "real business" signals (full address, phone, email) help Google's spam/trust classifiers. Fetchlens has these prominently in their footer. We currently have email only via the parent landing page.
+- **File:** [includes/schema.html](../includes/schema.html) — extend the Organization schema shipped in 9.1.
+- **Add:** `address` (Mumbai), `telephone`, `email` fields on the cohort `Organization` schema. Also consider a visible footer block on the cohort homepage with the same info.
+- **Acceptance:** Schema validates in Google Rich Results Test with no warnings; `curl -s https://cohort.bubblnet.com/ | grep -E "address|telephone"` returns matches.
 - **Status:** Pending
 
-### 9.3 Put a real page on `bubblnet.com/`
+### 9.3 ~~Put a real page on `bubblnet.com/`~~ ✅ SHIPPED 18 May 2026 PM
 
-- **Leverage:** HIGH
-- **Effort:** 1–2 hours
-- **Why:** Parent `bubblnet.com` is a 4-year-old domain that has never had content and only started redirecting in April 2026. This is a "dormant-to-active" pattern Google scrutinizes. A real landing page with links to cohort + firstbreakai gives the subdomain a parent to inherit from.
-- **Where to host:** Could be a single static HTML file deployed to Cloudflare Pages on a separate project, or replace the Redirect Rule with a real Pages deployment that has a homepage and redirects everything else.
-- **Content sketch:** "Bubblnet — projects by AIEDX". Short intro, links to:
-  - First Break AI cohort → `https://cohort.bubblnet.com/`
-  - FirstBreakAI landing → `https://www.bubblspace.com/firstbreakai`
-  - About AIEDX → `https://bubblspace.com`
-- **Caveat:** This may require updating the Cloudflare Redirect Rule from "redirect all" to "redirect inner paths only, leave root serving the landing page".
-- **Acceptance:** `curl https://bubblnet.com/` returns HTTP 200 with real content and a link to the cohort.
-- **Status:** Pending
+> **Moved to [Completed actions](#completed-actions)** — see entry C-2.
 
 ### 9.4 Publish stub NPM package linking to cohort
 
@@ -424,7 +441,25 @@ Prioritized backlog. Each item has leverage, effort, blocker, and acceptance cri
 
 ### Completed actions
 
-> (Empty as of 2026-05-18. Move shipped items here with date and brief outcome.)
+#### C-1 — `parentOrganization` + `sameAs` JSON-LD on cohort (was 9.1)
+
+- **Shipped:** 2026-05-18 PM
+- **Where:** [includes/schema.html](../includes/schema.html), site-wide via Quarto include
+- **What:** Added `Organization` with `parentOrganization` → AIEDX / bubblspace, plus `sameAs` to GitHub repo, bubblspace/firstbreakai, thefirehacker.github.io
+- **Verified:** `curl -s https://cohort.bubblnet.com/ | grep parentOrganization` returns match
+- **SEO purpose closed:** Trust-graph connection between cohort and parent org
+
+#### C-2 — Real landing page on `bubblnet.com/` (was 9.3)
+
+- **Shipped:** 2026-05-18 PM
+- **Where:** Separate Cloudflare Worker (not the `firstbreakai` Pages project), `bubblnet.com` attached as custom domain
+- **What:** Static HTML page titled "Bubblnet — Projects by AIEDX". Three project cards (First Break AI / BubblSpace / FetchLens), each linking to its destination. Footer with `mailto:contact@bubblspace.com`. JSON-LD with `Organization`, `parentOrganization`, `sameAs`, `contactPoint`.
+- **Verified:**
+  - `curl -I https://bubblnet.com/` → HTTP 200, served by Cloudflare
+  - `curl -s https://bubblnet.com/ | grep cohort.bubblnet.com` → dofollow link to cohort present
+  - `curl -s https://bubblnet.com/ | grep parentOrganization` → JSON-LD present
+- **SEO purpose closed:** Parent no longer a redirect shell; provides real trust origin + dofollow link to cohort
+- **Side effect:** Old Redirect Rule (`bubblnet.com` → cohort) disabled. Documented in [Section 5.1](#51-apex-bubblnetcom--real-parent-landing-page).
 
 ---
 
@@ -442,6 +477,7 @@ Prioritized backlog. Each item has leverage, effort, blocker, and acceptance cri
 - **Reference repo files** with relative markdown links like `[file](../path/to/file)`. Verify the link resolves before committing.
 - **Cross-link** to [SEO-Explained.md](../SEO-Explained.md) and [DEVELOPMENT.md](../DEVELOPMENT.md) rather than duplicating their content here.
 - **Update the "Last updated" date** at the top of this file on any meaningful edit.
+- **After a material on-page shipment** (new schema, new content, new redirect topology, parent-domain change): do **one** Request Indexing pass on the affected canonical URL(s). Log the request in Section 7. Then stop and wait.
 
 ### DO NOT
 
