@@ -1,7 +1,25 @@
-<script
-  src="https://fba-mcp.throbbing-thunder-4d33.workers.dev/widget.js"
-  data-endpoint="https://fba-mcp.throbbing-thunder-4d33.workers.dev/widget/mcp"
-  data-button-label="Open Cohort Lens"
-  async
-  defer
-></script>
+<script>
+(function () {
+  if (window.__fbaLensBoot) return;
+  window.__fbaLensBoot = true;
+
+  function loadLens() {
+    var globalLink = document.querySelector('link[href*="global.css"]');
+    var root = globalLink
+      ? globalLink.getAttribute('href').replace(/styles\/global\.css.*$/, '')
+      : '/';
+    var s = document.createElement('script');
+    s.src = root + 'public/scripts/fba-lens-widget.js?v=3';
+    s.defer = true;
+    s.dataset.endpoint = 'https://fba-mcp.throbbing-thunder-4d33.workers.dev/widget/mcp';
+    s.dataset.buttonLabel = 'Open Cohort Lens';
+    document.body.appendChild(s);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadLens);
+  } else {
+    loadLens();
+  }
+})();
+</script>
