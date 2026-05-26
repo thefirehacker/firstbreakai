@@ -79,6 +79,133 @@ css: styles/home.css
   </div>
 </div>
 
+<script>
+  window.FBA_MCP_URL = 'https://fba-mcp.throbbing-thunder-4d33.workers.dev/mcp';
+</script>
+<details id="install-fba-mcp" class="install-fba" aria-labelledby="install-fba-mcp-title">
+  <summary>
+    <span class="install-fba-eyebrow">For builders</span>
+    <span class="install-fba-headline" id="install-fba-mcp-title">Install First Break AI into your AI</span>
+    <span class="install-fba-hint">HuggingChat · Claude Desktop · Cursor — paste one URL</span>
+  </summary>
+  <div class="install-fba-body">
+    <p class="install-fba-intro">
+      Add the FBA cohort as a tool inside HuggingChat, Claude Desktop, or Cursor.
+      Your AI can then ask cohort questions, enroll you, validate your work, and unlock the next step — without you ever leaving the chat.
+    </p>
+    <div class="install-fba-grid">
+      <article class="install-fba-card">
+        <div class="install-fba-card-head">
+          <img src="https://huggingface.co/favicon.ico" alt="" width="18" height="18" />
+          <span>HuggingChat</span>
+        </div>
+        <p class="install-fba-card-desc">Open HuggingChat → MCP Servers panel → Custom Servers → "Add Your First Server."</p>
+        <div class="install-fba-card-actions">
+          <button type="button" class="install-fba-btn" data-mcp-copy-url data-target="HuggingChat">Copy install URL</button>
+          <a class="install-fba-link" href="https://huggingface.co/chat/" target="_blank" rel="noopener">Open HuggingChat ↗</a>
+        </div>
+      </article>
+      <article class="install-fba-card">
+        <div class="install-fba-card-head">
+          <img src="https://claude.ai/favicon.ico" alt="" width="18" height="18" />
+          <span>Claude Desktop</span>
+        </div>
+        <p class="install-fba-card-desc">Settings → Developer → Edit Config → paste under <code>mcpServers</code>.</p>
+        <div class="install-fba-card-actions">
+          <button type="button" class="install-fba-btn" data-mcp-claude-config data-target="Claude">Copy config snippet</button>
+          <a class="install-fba-link" href="https://docs.anthropic.com/en/docs/build-with-claude/mcp" target="_blank" rel="noopener">Setup guide ↗</a>
+        </div>
+      </article>
+      <article class="install-fba-card">
+        <div class="install-fba-card-head">
+          <img src="https://cursor.com/favicon.ico" alt="" width="18" height="18" />
+          <span>Cursor</span>
+        </div>
+        <p class="install-fba-card-desc">Cursor Settings → MCP → Add new server → paste URL.</p>
+        <div class="install-fba-card-actions">
+          <button type="button" class="install-fba-btn" data-mcp-copy-url data-target="Cursor">Copy install URL</button>
+          <a class="install-fba-link" href="https://docs.cursor.com/context/model-context-protocol" target="_blank" rel="noopener">Setup guide ↗</a>
+        </div>
+      </article>
+    </div>
+    <details class="install-fba-tools">
+      <summary>What can my AI actually do with FBA installed?</summary>
+      <ul>
+        <li><code>ask</code> — answer any cohort question using the FBA roadmap, lessons, FAQ.</li>
+        <li><code>do</code> — enroll you, send the Discord invite + welcome email.</li>
+        <li><code>find</code> — locate specific lessons, steps, or office-hours topics.</li>
+        <li><code>validate</code> — judge your submitted work against the rubric and unlock the next step.</li>
+        <li><code>next</code> — tell your AI what to ask you next so you keep moving.</li>
+      </ul>
+    </details>
+    <p class="install-fba-fallback">
+      Or, if you'd rather stay on this page,
+      <button type="button" id="fba-open-widget">open the Lens widget here</button>.
+    </p>
+  </div>
+</details>
+<script>
+(function () {
+  function getUrl() { return window.FBA_MCP_URL; }
+
+  function showToast(message) {
+    var toast = document.getElementById('fba-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'fba-toast';
+      toast.className = 'fba-toast';
+      toast.setAttribute('role', 'status');
+      toast.setAttribute('aria-live', 'polite');
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    /* Force reflow so the .visible transition runs even on the first show */
+    void toast.offsetWidth;
+    toast.classList.add('visible');
+    if (toast._hideTimer) clearTimeout(toast._hideTimer);
+    toast._hideTimer = setTimeout(function () {
+      toast.classList.remove('visible');
+    }, 2400);
+  }
+
+  function copy(text, target, kind) {
+    var successMsg = (kind === 'config'
+      ? 'Copied ' + target + ' config. Paste it under "mcpServers".'
+      : 'Copied install URL for ' + target + '. Paste it into the MCP panel.');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () { showToast(successMsg); },
+        function () { window.prompt('Copy this for ' + target + ':', text); }
+      );
+    } else {
+      window.prompt('Copy this for ' + target + ':', text);
+    }
+  }
+
+  document.querySelectorAll('[data-mcp-copy-url]').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      copy(getUrl(), btn.getAttribute('data-target') || 'your AI client', 'url');
+    });
+  });
+  document.querySelectorAll('[data-mcp-claude-config]').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      copy(JSON.stringify({ mcpServers: { 'fba-cohort': { command: 'npx', args: ['-y', 'mcp-remote', getUrl()] } } }, null, 2), btn.getAttribute('data-target') || 'Claude Desktop', 'config');
+    });
+  });
+  var openBtn = document.getElementById('fba-open-widget');
+  if (openBtn) openBtn.addEventListener('click', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    var w = document.querySelector('button[style*="bottom:20px"]');
+    if (w) w.click();
+  });
+})();
+</script>
+
 <section class="paths-strip" aria-labelledby="paths-headline">
   <div class="paths-strip-head">
     <span class="paths-eyebrow">Start here</span>

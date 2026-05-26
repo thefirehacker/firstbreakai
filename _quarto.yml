@@ -78,7 +78,9 @@ website:
 format:
   html:
     css: styles/global.css
-    include-in-header: includes/schema.html
+    include-in-header:
+      - includes/schema.html
+      - includes/fba-mcp-widget.html
     filters:
       - canonical.lua
     include-after-body:
