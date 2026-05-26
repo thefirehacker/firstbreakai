@@ -13,7 +13,7 @@ css: styles/home.css
       <h1 class="hero-title">First Break AI</h1>
       <p class="hero-tagline">Your first break in AI — a guided journey from first commit to capstone</p>
       <p class="hero-sub">Free, open cohort to upskill in training, inference, and AI product building.</p>
-      <a href="journey/" class="hero-journey-btn">Start the Journey &#9654;</a>
+      <a href="https://discord.gg/hRPese4H3F" class="hero-journey-btn" target="_blank" rel="noopener noreferrer">Start Journey, Join Discord &#9654;</a>
     </div>
   </div>
 </div>
