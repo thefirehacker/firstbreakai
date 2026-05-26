@@ -390,6 +390,381 @@ header#title-block-header {
 }
 
 /* ══════════════════════════════════════════
+   Install FBA into your AI — collapsable MCP install band
+   Sits between the journey-preview scenes strip and the
+   "Two ways into First Break AI" path cards. Matches the
+   dark amber palette of .paths-strip and reuses the same
+   warm gold accent so the band reads as one continuous unit.
+   ══════════════════════════════════════════ */
+.install-fba {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(217, 154, 42, 0.08) 0%, transparent 70%),
+    linear-gradient(180deg, #1f1a10 0%, #2c2417 100%);
+  border-top: 1px solid rgba(212, 167, 74, 0.18);
+  color: #f0ebe1;
+}
+.install-fba > summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 1.4rem 1.5rem;
+  position: relative;
+  outline: none;
+  transition: background 0.18s ease;
+  text-align: center;
+}
+.install-fba > summary::-webkit-details-marker,
+.install-fba > summary::marker { display: none; }
+.install-fba > summary:hover {
+  background: rgba(212, 167, 74, 0.05);
+}
+.install-fba > summary::after {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid #d4a74a;
+  border-bottom: 2px solid #d4a74a;
+  transform: rotate(45deg);
+  transform-origin: 60% 60%;
+  transition: transform 0.22s ease;
+  margin-left: 0.25rem;
+}
+.install-fba[open] > summary::after {
+  transform: rotate(225deg);
+}
+.install-fba > summary:focus-visible {
+  outline: 2px solid #d4a74a;
+  outline-offset: -4px;
+}
+.install-fba-eyebrow {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: #d4a74a;
+}
+.install-fba-headline {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #f0ebe1;
+}
+.install-fba-hint {
+  font-size: 0.88rem;
+  color: rgba(240, 235, 225, 0.7);
+}
+
+.install-fba-body {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0.5rem 1.5rem 2.75rem;
+}
+
+/* Quarto/Bootstrap default `code` uses a light paper background — invisible on this dark band */
+.install-fba code,
+.install-fba pre code,
+.install-fba kbd {
+  font-family: ui-monospace, "SF Mono", "Cascadia Code", "Consolas", monospace !important;
+  font-size: 0.85em;
+  background-color: rgba(20, 16, 10, 0.72) !important;
+  color: #f5d68a !important;
+  border: 1px solid rgba(212, 167, 74, 0.4);
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  word-break: break-word;
+}
+
+.install-fba-intro {
+  color: rgba(240, 235, 225, 0.82);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  max-width: 720px;
+  margin: 0 auto 0.85rem;
+  text-align: center;
+}
+.install-fba-intro strong {
+  color: #f0ebe1;
+}
+.install-fba-endpoint {
+  max-width: 820px;
+  margin: 0 auto 1.75rem;
+  text-align: left;
+}
+.install-fba-endpoint-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #d4a74a;
+  margin-bottom: 0.5rem;
+}
+.install-fba-endpoint-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+.install-fba-endpoint-input {
+  flex: 1 1 280px;
+  min-width: 0;
+  font-family: ui-monospace, "SF Mono", "Cascadia Code", "Consolas", monospace;
+  font-size: clamp(0.95rem, 2.2vw, 1.15rem);
+  line-height: 1.4;
+  font-weight: 500;
+  color: #ffe08a !important;
+  background-color: rgba(20, 16, 10, 0.88) !important;
+  border: 1px solid rgba(212, 167, 74, 0.55);
+  border-radius: 0.55rem;
+  padding: 0.85rem 1rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  cursor: text;
+  -webkit-text-fill-color: #ffe08a;
+}
+.install-fba-endpoint-input:focus {
+  outline: 2px solid #d4a74a;
+  outline-offset: 2px;
+  border-color: #d4a74a;
+}
+.install-fba-endpoint-copy {
+  flex-shrink: 0;
+  align-self: stretch;
+  padding: 0.85rem 1.15rem;
+  font-size: 0.9rem;
+}
+.install-fba-endpoint-hint {
+  margin: 0.65rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: rgba(240, 235, 225, 0.65);
+  text-align: center;
+}
+@media (max-width: 560px) {
+  .install-fba-endpoint-row {
+    flex-direction: column;
+  }
+  .install-fba-endpoint-copy {
+    width: 100%;
+    text-align: center;
+  }
+}
+.install-fba-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+.install-fba-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.15rem 1.25rem 1.25rem;
+  background: linear-gradient(135deg, rgba(212, 167, 74, 0.12) 0%, rgba(122, 85, 24, 0.10) 100%);
+  border: 1px solid rgba(212, 167, 74, 0.30);
+  border-radius: 0.85rem;
+  color: #f0ebe1;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.install-fba-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(212, 167, 74, 0.55);
+  background: linear-gradient(135deg, rgba(212, 167, 74, 0.18) 0%, rgba(122, 85, 24, 0.14) 100%);
+}
+.install-fba-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #f0ebe1;
+}
+.install-fba-card-head img {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  background: #f0ebe1;
+}
+.install-fba-card-desc {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: rgba(240, 235, 225, 0.78);
+  margin: 0;
+}
+.install-fba-card-desc code {
+  font-size: 0.82em;
+}
+.install-fba-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.35rem;
+}
+.install-fba-card-actions .install-fba-btn + .install-fba-btn {
+  margin-left: 0;
+}
+.install-fba-btn {
+  display: inline-block;
+  background: #d4a74a;
+  color: #1a1510;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 0.45rem;
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.01em;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  box-shadow: 0 2px 8px rgba(212, 167, 74, 0.25);
+}
+.install-fba-btn:hover {
+  transform: translateY(-1px);
+  background: #e0b960;
+  box-shadow: 0 4px 14px rgba(212, 167, 74, 0.40);
+}
+.install-fba-link {
+  font-size: 0.82rem;
+  color: #d4a74a;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.15s ease;
+}
+.install-fba-link:hover {
+  color: #e8c170;
+  text-decoration: none;
+}
+
+.install-fba-tools {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(212, 167, 74, 0.15);
+}
+.install-fba-tools > summary {
+  list-style: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #d4a74a;
+  outline: none;
+}
+.install-fba-tools > summary::-webkit-details-marker,
+.install-fba-tools > summary::marker { display: none; }
+.install-fba-tools > summary::before {
+  content: "▸ ";
+  display: inline-block;
+  transition: transform 0.18s ease;
+  font-size: 0.8em;
+}
+.install-fba-tools[open] > summary::before {
+  content: "▾ ";
+}
+.install-fba-tools ul {
+  margin: 0.75rem 0 0 1.5rem;
+  padding: 0;
+  color: rgba(240, 235, 225, 0.82);
+  line-height: 1.7;
+  font-size: 0.9rem;
+}
+.install-fba-tools ul li code {
+  font-size: 0.88em;
+}
+
+.install-fba-fallback {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: rgba(240, 235, 225, 0.6);
+}
+.install-fba-fallback button {
+  background: transparent;
+  border: 0;
+  color: #d4a74a;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+.install-fba-fallback button:hover {
+  color: #e8c170;
+}
+
+/* ── Toast pop-up shown after a successful clipboard copy ── */
+.fba-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%) translateY(20px);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  max-width: calc(100vw - 2rem);
+  padding: 0.85rem 1.15rem;
+  background: linear-gradient(180deg, #2c2417 0%, #1a1510 100%);
+  color: #f0ebe1;
+  border: 1px solid rgba(212, 167, 74, 0.45);
+  border-radius: 0.75rem;
+  box-shadow:
+    0 10px 32px rgba(0, 0, 0, 0.45),
+    0 0 24px rgba(212, 167, 74, 0.22);
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.28s ease;
+}
+.fba-toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.fba-toast-msg {
+  flex: 1;
+  min-width: 0;
+}
+.fba-toast::before {
+  content: "";
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background-color: #d4a74a;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231a1510' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 14px 14px;
+  box-shadow: 0 0 0 3px rgba(212, 167, 74, 0.22);
+}
+@media (prefers-reduced-motion: reduce) {
+  .fba-toast {
+    transition: opacity 0.15s linear;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .install-fba > summary {
+    padding: 1.1rem 1rem;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .install-fba-headline { font-size: 1.05rem; }
+  .install-fba-hint { font-size: 0.82rem; }
+  .install-fba-body { padding: 0.5rem 1rem 2rem; }
+  .install-fba-grid { gap: 0.85rem; }
+}
+
+/* ══════════════════════════════════════════
    What's New ticker (right-to-left scrolling)
    Sits between the hero banner and the journey-preview strip.
    ══════════════════════════════════════════ */

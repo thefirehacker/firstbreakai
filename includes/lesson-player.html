@@ -60,7 +60,26 @@
         playsinline: 1
       },
       events: {
-        onReady: function() { playerReady = true; },
+        onReady: function() {
+          playerReady = true;
+          /* YT.Player replaces #ytPlayer div with an iframe but does not
+             set the modern Permissions Policy `allow="fullscreen"`. Without
+             it, Chromium-based browsers block the fullscreen button inside
+             the YouTube player (the "maximize" affordance). Patch it on. */
+          try {
+            var iframe = document.getElementById('ytPlayer');
+            if (iframe && iframe.tagName === 'IFRAME') {
+              var current = iframe.getAttribute('allow') || '';
+              var needed = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen; web-share';
+              if (!/fullscreen/.test(current)) {
+                iframe.setAttribute('allow', current ? current + '; ' + needed : needed);
+              }
+              if (!iframe.hasAttribute('allowfullscreen')) {
+                iframe.setAttribute('allowfullscreen', '');
+              }
+            }
+          } catch (e) {}
+        },
         onStateChange: function() {}
       }
     });

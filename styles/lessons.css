@@ -237,6 +237,12 @@ main .table tbody td {
   border-radius: 0.75rem;
   overflow: hidden;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+  /* Inside .lesson-deck (display:flex; column) the wrap was being
+     vertically crushed when the deck's max-height < total content
+     (Dell-class ~1366x768 laptops). Lock the height so aspect-ratio
+     always wins. */
+  flex-shrink: 0;
+  min-height: 200px;
 }
 .lesson-video-wrap > div,
 .lesson-video-wrap iframe {
