@@ -5,6 +5,7 @@ project:
     - robots.txt
     - _redirects
     - public/transcripts/**
+    - public/scripts/**
   render:
     - "*.qmd"
     - "blog/*.qmd"
