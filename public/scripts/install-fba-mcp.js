@@ -153,7 +153,7 @@
       openBtn.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        var w = document.querySelector('button[style*="bottom:20px"]');
+        var w = document.querySelector('.fba-lens-fab');
         if (w) w.click();
         else showToast('Use the Open Cohort Lens button at the bottom-right.');
       });

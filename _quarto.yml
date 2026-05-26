@@ -78,13 +78,15 @@ website:
 
 format:
   html:
-    css: styles/global.css
+    css:
+      - styles/global.css
+      - styles/fba-lens-widget.css
     include-in-header:
       - includes/schema.html
-      - includes/fba-mcp-widget.html
     filters:
       - canonical.lua
     include-after-body:
+      - includes/fba-mcp-widget.html
       - includes/mermaid-zoom.html
       - includes/github-card.html
       - includes/journey-player.html

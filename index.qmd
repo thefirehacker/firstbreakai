@@ -185,7 +185,7 @@ css: styles/home.css
     </p>
   </div>
 </details>
-<script src="public/scripts/install-fba-mcp.js?v=4" defer></script>
+<script src="public/scripts/install-fba-mcp.js?v=5" defer></script>
 
 <section class="paths-strip" aria-labelledby="paths-headline">
   <div class="paths-strip-head">
