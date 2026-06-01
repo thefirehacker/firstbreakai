@@ -87,6 +87,7 @@ Run Qwen3 0.6B locally in pure C — trace every operation from tokenization to 
 <p><strong>Lessons:</strong></p>
 <ul>
 <li><a href="lessons/lesson-1-huggingface-beyond-upload.qmd">Lesson 1 — HuggingFace Beyond Upload</a>: why an open model is not a file — it's a supply chain (provenance, datasets, security, evals, runtime, agents).</li>
+<li><a href="lessons/lesson-1b-qwen3-fundamentals.qmd">Lesson 1b — Qwen3 Fundamentals</a>: how a language model lives on disk and loads into memory — GGUF file format, memory mapping, tensor layout, SafeTensors vs GGUF, and the full conversion pipeline.</li>
 </ul>
 
 <p><strong>Guides:</strong></p>
@@ -297,6 +298,7 @@ Prove what you've learned. Pick one: ship a capstone project or make a meaningfu
 **Lessons:**
 
 - [Lesson 1 — HuggingFace Beyond Upload](lessons/lesson-1-huggingface-beyond-upload.qmd) — why an open model is not a file. The supply-chain mental model: provenance, datasets, security (`trust_remote_code`), evals, runtime routing, and agent-readable manifests.
+- [Lesson 1b — Qwen3 Fundamentals](lessons/lesson-1b-qwen3-fundamentals.qmd) — how a language model lives on disk and loads into memory. GGUF file format, memory mapping, tensor layout, SafeTensors vs GGUF, and the full conversion pipeline.
 
 **Guides:**
 

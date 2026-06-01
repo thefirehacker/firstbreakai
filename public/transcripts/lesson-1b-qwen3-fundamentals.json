@@ -1,0 +1,97 @@
+{
+  "video_id": "MjZio-A9oUY",
+  "title": "Lesson 1b: Qwen3 Fundamentals",
+  "duration": 3042,
+  "chapters": [
+    {
+      "t": 0,
+      "title": "Lesson 1b Overview: Qwen3 Fundamentals"
+    },
+    {
+      "t": 120,
+      "title": "Chapter 1: What Even Is a Model File?"
+    },
+    {
+      "t": 300,
+      "title": "Chapter 2: The GGUF File Format — A Container for Brains"
+    },
+    {
+      "t": 500,
+      "title": "Chapter 3: Our Qwen3 GGUF File — A Concrete Example"
+    },
+    {
+      "t": 700,
+      "title": "Chapter 4: Memory Mapping — Opening the File Without Reading It"
+    },
+    {
+      "t": 900,
+      "title": "Chapter 5: The Header Skip — Jumping to the Weights"
+    },
+    {
+      "t": 1050,
+      "title": "Chapter 6: memory_map_weights() — The Pointer Walk"
+    },
+    {
+      "t": 1300,
+      "title": "Chapter 7: How the Forward Pass Uses These Pointers"
+    },
+    {
+      "t": 1500,
+      "title": "Chapter 8: How llama.cpp Does It Differently"
+    },
+    {
+      "t": 1700,
+      "title": "Chapter 9: The Custom Conversion Script"
+    },
+    {
+      "t": 1900,
+      "title": "Chapter 10: Putting It All Together — The Full Pipeline"
+    },
+    {
+      "t": 2100,
+      "title": "Chapter 11: SafeTensors — The Other File Format"
+    },
+    {
+      "t": 2350,
+      "title": "Chapter 12: SafeTensors vs GGUF — A Detailed Comparison"
+    },
+    {
+      "t": 2600,
+      "title": "Chapter 13: Tensor Names — Framework Names vs Standardized Names"
+    },
+    {
+      "t": 2800,
+      "title": "Chapter 14: The Conversion Pipeline — SafeTensors In, GGUF Out"
+    },
+    {
+      "t": 2950,
+      "title": "Exercises and Next Steps"
+    }
+  ],
+  "segments": [
+    {
+      "t": 0,
+      "text": "Welcome to Lesson 1b — Qwen3 Fundamentals. In this lesson we go deep into how a language model lives on disk and loads into memory, byte by byte."
+    },
+    {
+      "t": 15,
+      "text": "This lesson builds directly on Lesson 1. If you haven't gone through HuggingFace Beyond Upload yet, start there first."
+    },
+    {
+      "t": 30,
+      "text": "Our goal today: understand exactly how a 600-million-parameter language model is stored in a file, loaded into RAM, and wired up for inference."
+    },
+    {
+      "t": 45,
+      "text": "We'll be working with the qwen3.c codebase — a minimal, from-scratch Qwen3 inference engine in pure C."
+    },
+    {
+      "t": 60,
+      "text": "No prior knowledge of C, memory mapping, or model file formats is required. We'll build the understanding from the ground up."
+    },
+    {
+      "t": 80,
+      "text": "Transcript and video for this lesson are still being produced. The full written lesson is available on this page."
+    }
+  ]
+}

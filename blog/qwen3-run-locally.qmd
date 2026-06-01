@@ -91,13 +91,13 @@ Before any detail, here is the complete journey a message takes — from the mom
 
 ```{mermaid}
 flowchart TD
-    A["You type a message"] --> B["Chat Template\nWraps it in ChatML format"]
-    B --> C["Tokenizer\nBreaks text into tokens"]
-    C --> D["Token IDs\nIntegers the model understands"]
-    D --> E["Transformer\n28 layers of attention + FFN"]
-    E --> F["Logits\n151936 scores, one per token"]
-    F --> G["Sampler\nTemperature + top-p picks next token"]
-    G --> H["Decoder\nToken ID back to text"]
+    A["You type a message"] --> B["Chat Template<br/>Wraps it in ChatML format"]
+    B --> C["Tokenizer<br/>Breaks text into tokens"]
+    C --> D["Token IDs<br/>Integers the model understands"]
+    D --> E["Transformer<br/>28 layers of attention + FFN"]
+    E --> F["Logits<br/>151936 scores, one per token"]
+    F --> G["Sampler<br/>Temperature + top-p picks next token"]
+    G --> H["Decoder<br/>Token ID back to text"]
     H --> I["Printed to screen"]
     I --> J{End of sentence?}
     J -- No --> E
@@ -122,9 +122,9 @@ Think of it this way: imagine you read every book, every website, every code rep
 
 ```{mermaid}
 flowchart LR
-    P["Everything before:\n'The capital of France is'"] --> M["LLM\n(600M numbers)"]
-    M --> N["Next most likely token:\n'Paris'"]
-    N --> R["Repeat:\n'The capital of France is Paris'"]
+    P["Everything before:<br/>'The capital of France is'"] --> M["LLM<br/>(600M numbers)"]
+    M --> N["Next most likely token:<br/>'Paris'"]
+    N --> R["Repeat:<br/>'The capital of France is Paris'"]
     R --> M2["LLM"]
     M2 --> N2["'.'"]
 ```
@@ -350,11 +350,11 @@ The system prompt is invisible to the end user in most applications — only the
 
 ```{mermaid}
 flowchart TD
-    SP["system_prompt\ne.g. 'You are a pirate'"]
-    UP["user_prompt\ne.g. 'What is the weather?'"]
-    SP --> TPL["sprintf into rendered_prompt\nusing ChatML template"]
+    SP["system_prompt<br/>e.g. 'You are a pirate'"]
+    UP["user_prompt<br/>e.g. 'What is the weather?'"]
+    SP --> TPL["sprintf into rendered_prompt<br/>using ChatML template"]
     UP --> TPL
-    TPL --> RP["rendered_prompt:\n<|im_start|>system\nYou are a pirate.<|im_end|>\n<|im_start|>user\nWhat is the weather?<|im_end|>\n<|im_start|>assistant\n"]
+    TPL --> RP["rendered_prompt:<br/>im_start system ... im_end<br/>im_start user ... im_end<br/>im_start assistant"]
     RP --> ENC["encode() → token IDs"]
 ```
 
@@ -542,13 +542,13 @@ Think of the transformer as a very deep stack of "refinement stages". A raw toke
 
 ```{mermaid}
 flowchart TD
-    TOK["Token ID\ne.g. 9906 = 'Hello'"] --> EMB["Embedding lookup\nrow 9906 of the table\n→ 1024 floats"]
-    EMB --> L1["Layer 1\nAttention + FFN"]
-    L1 --> L2["Layer 2\nAttention + FFN"]
+    TOK["Token ID<br/>e.g. 9906 = 'Hello'"] --> EMB["Embedding lookup<br/>row 9906 of the table<br/>→ 1024 floats"]
+    EMB --> L1["Layer 1<br/>Attention + FFN"]
+    L1 --> L2["Layer 2<br/>Attention + FFN"]
     L2 --> DOT["..."]
-    DOT --> L28["Layer 28\nAttention + FFN"]
+    DOT -->     L28["Layer 28<br/>Attention + FFN"]
     L28 --> RN["Final RMSNorm"]
-    RN --> LG["matmul → logits\n151936 scores"]
+    RN --> LG["matmul → logits<br/>151936 scores"]
 ```
 
 ### The model config for Qwen3 0.6B
@@ -588,12 +588,12 @@ Both sub-modules use **residual connections**: the input is added back to the ou
 ```{mermaid}
 flowchart TD
     X["x (1024 floats)"] --> RN1["RMSNorm"]
-    RN1 --> ATT["Multi-head Attention\n(see Lesson 6)"]
-    ATT --> ADD1["x = x + attention_output\nresidual connection"]
+    RN1 --> ATT["Multi-head Attention<br/>(see Lesson 6)"]
+    ATT --> ADD1["x = x + attention_output<br/>residual connection"]
     ADD1 --> RN2["RMSNorm"]
-    RN2 --> FFN["Feed-forward Network\nSwiGLU activation"]
-    FFN --> ADD2["x = x + ffn_output\nresidual connection"]
-    ADD2 --> XOUT["x (updated, 1024 floats)\n→ next layer"]
+    RN2 --> FFN["Feed-forward Network<br/>SwiGLU activation"]
+    FFN --> ADD2["x = x + ffn_output<br/>residual connection"]
+    ADD2 --> XOUT["x (updated, 1024 floats)<br/>→ next layer"]
 ```
 
 ### RMSNorm: stabilising the signal
@@ -675,11 +675,11 @@ flowchart TD
     T1["Token: 'trophy'"] --> K1["Key K1"]
     T2["Token: 'suitcase'"] --> K2["Key K2"]
     T3["Token: 'it'"] --> Q3["Query Q3"]
-    Q3 --> S1["Score = Q3·K1\n(how much 'it' attends to 'trophy')"]
-    Q3 --> S2["Score = Q3·K2\n(how much 'it' attends to 'suitcase')"]
+    Q3 --> S1["Score = Q3·K1<br/>(how much 'it' attends to 'trophy')"]
+    Q3 --> S2["Score = Q3·K2<br/>(how much 'it' attends to 'suitcase')"]
     S1 --> SF["softmax → attention weights"]
     S2 --> SF
-    SF --> OUT["Weighted sum of Values\n= contextualised representation of 'it'"]
+    SF --> OUT["Weighted sum of Values<br/>= contextualised representation of 'it'"]
 ```
 
 ### Multi-head attention
@@ -780,13 +780,13 @@ After `forward()` produces 151,936 logit scores, we need to pick the next token.
 
 ```{mermaid}
 flowchart TD
-    L["logits[151936]\nraw scores from transformer"] --> T["÷ temperature"]
+    L["logits[151936]<br/>raw scores from transformer"] --> T["÷ temperature"]
     T --> SM["softmax → probabilities"]
     SM --> S1{sampling strategy}
-    S1 -- "temperature=0\ngreedy" --> ARG["argmax: always pick\nhighest probability"]
-    S1 -- "top-p=0.95\ndefault" --> TP["nucleus: keep\nsmallest set ≥ 95% mass"]
-    TP --> RND["sample randomly\nfrom filtered set"]
-    S1 -- "temperature=1.5\nrandom" --> FULL["sample from\nfull distribution"]
+    S1 -- "temperature=0, greedy" --> ARG["argmax: always pick<br/>highest probability"]
+    S1 -- "top-p=0.95, default" --> TP["nucleus: keep<br/>smallest set ≥ 95% mass"]
+    TP --> RND["sample randomly<br/>from filtered set"]
+    S1 -- "temperature=1.5, random" --> FULL["sample from<br/>full distribution"]
     ARG --> NEXT["next token ID"]
     RND --> NEXT
     FULL --> NEXT
@@ -1005,11 +1005,11 @@ The weight pointers (`wq`, `wk`, `wv`, etc.) are just offsets into this memory-m
 ```{mermaid}
 flowchart LR
     subgraph disk ["Disk (3 GB GGUF)"]
-        H["Header\n5.9 MB"]
-        W["Weights\n~2.4 GB"]
+        H["Header<br/>5.9 MB"]
+        W["Weights<br/>~2.4 GB"]
     end
     subgraph virt ["Virtual Memory (mmap)"]
-        PTR["float* pointers\nzero-copy"]
+        PTR["float* pointers<br/>zero-copy"]
     end
     subgraph code ["C code"]
         WQ["w->wq"]
@@ -1042,20 +1042,20 @@ Putting every lesson together into one diagram:
 ```{mermaid}
 flowchart TD
     subgraph startup ["Startup — runs once"]
-        G["GGUF file (3 GB)"] -- "mmap()" --> TW["TransformerWeights\n(pointers, zero-copy)"]
-        HT["header.txt"] --> CFG["Config\ndim=1024, layers=28..."]
+        G["GGUF file (3 GB)"] -- "mmap()" --> TW["TransformerWeights<br/>(pointers, zero-copy)"]
+        HT["header.txt"] --> CFG["Config<br/>dim=1024, layers=28..."]
         VT["vocab.txt"] --> VOC["vocab[151936]"]
         MT["merges.txt"] --> MRG["merges[151386] BPE rules"]
     end
 
     subgraph turn ["Each conversation turn"]
         UI["User types message"] --> SYS["+ System Prompt"]
-        SYS --> TPL["ChatML Template\n<|im_start|>system...<|im_end|>\n<|im_start|>user...<|im_end|>\n<|im_start|>assistant\n"]
-        TPL --> ENC["encode()\nBPE merge → token IDs"]
-        ENC --> PF["Prefill phase\nforward() × prompt_length\nfills KV cache"]
-        PF --> GEN["Generation phase\nforward() × 1 → sample → next token"]
+        SYS -->         TPL["ChatML Template<br/>im_start system...im_end<br/>im_start user...im_end<br/>im_start assistant"]
+        TPL --> ENC["encode()<br/>BPE merge → token IDs"]
+        ENC --> PF["Prefill phase<br/>forward() × prompt_length<br/>fills KV cache"]
+        PF --> GEN["Generation phase<br/>forward() × 1 → sample → next token"]
         GEN --> DEC["decode_token_id()"]
-        DEC --> PRINT["printf + fflush\nstream to screen"]
+        DEC --> PRINT["printf + fflush<br/>stream to screen"]
         PRINT --> EOS{next == 151645?}
         EOS -- No --> GEN
         EOS -- Yes --> UI
