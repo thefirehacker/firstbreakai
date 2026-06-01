@@ -13,16 +13,16 @@ Free, community-driven cohort to upskill in **training**, **inference**, and **A
 - **Lesson 0 (intro):** [Welcome to First Break AI on YouTube](https://www.youtube.com/watch?v=r9uykyGAdJQ&list=PLEzXCZNdmgBm-SbXuXHxn9_vXpvFbrKKL) · or watch with the [interactive transcript on the site](https://cohort.bubblnet.com/lessons/lesson-0-welcome)
 - **Full playlist:** [First Break AI on YouTube](https://www.youtube.com/playlist?list=PLEzXCZNdmgBm-SbXuXHxn9_vXpvFbrKKL)
 
-## The journey — six scenes from first commit to capstone
+## The roadmap — six steps from first commit to capstone
 
-The cohort is structured as a [scroll-driven storyboard](https://cohort.bubblnet.com/journey/) with an AI-narrated podcast for each scene:
+The cohort is structured as a [step-by-step roadmap](https://cohort.bubblnet.com/roadmap):
 
-1. **[Ship something real](https://cohort.bubblnet.com/journey/#scene-1)** — set up your blog, push your first commit, build the habit.
-2. **[See inside the machine](https://cohort.bubblnet.com/journey/#scene-2)** — local inference, tokens, attention, what an LLM actually does.
-3. **[Think at production scale](https://cohort.bubblnet.com/journey/#scene-3)** — APIs, evals, latency, cost, the production mindset.
-4. **[Train your own](https://cohort.bubblnet.com/journey/#scene-4)** — fine-tuning, distributed training, nanoGPT speedrun on real GPUs.
-5. **[Ship a product](https://cohort.bubblnet.com/journey/#scene-5)** — turn your model into something people can use.
-6. **[Prove it](https://cohort.bubblnet.com/journey/#scene-6)** — capstone, public artifact, your first break.
+1. **[Ship something real](https://cohort.bubblnet.com/roadmap)** — set up your blog, push your first commit, build the habit.
+2. **[See inside the machine](https://cohort.bubblnet.com/roadmap)** — local inference, tokens, attention, what an LLM actually does.
+3. **[Think at production scale](https://cohort.bubblnet.com/roadmap)** — APIs, evals, latency, cost, the production mindset.
+4. **[Train your own](https://cohort.bubblnet.com/roadmap)** — fine-tuning, distributed training, nanoGPT speedrun on real GPUs.
+5. **[Ship a product](https://cohort.bubblnet.com/roadmap)** — turn your model into something people can use.
+6. **[Prove it](https://cohort.bubblnet.com/roadmap)** — capstone, public artifact, your first break.
 
 ## Who it's for
 
@@ -60,14 +60,10 @@ This entire site — lessons, transcripts, blog, office-hours notes, infra — i
 - **Contribute:** [CONTRIBUTING.md](CONTRIBUTING.md) — how to propose changes, add roadmap items, fix typos.
 - **License:** [Apache 2.0](LICENSE).
 
-## A note on AI-generated content
-
-Office hours transcripts and cohort material are used to generate AI podcast lessons and summaries published on the site and in [The Journey](https://cohort.bubblnet.com/journey/). All learner names are anonymized — no real names are used. By participating in office hours, you consent to your contributions being used in this way.
-
 ## For developers and maintainers
 
 This README is for learners. If you're forking the repo, hosting your own version, or contributing infrastructure changes:
 
-- **[DEVELOPMENT.md](DEVELOPMENT.md)** — local preview, Cloudflare deploy, Journey Player audio/transcripts on R2, CORS policy.
+- **[DEVELOPMENT.md](DEVELOPMENT.md)** — local preview, Cloudflare deploy, CORS policy.
 - **[SEO-Explained.md](SEO-Explained.md)** — plain-English walkthrough of the clean-URL setup and post-render scripts.
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** — contribution guidelines.

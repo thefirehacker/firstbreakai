@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
 Disallow: /public/audio/
+Disallow: /journey/
 Sitemap: https://cohort.bubblnet.com/sitemap.xml

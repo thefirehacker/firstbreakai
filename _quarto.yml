@@ -11,16 +11,16 @@ project:
     - "blog/*.qmd"
     - "project-watch/*.qmd"
     - "office-hours/*.qmd"
-    - "journey/*.qmd"
     - "lessons/*.qmd"
     - "!temp/"
+    - "!journey/"
   post-render:
     - scripts/rewrite-sitemap.mjs
     - scripts/rewrite-html-links.mjs
 
 website:
   title: "First Break AI"
-  description: "A narrative-driven AI cohort — scroll through an immersive storyboard from first commit to capstone. Free, open, guided by AI podcast. Get your first break in AI."
+  description: "A free, open cohort to learn AI by doing — inference, training, and AI product building. No prerequisites, follow the roadmap and build in the open."
   site-url: "https://cohort.bubblnet.com/"
   favicon: public/images/favicon_io/favicon.ico
   google-analytics: "G-VB604Y51JX"
@@ -89,7 +89,6 @@ format:
       - includes/fba-mcp-widget.html
       - includes/mermaid-zoom.html
       - includes/github-card.html
-      - includes/journey-player.html
       - includes/lesson-player.html
     mermaid:
       theme: neutral
