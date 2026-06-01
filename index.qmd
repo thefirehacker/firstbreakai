@@ -52,27 +52,27 @@ css: styles/home.css
 
 <div class="journey-preview">
   <div class="journey-preview-track">
-    <a href="journey/#scene-1" class="journey-preview-card">
+    <a href="roadmap.qmd" class="journey-preview-card">
       <span class="journey-preview-num">1</span>
       <span class="journey-preview-label">Ship something real</span>
     </a>
-    <a href="journey/#scene-2" class="journey-preview-card">
+    <a href="roadmap.qmd" class="journey-preview-card">
       <span class="journey-preview-num">2</span>
       <span class="journey-preview-label">See inside the machine</span>
     </a>
-    <a href="journey/#scene-3" class="journey-preview-card">
+    <a href="roadmap.qmd" class="journey-preview-card">
       <span class="journey-preview-num">3</span>
       <span class="journey-preview-label">Think at production scale</span>
     </a>
-    <a href="journey/#scene-4" class="journey-preview-card">
+    <a href="roadmap.qmd" class="journey-preview-card">
       <span class="journey-preview-num">4</span>
       <span class="journey-preview-label">Train your own</span>
     </a>
-    <a href="journey/#scene-5" class="journey-preview-card">
+    <a href="roadmap.qmd" class="journey-preview-card">
       <span class="journey-preview-num">5</span>
       <span class="journey-preview-label">Ship a product</span>
     </a>
-    <a href="journey/#scene-6" class="journey-preview-card">
+    <a href="roadmap.qmd" class="journey-preview-card">
       <span class="journey-preview-num">6</span>
       <span class="journey-preview-label">Prove it</span>
     </a>
@@ -181,7 +181,7 @@ css: styles/home.css
     </details>
     <p class="install-fba-fallback">
       Or, if you'd rather stay on this page,
-      <button type="button" id="fba-open-widget">open the Lens widget here</button>.
+      <button type="button" id="fba-open-widget">ask anything here</button>.
     </p>
   </div>
 </details>
@@ -336,7 +336,7 @@ Recommended for learners aged **16+**. If you are under 18, please join only wit
   <details class="faq-item">
     <summary>What if I miss a session, or join mid-cohort?</summary>
     <div class="faq-body">
-      <p>Everything is asynchronous-friendly. Office hours are recorded; AI-generated podcast summaries and lesson recaps go up on <a href="journey/">The Journey</a> within a few days; transcripts are interactive and searchable.</p>
+      <p>Everything is asynchronous-friendly. Office hours are recorded; lesson recaps and transcripts are interactive and searchable.</p>
       <p>You can join Cohort 01 today, in three weeks, or after Cohort 01 ends — the materials stay online and the Discord stays active. Nobody is gated.</p>
     </div>
   </details>
@@ -361,7 +361,7 @@ Recommended for learners aged **16+**. If you are under 18, please join only wit
     <div class="faq-body">
       <p><strong>Yes.</strong> First Break AI publishes a free, public <strong>MCP server</strong> (Model Context Protocol) so your AI assistant can talk to the cohort directly — search lessons, answer roadmap questions, help with enrollment, and validate homework against the rubric.</p>
       <p>The server uses <strong>Streamable HTTP</strong> (the current MCP transport). Install it in HuggingChat, Claude Desktop, Claude Code, Cursor, or OpenAI Codex by pasting one URL or config snippet. Step-by-step cards are in the <a href="#install-fba-mcp">Install the First Break AI MCP server</a> section at the top of this page.</p>
-      <p>Tools exposed by the server include <code>ask</code> (cohort Q&amp;A from lessons and FAQ), <code>find</code> (locate lessons and office-hours topics), <code>do</code> (enroll and Discord invite), <code>validate</code> (check submitted work), and <code>next</code> (suggest your next step). You can also use the <strong>Open Cohort Lens</strong> chat widget on this site without installing anything.</p>
+      <p>Tools exposed by the server include <code>ask</code> (cohort Q&amp;A from lessons and FAQ), <code>find</code> (locate lessons and office-hours topics), <code>do</code> (enroll and Discord invite), <code>validate</code> (check submitted work), and <code>next</code> (suggest your next step). You can also use the <strong>Ask Anything</strong> chat on this site without installing anything.</p>
       <p>No API key is required for read-only cohort tools; the cohort teaches MCP by having you install the same server you learn from — the same “agent-readable supply chain” idea as Lesson 1’s Croissant walkthrough, applied to the cohort itself.</p>
     </div>
   </details>
@@ -427,7 +427,7 @@ Recommended for learners aged **16+**. If you are under 18, please join only wit
       "name": "What if I miss a session, or join mid-cohort?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Everything is asynchronous-friendly. Office hours are recorded; AI-generated podcast summaries and lesson recaps go up on The Journey within a few days; transcripts are interactive and searchable. You can join Cohort 01 today, in three weeks, or after Cohort 01 ends — the materials stay online and the Discord stays active. Nobody is gated."
+        "text": "Everything is asynchronous-friendly. Office hours are recorded; lesson recaps and transcripts are interactive and searchable. You can join Cohort 01 today, in three weeks, or after Cohort 01 ends — the materials stay online and the Discord stays active. Nobody is gated."
       }
     },
     {
@@ -443,7 +443,7 @@ Recommended for learners aged **16+**. If you are under 18, please join only wit
       "name": "Does the First Break AI cohort have an MCP server?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. First Break AI publishes a free, public MCP server (Model Context Protocol) so your AI assistant can talk to the cohort directly — search lessons, answer roadmap questions, help with enrollment, and validate homework. The server uses Streamable HTTP. Install it in HuggingChat, Claude Desktop, Claude Code, Cursor, or OpenAI Codex by pasting one URL or config snippet from the Install the First Break AI MCP server section on the homepage. Tools include ask, find, do, validate, and next. No API key is required for read-only cohort tools. You can also use the Open Cohort Lens chat widget on the site without installing anything."
+        "text": "Yes. First Break AI publishes a free, public MCP server (Model Context Protocol) so your AI assistant can talk to the cohort directly — search lessons, answer roadmap questions, help with enrollment, and validate homework. The server uses Streamable HTTP. Install it in HuggingChat, Claude Desktop, Claude Code, Cursor, or OpenAI Codex by pasting one URL or config snippet from the Install the First Break AI MCP server section on the homepage. Tools include ask, find, do, validate, and next. No API key is required for read-only cohort tools. You can also use the Ask Anything chat on the site without installing anything."
       }
     }
   ]
@@ -451,9 +451,6 @@ Recommended for learners aged **16+**. If you are under 18, please join only wit
 </script>
 ```
 
-::: {.ai-content-notice}
-**About AI-generated content:** Office hours transcripts and cohort material are used to create AI-generated podcast lessons, summaries, and other learning resources published on this site and [The Journey](journey/). All learner names are anonymized — no real names are used. By participating in office hours, you consent to your contributions being used in this way.
-:::
 
 :::
 

@@ -89,15 +89,15 @@
   // --- FAB ---
   var fab = el('button', 'fba-lens-fab', { type: 'button', 'aria-label': BUTTON_LABEL });
   var fabLong = el('span', 'fba-lens-fab-label fba-lens-fab-label--long', { text: BUTTON_LABEL });
-  var fabShort = el('span', 'fba-lens-fab-label fba-lens-fab-label--short', { text: 'Lens' });
+  var fabShort = el('span', 'fba-lens-fab-label fba-lens-fab-label--short', { text: 'Ask' });
   fab.appendChild(fabLong);
   fab.appendChild(fabShort);
 
   // --- Panel ---
-  var panel = el('div', 'fba-lens-panel', { role: 'dialog', 'aria-label': 'FBA Cohort Lens' });
+  var panel = el('div', 'fba-lens-panel', { role: 'dialog', 'aria-label': 'Cohort Lens' });
 
   var header = el('div', 'fba-lens-header');
-  header.appendChild(el('span', 'fba-lens-title', { text: 'FBA Cohort Lens' }));
+  header.appendChild(el('span', 'fba-lens-title', { text: 'Cohort Lens' }));
 
   var headerActions = el('div', 'fba-lens-header-actions');
   var sizeGroup = el('div', 'fba-lens-size-group');
@@ -379,7 +379,7 @@
       panel.classList.add('is-open');
       setBodyLock(isSheet());
       if (!log.childElementCount) {
-        appendMessage('sys', 'Welcome — I am the FBA Cohort Lens. Ask anything, or tap an action below.');
+        appendMessage('sys', 'Ask me anything about the cohort — lessons, roadmap, enrollment, or next steps.');
         renderQuickActions();
       }
       if (!isSheet()) {

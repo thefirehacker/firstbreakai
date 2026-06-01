@@ -52,13 +52,12 @@ See our [Community Guidelines](community-guidelines.qmd) for the full list.
 
 The Service is **recommended for learners aged 16 and above**. If you are **under 18**, you may participate only with the permission of a parent or guardian. Some jurisdictions (including India under the DPDP Act) treat all persons under 18 as children for personal-data purposes. We do not knowingly collect personal information from anyone under the applicable minimum age. See our [Privacy Policy](privacy.qmd) for details.
 
-## 6. Office hours, recordings, and AI-generated content
+## 6. Office hours and recordings
 
 Office hours are live sessions. By participating you agree that:
 
-- Sessions may be **recorded, transcribed, summarized, and converted into AI-generated podcast episodes** and lesson material published on this site and [The Journey](journey/).
+- Sessions may be **recorded, transcribed, and summarized** into lesson material published on this site.
 - **Learner names are anonymized** wherever possible.
-- Voices and conversations in podcast episodes may be **entirely AI-generated** from transcripts.
 
 If you do not want your contributions used this way, do not share them in office hours or public community channels.
 
@@ -68,7 +67,7 @@ You retain ownership of the projects, code, notes, and other content you create.
 
 ## 8. Our content
 
-Lessons, blog posts, the Journey, the roadmap, diagrams, podcasts, and other material we publish are made available for your personal, non-commercial learning. Unless we say otherwise, you may not repackage, resell, or republish our material as your own.
+Lessons, blog posts, the roadmap, diagrams, and other material we publish are made available for your personal, non-commercial learning. Unless we say otherwise, you may not repackage, resell, or republish our material as your own.
 
 ## 9. Third-party services
 

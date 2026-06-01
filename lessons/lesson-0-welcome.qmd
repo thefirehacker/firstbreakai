@@ -71,4 +71,4 @@ This is the cohort intro. It walks through the **six stages of the journey**, th
 2. Walk through the [Roadmap](../roadmap.qmd).
 3. Tick off the [Checklist](../checklist.qmd).
 4. Complete the [AI Setup](../setup.qmd).
-5. Begin [The Journey](../journey/index.qmd) — the audio-narrated walk-through of stage 1.
+5. Begin the [Roadmap](../roadmap.qmd) — start with Step 1 and work your way through.

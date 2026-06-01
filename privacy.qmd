@@ -37,19 +37,18 @@ We **do not** ask you to give us, and you should not share in public cohort chan
 We process the data above to:
 
 - **Operate the cohort** — host the website, run Discord, hold office hours, publish lessons.
-- **Improve the learning material** — turn anonymized transcripts into AI-generated podcasts, summaries, and lesson recaps (see [Terms § 6](terms.qmd)).
+- **Improve the learning material** — turn anonymized transcripts into summaries and lesson recaps (see [Terms § 6](terms.qmd)).
 - **Communicate with you** — answer questions you send us, share cohort announcements on Discord.
 - **Keep the community safe** — moderate, remove abuse, prevent spam, comply with applicable law.
 - **Understand traffic** — aggregate, anonymized site analytics so we can tell what is useful.
 
 Your processing is based on either your **consent** (e.g., joining office hours, emailing us) or on the **legitimate uses** recognised under the DPDP Act (e.g., what you've voluntarily shared in a public channel for the purpose of receiving the Service).
 
-## 4. AI-generated content from office hours
+## 4. Content from office hours
 
-Office hours transcripts may be **summarised, transformed, and converted into AI-generated podcasts and lessons** published on this site and on [The Journey](journey/). When we do this:
+Office hours transcripts may be **summarised and transformed into lessons** published on this site. When we do this:
 
 - **Learner names are anonymised** — we don't use real names in published material.
-- **Voices in podcast episodes are AI-generated**, not your real voice, unless you have explicitly given separate permission to use your recorded voice.
 - If you participate in an office-hours session and later want a specific contribution removed, email `contact@bubblspace.com`.
 
 ## 5. Who we share data with
@@ -80,7 +79,7 @@ Some of the third parties above (Google, Discord, Cloudflare, GitHub, Hugging Fa
 |---|---|
 | Google Analytics records | 14 months (default GA retention) |
 | Office-hours recordings (raw) | Up to 12 months after the session, then deleted |
-| Office-hours transcripts and AI-generated material | Kept indefinitely in anonymised form as part of the published cohort archive |
+| Office-hours transcripts and published material | Kept indefinitely in anonymised form as part of the published cohort archive |
 | Emails to `contact@bubblspace.com` | Up to 24 months unless an active conversation is ongoing |
 | Discord messages | Stored by Discord under their policy, not ours |
 
