@@ -60,7 +60,7 @@ This is the cohort intro. It walks through the **six stages of the journey**, th
 ## What this lesson covers
 
 - **The six stages:** ship something real, see inside the machine, think at production scale, train your own model, ship a product, prove it.
-- **Cohort dates:** 1 May 2026 – 30 June 2026.
+- **Cohort dates:** 1 May 2026 – 31 July 2026.
 - **The roadmap:** GitHub basics, run a model locally, attention & KV cache, PyTorch & training, and Modal-based GPU runs.
 - **The checklist:** Discord, Hugging Face, GitHub, Bubblspace AI, Google Colab.
 - **The AI setup:** Cursor / Claude Code / Codex, ChatGPT, OpenRouter, Modal, Weights & Biases.

@@ -17,7 +17,7 @@ Office Hours are live cohort sessions where we go deeper on roadmap topics, debu
 ## [Cohort 01]{.oh-section-tag .cohort} Live sessions {.oh-section-heading}
 
 ::: {.oh-section-blurb}
-Cohort 01 runs **1 May 2026 — 30 June 2026**. These are the live sessions for enrolled learners — the most recent session is at the top.
+Cohort 01 runs **1 May 2026 — 31 July 2026**. These are the live sessions for enrolled learners — the most recent session is at the top.
 :::
 
 ::: {.blog-cards .oh-cohort-row}
