@@ -20,7 +20,7 @@ css:
 ##### How a language model lives on disk and loads into memory — byte by byte. {.lesson-hero-subtitle}
 
 ::: {.lesson-hero-meta}
-[~45 min read]{.lesson-hero-chip} [Cohort 01](../office-hours/2026-05-08.qmd){.lesson-hero-chip} [Run a model locally](../roadmap.qmd){.lesson-hero-chip}
+[~80 min read]{.lesson-hero-chip} [Cohort 01](../office-hours/2026-05-08.qmd){.lesson-hero-chip} [Run a model locally](../roadmap.qmd){.lesson-hero-chip}
 :::
 :::
 
@@ -1560,19 +1560,106 @@ for (int i = 0; i < n; i++) {
 
 This avoids sorting all 151,936 tokens when only a handful have meaningful probability.
 
+### How the Nucleus Is Built — Step by Step
+
+The nucleus is not a fixed size. It is whatever number of top tokens you need so their probabilities add up to at least your top-p cutoff. One sentence rule:
+
+> **Sort tokens by probability (highest first), add them one by one, and stop as soon as the running sum reaches ≥ top-p. That set is the nucleus; everything else is the tail.**
+
+```
+         ┌──────────────────┐
+         │ Sort tokens by   │
+         │ prob descending   │
+         └────────┬─────────┘
+                  │
+                  ▼
+         ┌──────────────────┐
+         │ Add next token   │
+         │ to running sum   │
+         └────────┬─────────┘
+                  │
+            sum ≥ top-p?
+           ╱            ╲
+         yes             no
+          │               │
+          ▼               └──→ (loop back up)
+  ┌───────────────┐
+  │ Token is IN   │
+  │ the nucleus   │
+  └───────────────┘
+  All remaining tokens → tail (excluded)
+```
+
+In `run.c`, `sample_topp()` does this after temperature scaling and softmax. The dashboard's **Nucleus size** is the count of tokens included before the cutoff is crossed.
+
+#### Example 1: Nucleus size = 1
+
+The model is very confident — one token carries almost all the mass:
+
+| Token | Prob | Cumulative |
+|-------|------|-----------|
+| " be" | 99.9% | 99.9% ← crosses 95% |
+| " have" | 0.1% | — |
+| … | ~0% | — |
+
+After token #1: cumulative = 99.9% → already ≥ 95%. **Stop. Nucleus = 1 token.**
+
+The model was very confident after T=0.6. One token carries almost all the mass, so top-p does not need a second candidate. Sampling is effectively deterministic on this step.
+
+#### Example 2: Nucleus size = 3
+
+The distribution is flatter — no single token dominates:
+
+| Token | Prob | Cumulative |
+|-------|------|-----------|
+| " tradition" | 58.3% | 58.3% |
+| " magic" | 34.6% | 92.9% |
+| " kindness" | 2.4% | 95.3% ← crosses 95% |
+| " folklore" | 1.2% | (tail — not in nucleus) |
+
+After #1: 58.3% — not enough. After #2: 92.9% — still under 95%. After #3: 95.3% — done. **Nucleus = 3 tokens.**
+
+" folklore" stays grey (tail) because the nucleus was already full at 95.3% before it was reached. The model randomly picks among " tradition", " magic", and " kindness" according to their relative probabilities (58% / 35% / 2%) after re-normalizing.
+
+#### Why Nucleus Size Changes from Step to Step
+
+Same run, same `-t 0.6 -p 0.95` — only the shape of the probability distribution at that step changes:
+
+| Factor | Effect on nucleus size |
+|--------|----------------------|
+| How peaked the distribution is | Sharp winner → often 1; several strong options → 2–10+ |
+| Temperature (T=0.6) | Lower T → sharper → tends toward smaller nucleus |
+| Top-p (0.95) | Lower p (e.g. 0.5) → fewer tokens; higher p (e.g. 0.99) → more tokens |
+| Where you are in the text | Mid-sentence glue words (" be") → small; open choices (" tradition" / " magic") → larger |
+
+#### What Top-p Actually Does at Sampling Time
+
+1. **Build the nucleus** — the smallest set of top tokens with cumulative mass ≥ 95%.
+2. **Re-normalize** — scale probabilities inside the nucleus so they sum to 1.0.
+3. **Sample** — randomly pick one token from the nucleus using the re-normalized probabilities.
+4. **Ignore the tail** — the 151,933+ tokens not in the nucleus are never chosen, no matter what.
+
+When nucleus = 1, sampling is almost deterministic (one real choice). When nucleus = 3, there's genuine randomness among the candidates.
+
+#### Reading the Dashboard
+
+![Sampling visualizer — "book" step. Nucleus size = 3: the top-3 tokens ("book", " Book", "Book") cover 100% of the nucleus mass. 151,933 tokens in the tail are excluded. Temperature 0.60 sharpens the distribution so the top token dominates at 71.5%.](../public/images/lessons/sampling-viz-book-step.png){fig-alt="Qwen3 sampling visualizer showing nucleus size 3 with book token selected"}
+
+Quick read of the dashboard:
+
+- **Green bars** = in the nucleus (eligible to be chosen)
+- **Grey bars** = tail (excluded by top-p)
+- **Gold bar** = the token that was actually sampled
+- **Nucleus mass** shows the cumulative probability of all nucleus tokens
+- **Tail excluded** shows how many of the 151,936 vocabulary tokens were cut
+
 ### Seeing It Live — The Sampling Visualizer
 
-The cohort has built a live dashboard that visualizes exactly what happens at every decode step. When you run the model with `-v 1`, each generated token emits a JSONL event containing the top-20 token probabilities, nucleus membership, and which token was chosen.
+The cohort has built a live dashboard that visualizes exactly what happens at every decode step. When you run the model with `-v 1`, each generated token emits a JSONL event containing the top-20 token probabilities, nucleus membership, and which token was chosen. You can replay any step and see the nucleus build up token by token.
 
 ![Sampling visualizer — nucleus view. The top-3 tokens ("referring", "confusing", "confused") form the nucleus (green bars) covering 95.6% of probability mass. 151,933 tokens in the tail are excluded by top-p. Temperature 0.60 sharpens the distribution so the top token dominates at 73.2%.](../public/images/lessons/sampling-viz-nucleus.png){fig-alt="Qwen3 sampling visualizer showing top-20 token probabilities with nucleus membership highlighted"}
 
 ![Sampling visualizer — thinking mode. The model is inside a think block, deliberating before answering. The nucleus is wider here (5 tokens) because the model is less certain during reasoning. "But" leads at 33.9%, with "However", "The", "So", and "If" all in the nucleus.](../public/images/lessons/sampling-viz-thinking.png){fig-alt="Qwen3 sampling visualizer during thinking mode showing wider nucleus distribution"}
-
-The visualizer makes several things concrete that are hard to see from numbers alone:
-
-- **Nucleus size varies per step.** Sometimes only 2–3 tokens cover 95% of the mass; other times 8–10 do. The model's confidence changes with every token.
-- **Temperature's effect is visible.** At 0.2, the top token bar fills the entire chart. At 1.2, the distribution flattens and the nucleus grows.
-- **The tail is enormous.** Out of 151,936 tokens, typically only 3–10 are in the nucleus. The other 151,926+ are excluded — they had near-zero probability after temperature scaling.
 
 To run the visualizer yourself:
 

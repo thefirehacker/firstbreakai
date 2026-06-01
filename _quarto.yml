@@ -76,6 +76,8 @@ website:
         href: community-guidelines.qmd
     right: "contact@bubblspace.com"
 
+lightbox: auto
+
 format:
   html:
     css:
