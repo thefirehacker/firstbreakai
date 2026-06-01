@@ -64,7 +64,11 @@
       "title": "Chapter 14: The Conversion Pipeline — SafeTensors In, GGUF Out"
     },
     {
-      "t": 2950,
+      "t": 2900,
+      "title": "Chapter 15: From Logits to Text — Prefill, Sampling, and the Viz"
+    },
+    {
+      "t": 3000,
       "title": "Exercises and Next Steps"
     }
   ],

@@ -1451,6 +1451,175 @@ model.safetensors ───────┤                    │    metadata (c
 
 ---
 
+## Chapter 15: From Logits to Text — Prefill, Sampling, and What You Can See
+
+The previous chapters traced how weights get from disk into memory. This chapter traces what happens *after* the forward pass produces logits — and introduces the two-phase structure that every inference engine uses.
+
+### The Two Phases of Generation
+
+When you type a prompt and press Enter, the model does not immediately start generating text. It first **reads your entire prompt**, then starts **writing its answer**. These are two distinct phases in the code, and understanding them is essential.
+
+**Phase 1: Prefill** — The model processes every token from your prompt, one at a time. Each `forward()` call builds up the KV cache (key/value attention states) so the model "remembers" the full prompt. During prefill:
+
+- The token fed in comes from the prompt buffer (`tb->data[pos]`)
+- The logits produced are *discarded* (we don't sample from them)
+- No text is printed to screen
+
+Think of it like the model reading your question silently.
+
+**Phase 2: Decode** — Now the model generates one token at a time:
+
+- The token fed in is the *previous generated* token
+- The logits are used to sample the next token
+- The chosen token is printed to screen
+
+Think of it like the model writing its answer, one word at a time.
+
+Here's how the code decides which phase it's in:
+
+```c
+if (pos < (multi_turn ? tb->size : num_prompt_tokens)) {
+    token = (multi_turn) ? tb->data[pos] : prompt_tokens[pos];  // prefill
+} else {
+    token = next;  // decode — use last generated token
+}
+```
+
+A single variable — `pos` compared to the prompt length — is the entire boundary between the two phases. The same `forward()` function runs in both; only the source of the input token and the handling of the output differ.
+
+### TTFT and TPS — The Two Numbers That Matter
+
+In production inference engines (vLLM, TensorRT-LLM, llama.cpp server), two metrics dominate:
+
+**TTFT (Time to First Token)** — How long from pressing Enter to seeing the first generated word. This measures the prefill phase. In our `run.c`, you can measure it with `-f 1`:
+
+```bash
+OMP_NUM_THREADS=4 ./run Qwen3-0.6B-FP32.gguf -f 1
+# TTFT: 1823 ms
+```
+
+TTFT scales linearly with prompt length in our serial C implementation — every prompt token requires one full `forward()` call. Production engines optimize this heavily with batched prefill and parallelism.
+
+**TPS (Tokens Per Second)** — How fast the model generates during the decode phase. Measured with `-r 1`:
+
+```bash
+OMP_NUM_THREADS=4 ./run Qwen3-0.6B-FP32.gguf -r 1
+# tok/s: 6.686930
+```
+
+The TPS timer starts *after* the first generated token (after prefill is complete), so it measures pure decode speed. On a 4-core machine with OpenMP, expect roughly 6–7 tokens per second for Qwen3-0.6B at FP32.
+
+### Nucleus Sampling — What Happens After the Forward Pass
+
+Chapter 7 ended with 151,936 logits — raw scores, one per vocabulary token. But logits are not probabilities, and even after converting them to probabilities, we still need to *choose* a token. This is where sampling lives.
+
+The `sample()` function in `run.c` implements the full pipeline:
+
+```c
+int sample(Sampler* sampler, float* logits) {
+    int next;
+    if (sampler->temperature == 0.0f) {
+        next = sample_argmax(logits, sampler->vocab_size);
+    } else {
+        for (int q = 0; q < sampler->vocab_size; q++) {
+            logits[q] /= sampler->temperature;
+        }
+        softmax(logits, sampler->vocab_size);
+        float coin = random_f32(&sampler->rng_state);
+        if (sampler->topp <= 0 || sampler->topp >= 1) {
+            next = sample_mult(logits, sampler->vocab_size, coin);
+        } else {
+            next = sample_topp(logits, sampler->vocab_size,
+                               sampler->topp, sampler->probindex, coin);
+        }
+    }
+    return next;
+}
+```
+
+Three strategies, selected by the temperature and top-p parameters:
+
+**Greedy (temperature = 0):** Always pick the highest-probability token. Fully deterministic — same input always produces the same output. Fast but often repetitive.
+
+**Temperature scaling:** Divide every logit by the temperature before softmax. Lower temperature → sharper distribution (top token dominates). Higher temperature → flatter distribution (more randomness). The default is 0.6.
+
+**Nucleus (top-p) sampling:** After temperature scaling and softmax, sort tokens by probability descending. Walk down the sorted list, accumulating probability mass. Stop when you've covered `p` of the total mass (default 0.95). Sample only from this "nucleus" of high-probability tokens. Everything in the long tail is excluded.
+
+The `sample_topp()` function implements this with an efficiency trick — it pre-filters tokens below a cutoff threshold before sorting:
+
+```c
+const float cutoff = (1.0f - topp) / (n - 1);
+for (int i = 0; i < n; i++) {
+    if (probabilities[i] >= cutoff) {
+        probindex[n0].index = i;
+        probindex[n0].prob = probabilities[i];
+        n0++;
+    }
+}
+```
+
+This avoids sorting all 151,936 tokens when only a handful have meaningful probability.
+
+### Seeing It Live — The Sampling Visualizer
+
+The cohort has built a live dashboard that visualizes exactly what happens at every decode step. When you run the model with `-v 1`, each generated token emits a JSONL event containing the top-20 token probabilities, nucleus membership, and which token was chosen.
+
+![Sampling visualizer — nucleus view. The top-3 tokens ("referring", "confusing", "confused") form the nucleus (green bars) covering 95.6% of probability mass. 151,933 tokens in the tail are excluded by top-p. Temperature 0.60 sharpens the distribution so the top token dominates at 73.2%.](../public/images/lessons/sampling-viz-nucleus.png){fig-alt="Qwen3 sampling visualizer showing top-20 token probabilities with nucleus membership highlighted"}
+
+![Sampling visualizer — thinking mode. The model is inside a think block, deliberating before answering. The nucleus is wider here (5 tokens) because the model is less certain during reasoning. "But" leads at 33.9%, with "However", "The", "So", and "If" all in the nucleus.](../public/images/lessons/sampling-viz-thinking.png){fig-alt="Qwen3 sampling visualizer during thinking mode showing wider nucleus distribution"}
+
+The visualizer makes several things concrete that are hard to see from numbers alone:
+
+- **Nucleus size varies per step.** Sometimes only 2–3 tokens cover 95% of the mass; other times 8–10 do. The model's confidence changes with every token.
+- **Temperature's effect is visible.** At 0.2, the top token bar fills the entire chart. At 1.2, the distribution flattens and the nucleus grows.
+- **The tail is enormous.** Out of 151,936 tokens, typically only 3–10 are in the nucleus. The other 151,926+ are excluded — they had near-zero probability after temperature scaling.
+
+To run the visualizer yourself:
+
+```bash
+# Build the viz-enabled binary
+make runviz
+
+# Terminal 1: Start the dashboard
+cd ../../apps/sampling-viz && npm install && npm run dev
+
+# Terminal 2: Run inference with viz hook
+node ../../tools/sampling-bridge.mjs ./run_viz Qwen3-0.6B-FP32.gguf -v 1 -t 0.6 -p 0.95
+```
+
+Then open `http://localhost:3000` and chat in Terminal 2. Every generated token streams to the dashboard in real time.
+
+### Why the Prefill/Decode Split Matters for the Viz
+
+In the code, when viz is enabled, we copy the raw logits on *every* step (both prefill and decode) because `sample()` mutates the logits array in-place. But we only emit the visualization event during decode steps — prefill logits are discarded since we're not choosing a token from them:
+
+```c
+// copy raw logits before sample() mutates them (for viz)
+float* raw_logits_copy = NULL;
+if (viz) {
+    raw_logits_copy = malloc(sampler->vocab_size * sizeof(float));
+    memcpy(raw_logits_copy, logits, sampler->vocab_size * sizeof(float));
+}
+
+next = sample(sampler, logits);  // this mutates logits!
+```
+
+During decode, the copy is emitted and freed. During prefill, the copy is never emitted — so it must be freed separately to avoid a memory leak:
+
+```c
+// free logits copy if not emitted (prefill steps)
+if (raw_logits_copy) { free(raw_logits_copy); }
+```
+
+Without that line, every prefill step would leak ~600 KB (151,936 floats × 4 bytes). For a 100-token prompt, that's 60 MB leaked before the first word appears.
+
+::: {.callout-note}
+## For the full runtime walkthrough
+This chapter introduced prefill, decode, sampling, and the viz as they relate to the model's weight and memory pipeline. For the complete treatment — how to build and run `run.c`, what tokens are, how BPE tokenization works, chat templates, the transformer forward pass layer by layer, and the full chat loop — see the [Step 2 guide: Run a Model Locally](../blog/qwen3-run-locally.qmd).
+:::
+
+---
+
 ## Exercises
 
 ### Exercise 1: Calculate the Header Size Yourself
@@ -1515,6 +1684,19 @@ Calculate the file sizes for Qwen3-0.6B in each format:
 
 For each, estimate what percentage of the file is header/metadata vs actual weight data.
 
+### Exercise 9: Prefill Cost
+
+A user types a 200-token prompt. How many `forward()` calls happen during prefill? How many during decode if the model generates 50 tokens? What is the total? Now imagine the user sends a follow-up message in multi-turn mode with 30 more tokens — with prefix caching, how many prefill calls does the second turn need?
+
+### Exercise 10: Nucleus Math
+
+The model produces these top-5 probabilities after temperature scaling and softmax: `[0.45, 0.25, 0.15, 0.08, 0.04]`. With `top_p = 0.95`:
+
+1. Which tokens are in the nucleus?
+2. What is the nucleus mass?
+3. How many tokens from the 151,936-token vocabulary are excluded?
+4. If you lower `top_p` to 0.7, which tokens remain in the nucleus?
+
 ---
 
 ## Glossary
@@ -1539,9 +1721,13 @@ For each, estimate what percentage of the file is header/metadata vs actual weig
 
 **Logits:** The raw output scores of the model, one per vocabulary token. Before sampling, these are typically converted to probabilities via softmax.
 
+**Nucleus Sampling (Top-p):** A sampling strategy that keeps only the smallest set of tokens whose cumulative probability exceeds a threshold `p` (typically 0.95). Prevents the model from ever choosing very low-probability tokens, even at high temperatures.
+
 **mmap (Memory Map):** An operating system feature that maps a file into virtual memory, allowing the program to access file contents through pointer dereferencing without explicitly reading the file into a buffer.
 
 **Pickle:** A Python serialization format that can store arbitrary Python objects, including executable code. Previously used for PyTorch model files (`.bin`, `.pt`). Replaced by SafeTensors due to security risks (arbitrary code execution during deserialization).
+
+**Prefill:** The first phase of inference where the model processes every token of the user's prompt sequentially, building up the KV cache. No text is generated during prefill. The duration of this phase determines TTFT.
 
 **Quantization:** Reducing the precision of weights (e.g., from 32-bit float to 4-bit integer) to reduce file size and memory usage, at the cost of some accuracy.
 
@@ -1557,9 +1743,15 @@ For each, estimate what percentage of the file is header/metadata vs actual weig
 
 **SwiGLU:** An activation function used in the FFN layers. It combines the Swish (SiLU) activation with a gating mechanism: `SwiGLU(x) = Swish(W_gate × x) × (W_up × x)`. Requires two separate projections (gate and up) instead of one.
 
+**Temperature:** A scaling factor applied to logits before softmax. Lower temperature (e.g. 0.2) sharpens the distribution, making the top token dominate. Higher temperature (e.g. 1.5) flattens it, increasing randomness. Temperature 0 is greedy (always pick the highest).
+
 **Tensor:** A multi-dimensional array of numbers. A 1D tensor is a vector, a 2D tensor is a matrix. Model weights are stored as tensors.
 
 **Tensor Name Mapping:** The process of translating framework-specific tensor names (like PyTorch's `model.layers.0.self_attn.q_proj.weight`) to standardized GGUF names (like `blk.0.attn_q.weight`). Handled by the conversion script's mapping table.
+
+**TPS (Tokens Per Second):** The decode-phase generation speed — how many tokens the model produces per second after the first token. Measured with `-r 1` in run.c.
+
+**TTFT (Time to First Token):** The time from submitting a prompt to receiving the first generated token. Measures prefill duration. Measured with `-f 1` in run.c. In production engines, this is the primary latency metric.
 
 **Transformer:** The neural network architecture underlying modern LLMs. Consists of repeated blocks of self-attention followed by feed-forward networks, with residual connections and normalization.
 
