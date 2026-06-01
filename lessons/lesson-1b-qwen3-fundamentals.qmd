@@ -20,7 +20,7 @@ css:
 ##### How a language model lives on disk and loads into memory — byte by byte. {.lesson-hero-subtitle}
 
 ::: {.lesson-hero-meta}
-[~45 min read]{.lesson-hero-chip} [Cohort 01](../office-hours/2026-05-08.qmd){.lesson-hero-chip} [Run a model locally](../roadmap.qmd){.lesson-hero-chip}
+[~80 min read]{.lesson-hero-chip} [Cohort 01](../office-hours/2026-05-08.qmd){.lesson-hero-chip} [Run a model locally](../roadmap.qmd){.lesson-hero-chip}
 :::
 :::
 
