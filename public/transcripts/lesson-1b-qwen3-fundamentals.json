@@ -68,6 +68,10 @@
       "title": "Chapter 15: From Logits to Text — Prefill, Sampling, and the Viz"
     },
     {
+      "t": 2950,
+      "title": "Chapter 16: The KV Cache — Why the Model Remembers"
+    },
+    {
       "t": 3000,
       "title": "Exercises and Next Steps"
     }
