@@ -44,6 +44,18 @@ Why an open model is not a file — it's a supply chain you can inspect. The men
 [Watch lesson](lesson-1-huggingface-beyond-upload.qmd){.blog-card-link}
 ::::
 
+:::: {.blog-card .blog-card-oh}
+[Lesson 1b · Step 2]{.blog-card-label}
+
+### Qwen3 Fundamentals
+
+::: {.blog-card-desc}
+How a language model lives on disk and loads into memory — byte by byte. GGUF file format, memory mapping, tensor layout, the pointer walk, SafeTensors vs GGUF, tensor naming conventions, and the full conversion pipeline from HuggingFace to run.c.
+:::
+
+[Watch lesson](lesson-1b-qwen3-fundamentals.qmd){.blog-card-link}
+::::
+
 :::
 
 More lessons will be published here as the cohort progresses.
