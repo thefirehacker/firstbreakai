@@ -5,7 +5,7 @@ description: "Step-by-step learning path: set up a Quarto blog, run models local
 css: styles/roadmap.css
 ---
 
-Your learning path — one journey, step by step. The cohort runs **1 May 2026 — 30 June 2026 (2 months)**. Use your AI-based IDE and the community to complete each step. This roadmap is in progress; new steps get added as the cohort grows.
+Your learning path — one journey, step by step. The cohort runs **1 May 2026 — 31 July 2026 (3 months)**. Use your AI-based IDE and the community to complete each step. This roadmap is in progress; new steps get added as the cohort grows.
 
 ::: {.callout-important}
 ## Before you begin
