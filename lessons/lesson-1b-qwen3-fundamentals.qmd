@@ -20,7 +20,7 @@ css:
 ##### How a language model lives on disk and loads into memory — byte by byte. {.lesson-hero-subtitle}
 
 ::: {.lesson-hero-meta}
-[~80 min read]{.lesson-hero-chip} [Cohort 01](../office-hours/2026-05-08.qmd){.lesson-hero-chip} [Run a model locally](../roadmap.qmd){.lesson-hero-chip}
+[~110 min read]{.lesson-hero-chip} [Cohort 01](../office-hours/2026-05-08.qmd){.lesson-hero-chip} [Run a model locally](../roadmap.qmd){.lesson-hero-chip}
 :::
 :::
 
@@ -1815,6 +1815,70 @@ node ../../tools/sampling-bridge.mjs ./run_viz Qwen3-0.6B-FP32.gguf -v 1 -t 0.6 
 ```
 
 Then open `http://localhost:3000` and chat in Terminal 2. Every generated token streams to the dashboard in real time.
+
+### What Top Labs Actually Use — Nucleus Sampling in Production
+
+You've just learned nucleus sampling on a 0.6B model running on your laptop. Here's the thing: **this is the same sampling strategy that every major lab uses in production.** Temperature + top-p (nucleus) is the universal default across the industry.
+
+#### The Industry Landscape
+
+| Lab / Model | Temperature | Top-p | Notes |
+|-------------|-------------|-------|-------|
+| **OpenAI** (GPT-4, etc.) | user-configurable | user-configurable | "Set one, not both" — they interact in hard-to-predict ways |
+| **OpenAI reasoning** (o1, o3, o4-mini) | **fixed at 1.0** | **fixed at 1.0** | API *rejects* any attempt to change them |
+| **Anthropic** (Claude) | user-configurable | user-configurable | Extended-thinking mode only allows top_p in 0.95–1.0 |
+| **Qwen3** (thinking mode) | 0.6 | 0.95 | "Do not use greedy decoding" — endless repetitions |
+| **Qwen3** (non-thinking) | 0.7 | 0.8 | Also uses top_k=20 and presence penalty=1.5 |
+| **DeepSeek-R1** | 0.6 | 0.95 | Benchmarks use 64 samples per prompt for pass@1 |
+| **DeepSeek-V3** | 1.0 (API) | 0.95 | Hidden mapping: T_internal = T_API × 0.3, so "1.0" is actually 0.3 |
+| **Kimi K2** (Moonshot AI) | 0.6 | — | API maps temperature: real_T = request_T × 0.6 |
+
+Top-k has largely fallen out of favor at the API level because nucleus is adaptive — the cutoff expands when the model is uncertain, shrinks when it's confident — while top-k is a static count regardless of the distribution shape.
+
+A newer technique worth knowing: **min-p sampling** (ICLR 2025). It uses a relative threshold — keep any token whose probability is at least `p × p_max` — which behaves better than top-p at high temperatures, where flat distributions let top-p admit garbage tokens. Qwen3 has started reporting min-p in its recommended configs.
+
+#### Why Reasoning Models Need Stochastic Sampling
+
+This is the most important insight from the table above: **reasoning models actively forbid greedy decoding.**
+
+OpenAI's o1/o3 models fix temperature at 1.0 and reject API calls that try to change it. Qwen3's docs warn explicitly: *"Do not use greedy decoding, as it can lead to performance degradation and endless repetitions."*
+
+The reason is the same for both: these models were trained with reinforcement learning to produce long self-correcting reasoning chains. The RL rollouts during training were generated with stochastic sampling, so the model *learned* to explore — "let me try X... wait, that doesn't work because... let me reconsider..." — and that exploration depends on occasionally picking a non-top token.
+
+Collapsing to greedy (`-t 0`) kills this. The model always takes the most probable next token, which means it can never deviate from its first idea, never self-correct, never explore alternative reasoning paths. The chain degenerates into repetition loops.
+
+You can observe this directly with your visualizer:
+
+- **`-t 0.0` (greedy):** Watch the model get stuck repeating phrases. The gold bar is always on the top token — no exploration, no recovery from bad paths.
+- **`-t 0.6` (recommended):** The top token still wins most of the time, but occasionally a second or third token wins. These are the moments where the model "changes its mind" mid-reasoning.
+- **`-t 1.2` (too hot):** The distribution gets so flat that the model picks near-random tokens. Reasoning becomes incoherent.
+
+The sweet spot at 0.6 means: *mostly confident, but with enough noise to self-correct.*
+
+#### Why OpenAI Fixes at 1.0 but Qwen3 Recommends 0.6
+
+This seems contradictory — both say "reasoning needs stochasticity," but OpenAI locks temperature to 1.0 while Qwen3 recommends 0.6. Three possible reasons:
+
+1. **Hidden rescaling.** DeepSeek-V3 maps `T_API × 0.3` internally; Kimi K2 maps `T_API × 0.6`. OpenAI's "1.0" might actually be ~0.3–0.6 inside the model. We don't know because it's closed-source.
+2. **Different RL training.** Qwen3's RL rollouts may have been generated at lower temperature, so the model learned to explore at 0.6 rather than 1.0.
+3. **Quality tradeoff.** At T=1.0 the reasoning chain explores more but also gets noisier. Qwen3 found 0.6 to be the sweet spot between "enough exploration for self-correction" and "not so much noise that chains go off the rails."
+
+The design philosophy also differs: OpenAI is paternalistic (prevents the footgun at the API level), while Qwen3 is open-source and trusts you to read the docs.
+
+#### The Pattern Across the Industry
+
+Once you line up all the labs, a consistent picture emerges:
+
+- **Production APIs:** temperature + top-p (nucleus). Often "tune one, not both."
+- **Reasoning/thinking modes:** temperature pushed up (0.6–1.0), top_p kept high (0.95–1.0), greedy actively discouraged.
+- **Non-thinking instruct modes:** temperature lower (0.6–0.7), top_p tighter (0.8), often a presence penalty added to suppress repetition.
+- **Benchmark reporting:** many samples per prompt (DeepSeek-R1 uses 64 completions per query), averaged for pass@k.
+- **Pretraining ablations:** greedy for reproducibility — deterministic results across runs.
+
+::: {.callout-tip}
+## Recommended reading
+The **DeepSeek-R1 model card** ([arXiv 2501.12948](https://arxiv.org/abs/2501.12948)) is the shortest, most explicit recipe — it shows the connection between nucleus sampling and pass@k evaluation in two paragraphs. The **Qwen3 technical report** ([arXiv 2505.09388](https://arxiv.org/abs/2505.09388)) publishes separate sampling configs for thinking vs non-thinking modes, directly relevant to what you're running locally.
+:::
 
 ### Why the Prefill/Decode Split Matters for the Viz
 
