@@ -1521,6 +1521,69 @@ OMP_NUM_THREADS=4 ./run Qwen3-0.6B-FP32.gguf -r 1
 
 The TPS timer starts *after* the first generated token (after prefill is complete), so it measures pure decode speed. On a 4-core machine with OpenMP, expect roughly 6–7 tokens per second for Qwen3-0.6B at FP32.
 
+### Why TTFT Feels Slow in Practice
+
+A common reaction when running the model locally: *"My prompt is tiny — why does it take 30+ seconds before the first word appears?"*
+
+The answer is **not** that the KV cache for your prompt is large. Two separate things get confused:
+
+| Concept | What it means |
+|---------|---------------|
+| **KV cache used** | Grows with **prompt length** — a few MB for a short question |
+| **KV cache allocated** | Reserved at startup for **max context** — huge regardless of prompt |
+
+From `malloc_run_state()` in `run.c`, the allocation is:
+
+```
+2 × 28 layers × 40,960 positions × 1,024 kv_dim × 4 bytes ≈ 9.4 GB
+```
+
+That buffer is `calloc`'d at startup, even if your prompt is only 50 tokens. On a machine with 8 GB RAM already at ~87% usage, this triggers **swap to disk** and makes everything feel stuck.
+
+#### What Actually Happens Before the First Token
+
+```
+You type a question + Enter
+    → encode prompt to tokens (chat template, system prompt, etc.)
+    → PREFILL: forward() once per prompt token (28 layers, CPU, FP32)
+    → first generated token printed ← this is TTFT
+```
+
+**Prefill is heavy compute**: for each prompt token, the model runs a full forward pass with attention over all positions so far. TTFT is dominated by prefill + cold start, not by "loading" KV for your short prompt.
+
+#### Factors That Stack Up
+
+| Factor | Effect on TTFT |
+|--------|----------------|
+| **Low free RAM** | 9.4 GB KV alloc + 2.4 GB model mmap → swap to disk |
+| **CPU-only FP32** | ~600M params, no GPU acceleration in `run.c` |
+| **Cold mmap** | First touches of 2.4 GB GGUF load pages from disk |
+| **Reasoning on** (`-k 1` default) | Long `<think>` block before the visible answer |
+| **Viz on** (`-v 1`) | Copies 151,936 logits per step + bridge + dashboard |
+| **System prompt + chat template** | Extra prefill tokens before generation starts |
+
+#### Practical Tips (No OpenMP Required)
+
+1. **Free RAM first.** Close browser tabs, other apps. Target at least 3–4 GB free before `./run`.
+2. **Measure cleanly.** Turn off extras while benchmarking:
+   ```bash
+   ./run Qwen3-0.6B-FP32.gguf -f 1 -k 0 -v 0
+   ```
+   `-f 1` prints TTFT, `-k 0` skips the thinking block, `-v 0` disables viz overhead.
+3. **Shorter prompts = fewer prefill steps.** Press Enter at "Enter system prompt" to skip it. Each extra token is one more full forward pass.
+4. **Use viz for learning, not speed tests.** The dashboard is for understanding sampling. For TTFT comparison, use plain `./run` with `-f 1`.
+5. **WSL users: move the repo off `/mnt/d/`.** Windows drives under `/mnt/` have slower I/O for heavy mmap. Copy to `~/` for better page fault performance.
+
+#### What Will *Not* Help TTFT
+
+| Change | Why |
+|--------|-----|
+| `-t 0` (greedy) | Affects **which** token is picked, not prefill speed |
+| `-p 0.5` (smaller nucleus) | Same — sampling only, after prefill |
+| Lower temperature | Dashboard experiments, not prefill |
+
+Prefill cost is **CPU × prompt length × model size**. Sampling flags change generation behavior, not the initial prompt crunch.
+
 ### Nucleus Sampling — What Happens After the Forward Pass
 
 Chapter 7 ended with 151,936 logits — raw scores, one per vocabulary token. But logits are not probabilities, and even after converting them to probabilities, we still need to *choose* a token. This is where sampling lives.
@@ -1664,6 +1727,71 @@ Quick read of the dashboard:
 - **Gold bar** = the token that was actually sampled
 - **Nucleus mass** shows the cumulative probability of all nucleus tokens
 - **Tail excluded** shows how many of the 151,936 vocabulary tokens were cut
+
+### When an Unlikely Token Wins — Probability Is Chance, Not Destiny
+
+Here is a real step from the sampling visualizer. The model was asked "who was the king in the jungle book" and at this decode step, with T=0.60 and top-p=0.95, the nucleus had 9 tokens:
+
+![Sampling visualizer — "original" step. Nucleus size = 9 tokens covering 96.1% of probability mass. The top token " \\"" has 25.2%, " book" has 24.5%, " story" has 23.7% — but the model chose " original" at just 1.4% (gold bar, rank 9). 151,927 tail tokens excluded.](../public/images/lessons/sampling-viz-original-top.png){fig-alt="Qwen3 sampling visualizer showing 9-token nucleus where unlikely token original was chosen"}
+
+![Same step, scrolled down. The generated text shows the model thinking through its reasoning: the chosen " original" token became part of the phrase 'the original Jungle Book'. The green bars show all 9 nucleus tokens; grey bars show tail tokens with negligible probability.](../public/images/lessons/sampling-viz-original-bottom.png){fig-alt="Qwen3 sampling visualizer showing generated tokens with original token selected in context"}
+
+The natural question: *why did " original" win when " book" was ~17x more likely?*
+
+**The model does not always pick the highest-probability token.** With default settings, it randomly samples from the nucleus. A 1.4% outcome is unlikely but valid — like drawing a rare ticket from a weighted lottery.
+
+#### The Weighted Lottery
+
+Imagine 100 tickets in a bag:
+
+- ~25 tickets say `" \""`
+- ~25 say `" book"`
+- ~24 say `" story"`
+- ~1–2 say `" original"`
+
+You pull **one** ticket. Usually you get `" book"` or `" story"`. Sometimes you get `" original"`. That is stochastic sampling, not a bug.
+
+The relevant code in `sample_topp()`:
+
+```c
+float r = coin * cumulative_prob;
+float cdf = 0;
+for (int i = 0; i <= last_idx; i++) {
+    cdf += probindex[i].prob;
+    if (r < cdf)
+        return probindex[i].index;
+}
+```
+
+The `coin` is a uniform random number in [0, 1). If it lands in the 1.4% slice belonging to `" original"`, that token wins. Run the same prompt again with a different random seed and the model will likely pick `" book"` or `" story"` instead.
+
+#### Why Not Always Pick the Top Token?
+
+| Mode | Flag | Behavior |
+|------|------|----------|
+| **Greedy** | `-t 0` | Always `argmax` — highest probability every time |
+| **Sampling** | `-t 0.6` (default) | Weighted random — more natural, varied text |
+| **Top-p** | `-p 0.95` (default) | Ignore the long tail so output stays coherent |
+
+Greedy text can be repetitive and mechanical. Sampling trades a bit of unpredictability for variety — the same reason human writers don't always pick the most obvious word. Top-p prevents sampling from the bottom 99.99% of unlikely tokens, so the output stays coherent even with randomness.
+
+#### Experiments to Try
+
+Run the bridge with different flags and watch how the dashboard changes:
+
+```bash
+# Sharper — top tokens win more often, fewer surprises
+node ../../tools/sampling-bridge.mjs ./run_viz Qwen3-0.6B-FP32.gguf -v 1 -t 0.2 -p 0.95
+
+# More surprises — flatter distribution, wider nucleus
+node ../../tools/sampling-bridge.mjs ./run_viz Qwen3-0.6B-FP32.gguf -v 1 -t 1.2 -p 0.95
+
+# Smaller nucleus — fewer candidates eligible
+node ../../tools/sampling-bridge.mjs ./run_viz Qwen3-0.6B-FP32.gguf -v 1 -t 0.6 -p 0.5
+
+# Always pick #1 (no lottery) — compare on the same prompt
+./run Qwen3-0.6B-FP32.gguf -t 0
+```
 
 ### Seeing It Live — The Sampling Visualizer
 
