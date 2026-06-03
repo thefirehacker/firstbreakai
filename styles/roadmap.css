@@ -210,3 +210,159 @@
   .step-card h3 { font-size: 1.05rem; }
   .step-card p, .step-card ul { font-size: 0.85rem; }
 }
+
+/* ══════════════════════════════════════════
+   Progress overlay — completion states
+   ══════════════════════════════════════════ */
+
+/* ── Completed step (visual view) ── */
+.timeline-step[data-completed="true"] .step-card {
+  border-top-color: #16a34a;
+  background: #f0fdf4;
+}
+
+.step-completed-badge {
+  position: absolute;
+  top: -0.2rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  background: #16a34a;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  box-shadow: 0 0 0 2px #f0ebe1;
+  font-size: 0.65rem;
+  color: #fff;
+  line-height: 1;
+}
+.timeline-step:nth-child(odd) .step-completed-badge {
+  right: -0.4rem;
+}
+.timeline-step:nth-child(even) .step-completed-badge {
+  left: -0.4rem;
+}
+
+/* ── Completed step (normal view) ── */
+.step-normal[data-completed="true"] {
+  border-left-color: #16a34a;
+  background: #f0fdf4;
+}
+
+/* ── Validate hint ── */
+.step-validate-hint {
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: #6b5c4c;
+  background: #faf6ee;
+  border-radius: 0.4rem;
+  border: 1px dashed #d4c9a8;
+}
+.step-validate-hint code {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-style: normal;
+  background: #f0ebe1;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.2rem;
+  font-size: 0.75rem;
+}
+
+/* ── Lesson checkboxes ── */
+.lesson-checkbox {
+  accent-color: #16a34a;
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.4rem;
+  vertical-align: middle;
+  cursor: pointer;
+}
+.lesson-checkbox:checked + a {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+
+/* ── Login banner ── */
+.roadmap-login-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  background: #faf6ee;
+  border: 1px solid #d4c9a8;
+  border-left: 4px solid #8b6914;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  color: #2c2417;
+}
+.roadmap-login-banner .banner-text {
+  flex: 1;
+}
+.roadmap-login-banner .banner-login-btn {
+  padding: 0.4rem 1rem;
+  background: #5865F2;
+  color: #fff;
+  border: none;
+  border-radius: 0.4rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+.roadmap-login-banner .banner-login-btn:hover {
+  background: #4752c4;
+}
+
+/* ── Guild (Discord) banner ── */
+.roadmap-guild-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  background: #f0f1fe;
+  border: 1px solid #c7caff;
+  border-left: 4px solid #5865F2;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  color: #2c2417;
+}
+.roadmap-guild-banner .banner-text {
+  flex: 1;
+}
+.roadmap-guild-banner .banner-discord-btn {
+  padding: 0.4rem 1rem;
+  background: #5865F2;
+  color: #fff;
+  border: none;
+  border-radius: 0.4rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.roadmap-guild-banner .banner-discord-btn:hover {
+  background: #4752c4;
+}
+
+/* ── Mobile adjustments for badges ── */
+@media (max-width: 700px) {
+  .timeline-step .step-completed-badge,
+  .timeline-step:nth-child(odd) .step-completed-badge,
+  .timeline-step:nth-child(even) .step-completed-badge {
+    left: -0.4rem;
+    right: auto;
+  }
+  .roadmap-login-banner,
+  .roadmap-guild-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+}
