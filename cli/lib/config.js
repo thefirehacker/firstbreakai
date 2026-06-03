@@ -15,6 +15,7 @@ export const PAGES = {
   checklist:  `${COHORT_URL}/checklist`,
   lessons:    `${COHORT_URL}/lessons/`,
   setup:      `${COHORT_URL}/setup`,
+  docs:       `${COHORT_URL}/docs`,
   blog:       `${COHORT_URL}/blog/`,
   discord:    DISCORD_INVITE,
   repo:       REPO_URL,

@@ -1,6 +1,6 @@
 {
   "name": "@aiedx/firstbreakai",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "CLI and local MCP server for the First Break AI cohort — check your environment, track progress, validate exercises, and get help.",
   "homepage": "https://cohort.bubblnet.com",
   "repository": {

@@ -23,7 +23,7 @@ const TOOLS = [
     description: 'Run local deterministic validation checks for a cohort step. Checks files, git state, and tool presence without any LLM calls. Returns pass/fail per check.',
     inputSchema: {
       type: 'object',
-      properties: { step: { type: 'number', description: 'Step number to validate (1 or 2)' } },
+      properties: { step: { type: 'number', description: 'Step number to validate (0, 1, or 2)' } },
       required: ['step'],
     },
   },

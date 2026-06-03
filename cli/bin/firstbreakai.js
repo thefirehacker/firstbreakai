@@ -23,6 +23,7 @@ Commands:
   next              Open the next incomplete step
   ask "<question>"  Ask the FBA AI assistant a question
   login             Authenticate via Discord
+  whoami            Show your login status and profile
   validate <step>   Run local checks for a step
   mcp               Start the MCP server (for Cursor, Claude Desktop, etc.)
   help              Show this help message
@@ -58,6 +59,7 @@ const commands = {
   next:     () => import('../lib/next.js'),
   ask:      () => import('../lib/ask.js'),
   login:    () => import('../lib/login.js'),
+  whoami:   () => import('../lib/whoami.js'),
   validate: () => import('../lib/validate.js'),
   mcp:      () => import('../lib/mcp-server.js'),
 };
@@ -73,4 +75,10 @@ try {
 } catch (err) {
   console.error(err.message || err);
   process.exit(1);
+}
+
+if (command === 'doctor' || command === 'help' || command === 'status') {
+  import('../lib/update-check.js')
+    .then((m) => m.checkForUpdate())
+    .catch(() => {});
 }

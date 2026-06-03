@@ -298,6 +298,25 @@
   border-color: #c4922e;
 }
 
+.fba-lens-chip--discord {
+  background: #5865f2;
+  color: #fff;
+  border-color: #5865f2;
+}
+.fba-lens-chip--discord:hover {
+  background: #4752c4;
+  border-color: #4752c4;
+}
+
+.fba-lens-chip--danger {
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+.fba-lens-chip--danger:hover {
+  background: #fef2f2;
+  border-color: #dc2626;
+}
+
 .fba-lens-resize-hint {
   position: absolute;
   bottom: 4px;

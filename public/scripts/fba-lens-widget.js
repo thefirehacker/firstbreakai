@@ -15,11 +15,17 @@
   var BUTTON_LABEL =
     (script && script.dataset.buttonLabel) || 'Open Cohort Lens';
   var STORAGE_KEY = 'fba-lens-session';
+  var TOKEN_KEY = 'fba-lens-token';
   var SIZE_KEY = 'fba-lens-panel-size';
+  var AUTH_ORIGIN = ENDPOINT.replace(/\/widget\/mcp$/, '').replace(/\/mcp$/, '');
 
   var sessionId = null;
+  var authToken = null;
   try {
     sessionId = localStorage.getItem(STORAGE_KEY);
+  } catch (_) {}
+  try {
+    authToken = localStorage.getItem(TOKEN_KEY);
   } catch (_) {}
 
   var panelSizes = {
@@ -406,23 +412,32 @@
 
   function renderQuickActions() {
     actions.innerHTML = '';
-    [
-      { label: 'Enroll me', action: enrollFlow },
-      {
-        label: 'What is FBA?',
-        action: function () {
-          ask('What is First Break AI and how does it work?');
-        },
+    var items = [];
+
+    if (authToken) {
+      items.push({ label: 'My Profile', action: function () { callTool('profile', { action: 'get', session_id: sessionId || undefined }); } });
+      items.push({ label: 'Logout', action: logoutFlow, cls: 'fba-lens-chip--danger' });
+    } else {
+      items.push({ label: 'Login with Discord', action: loginFlow, cls: 'fba-lens-chip--discord' });
+      items.push({ label: 'Enroll me', action: enrollFlow });
+    }
+
+    items.push({
+      label: 'What is FBA?',
+      action: function () {
+        ask('What is First Break AI and how does it work?');
       },
-      {
-        label: 'Next step for me',
-        action: function () {
-          callTool('next', { session_id: sessionId || '' });
-        },
+    });
+    items.push({
+      label: 'Next step for me',
+      action: function () {
+        callTool('next', { session_id: sessionId || '' });
       },
-      { label: 'Validate my Quarto blog', action: validateFlow },
-    ].forEach(function (a) {
-      var b = el('button', 'fba-lens-chip', { type: 'button', text: a.label });
+    });
+    items.push({ label: 'Validate my Quarto blog', action: validateFlow });
+
+    items.forEach(function (a) {
+      var b = el('button', 'fba-lens-chip' + (a.cls ? ' ' + a.cls : ''), { type: 'button', text: a.label });
       b.addEventListener('click', a.action);
       actions.appendChild(b);
     });
@@ -506,11 +521,51 @@
     });
   }
 
+  function loginFlow() {
+    var w = 500, h = 700;
+    var left = (screen.width - w) / 2, top = (screen.height - h) / 2;
+    var popup = window.open(
+      AUTH_ORIGIN + '/auth/discord',
+      'fba-discord-login',
+      'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top
+    );
+    var interval = setInterval(function () {
+      if (!popup || popup.closed) {
+        clearInterval(interval);
+        try { authToken = localStorage.getItem(TOKEN_KEY); } catch (_) {}
+        if (authToken) {
+          appendMessage('sys', 'Logged in via Discord.');
+          renderQuickActions();
+        }
+        return;
+      }
+    }, 500);
+
+    window.__fbaLensAuthCallback = function (token) {
+      authToken = token;
+      try { localStorage.setItem(TOKEN_KEY, token); } catch (_) {}
+      appendMessage('sys', 'Logged in via Discord.');
+      renderQuickActions();
+    };
+  }
+
+  function logoutFlow() {
+    var headers = { 'content-type': 'application/json' };
+    if (authToken) headers['authorization'] = 'Bearer ' + authToken;
+    fetch(AUTH_ORIGIN + '/auth/logout', { method: 'POST', headers: headers }).catch(function () {});
+    authToken = null;
+    try { localStorage.removeItem(TOKEN_KEY); } catch (_) {}
+    appendMessage('sys', 'Logged out.');
+    renderQuickActions();
+  }
+
   function callTool(name, args) {
     var loading = appendMessage('loading', 'Thinking…');
+    var headers = { 'content-type': 'application/json', 'x-mcp-client': 'fba-widget/2.0' };
+    if (authToken) headers['authorization'] = 'Bearer ' + authToken;
     fetch(ENDPOINT, {
       method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-mcp-client': 'fba-widget/2.0' },
+      headers: headers,
       body: JSON.stringify({
         jsonrpc: '2.0',
         id: Date.now(),
@@ -589,6 +644,18 @@
     } else if (name === 'next') {
       loading.body.textContent =
         data.question_for_user || data.step_name || 'Next step ready.';
+    } else if (name === 'profile') {
+      if (data.discord_username) {
+        var html = '';
+        if (data.avatar_url) html += '<img src="' + escapeHtml(data.avatar_url) + '" style="width:32px;height:32px;border-radius:50%;vertical-align:middle;margin-right:8px" />';
+        html += '<strong>' + escapeHtml(data.discord_username) + '</strong>';
+        html += '<br/><span style="color:#7a6f62;font-size:12px">Step ' + (data.current_step || 0) + ' &bull; ' + (data.in_guild ? 'In FBA Discord' : 'Not in Discord yet') + '</span>';
+        if (data.blog_url) html += '<br/><span style="font-size:12px">Blog: ' + escapeHtml(data.blog_url) + '</span>';
+        if (data.profile_url) html += '<br/><span style="font-size:12px">Profile: ' + escapeHtml(data.profile_url) + '</span>';
+        loading.body.innerHTML = html;
+      } else {
+        loading.body.textContent = data.message || JSON.stringify(data);
+      }
     } else {
       loading.body.textContent = JSON.stringify(data, null, 2);
     }

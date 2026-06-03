@@ -1,0 +1,70 @@
+<div id="fba-auth-bar" class="fba-auth-bar" style="display:none">
+  <button id="fba-login-btn" class="fba-login-btn" style="display:none">
+    <svg width="16" height="12" viewBox="0 0 71 55" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M60.1 4.9A58.5 58.5 0 0045.4.2a.2.2 0 00-.2.1 40.7 40.7 0 00-1.8 3.7 54 54 0 00-16.2 0A26.4 26.4 0 0025.4.3a.2.2 0 00-.2-.1A58.4 58.4 0 0010.5 4.9a.2.2 0 00-.1.1C1.5 18.7-.9 32.2.3 45.5v.1a58.7 58.7 0 0017.9 9.1.2.2 0 00.3-.1 42 42 0 003.6-5.9.2.2 0 00-.1-.3 38.6 38.6 0 01-5.5-2.6.2.2 0 01 0-.4c.4-.3.7-.6 1.1-.8a.2.2 0 01.2 0 41.9 41.9 0 0035.6 0 .2.2 0 01.2 0c.4.3.8.6 1.1.9a.2.2 0 010 .4 36.2 36.2 0 01-5.5 2.6.2.2 0 00-.1.3 47.1 47.1 0 003.6 5.9.2.2 0 00.2.1 58.5 58.5 0 0018-9.1v-.1c1.4-15-2.3-28.1-9.8-39.7a.2.2 0 00-.1 0zM23.7 37.3c-3.4 0-6.3-3.2-6.3-7s2.8-7 6.3-7 6.4 3.1 6.3 7-2.8 7-6.3 7zm23.2 0c-3.4 0-6.3-3.2-6.3-7s2.8-7 6.3-7 6.4 3.1 6.3 7-2.8 7-6.3 7z"/></svg>
+    Log in with Discord
+  </button>
+  <div id="fba-profile-badge" class="fba-profile-badge" style="display:none">
+    <span id="fba-profile-name" class="fba-profile-name"></span>
+    <button id="fba-logout-btn" class="fba-logout-btn" title="Log out">✕</button>
+  </div>
+</div>
+
+<script>
+(function() {
+  var MCP_URL = 'https://fba-mcp.throbbing-thunder-4d33.workers.dev';
+  var bar = document.getElementById('fba-auth-bar');
+  var loginBtn = document.getElementById('fba-login-btn');
+  var badge = document.getElementById('fba-profile-badge');
+  var nameEl = document.getElementById('fba-profile-name');
+  var logoutBtn = document.getElementById('fba-logout-btn');
+
+  // On load: check for token in URL params (callback from OAuth)
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('token') && params.get('learner_id')) {
+    localStorage.setItem('fba_token', params.get('token'));
+    localStorage.setItem('fba_learner_id', params.get('learner_id'));
+    // Clean URL
+    var clean = window.location.pathname + window.location.hash;
+    window.history.replaceState({}, '', clean);
+  }
+
+  var token = localStorage.getItem('fba_token');
+  var learnerId = localStorage.getItem('fba_learner_id');
+
+  bar.style.display = '';
+
+  if (token && learnerId) {
+    badge.style.display = '';
+    nameEl.textContent = learnerId.slice(0, 8) + '…';
+
+    // Fetch profile for username
+    fetch(MCP_URL + '/auth/me', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    })
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(me) {
+      if (!me) return;
+      if (me.discord_username) nameEl.textContent = me.discord_username;
+      // Store profile for roadmap page
+      window.__fba_profile = me;
+      window.dispatchEvent(new CustomEvent('fba:profile', { detail: me }));
+    })
+    .catch(function() {});
+  } else {
+    loginBtn.style.display = '';
+  }
+
+  loginBtn.addEventListener('click', function() {
+    var redirect = encodeURIComponent(window.location.href.split('?')[0]);
+    window.location.href = MCP_URL + '/auth/discord?redirect_url=' + redirect;
+  });
+
+  logoutBtn.addEventListener('click', function() {
+    localStorage.removeItem('fba_token');
+    localStorage.removeItem('fba_learner_id');
+    window.__fba_profile = null;
+    badge.style.display = 'none';
+    loginBtn.style.display = '';
+  });
+})();
+</script>
