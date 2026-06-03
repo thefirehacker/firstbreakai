@@ -4,13 +4,13 @@ overview: Add a /sponsors page (cloud provider sponsorship pitch with partner ti
 todos:
   - id: sponsors-page
     content: Create sponsors.qmd with partner tiers, compute mapping table, and contact CTA
-    status: pending
+    status: completed
   - id: teams-page
     content: Create teams.qmd with pricing tiers, free vs paid comparison, and contact CTA
-    status: pending
+    status: completed
   - id: site-integration
     content: Add footer links in _quarto.yml and brief mentions in index.qmd
-    status: pending
+    status: completed
 isProject: false
 ---
 

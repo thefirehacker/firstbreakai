@@ -57,6 +57,10 @@ website:
       - href: office-hours/index.qmd
         text: Office Hours
     right:
+      - href: sponsors.qmd
+        text: Sponsors
+      - href: teams.qmd
+        text: Teams
       - icon: discord
         href: "https://discord.gg/hRPese4H3F"
         text: Discord
@@ -66,6 +70,10 @@ website:
   page-footer:
     left: "© 2026 First Break AI — Powered by [fetchlens.ai](https://fetchlens.ai)"
     center:
+      - text: "Sponsors"
+        href: sponsors.qmd
+      - text: "Teams"
+        href: teams.qmd
       - text: "Terms"
         href: terms.qmd
       - text: "Privacy"
