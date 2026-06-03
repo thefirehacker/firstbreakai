@@ -541,12 +541,17 @@
       }
     }, 500);
 
-    window.__fbaLensAuthCallback = function (token) {
-      authToken = token;
-      try { localStorage.setItem(TOKEN_KEY, token); } catch (_) {}
-      appendMessage('sys', 'Logged in via Discord.');
-      renderQuickActions();
-    };
+    window.addEventListener('message', function handler(e) {
+      if (e.data && e.data.type === 'fba-auth' && e.data.token) {
+        window.removeEventListener('message', handler);
+        clearInterval(interval);
+        authToken = e.data.token;
+        try { localStorage.setItem(TOKEN_KEY, authToken); } catch (_) {}
+        appendMessage('sys', 'Logged in via Discord.');
+        renderQuickActions();
+        if (popup && !popup.closed) popup.close();
+      }
+    });
   }
 
   function logoutFlow() {
