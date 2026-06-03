@@ -1,0 +1,221 @@
+---
+title: "Partner with First Break AI"
+subtitle: "Stop being a passive check-writer. Become the platform that the next generation of AI engineers learns on."
+description: "Partner with First Break AI — integrate your compute platform into a hands-on AI curriculum. Your infrastructure becomes the textbook, not just a coupon. Reach builders learning inference, training, and deployment from first principles."
+title-block-style: none
+page-layout: full
+css:
+  - styles/home.css
+  - styles/pricing.css
+---
+
+::: {.content-section}
+
+::: {.cta-banner}
+### Stop being a passive check-writer.
+
+Become the platform that the next generation of AI engineers learns on — not the coupon they forget.
+:::
+
+## The problem with logo sponsorships
+
+Most cloud providers sponsor education the same way: write a check, get a logo on a page, hand out credit coupons. Students burn the credits on one assignment, forget the platform, and move on.
+
+**That is a terrible return on investment.**
+
+The credits expire. The developers leave. The logo gets scrolled past. Nobody learned your platform deeply enough to choose it for their next job or their next startup.
+
+## What we do differently
+
+First Break AI is a free, open cohort where engineers learn AI from first principles — inference in pure C, model training from scratch, shipping AI-powered products. The curriculum goes deep — with exercises, a sampling visualizer, and a public codebase. Participants don't watch lectures; they build.
+
+**We don't want your logo. We want your platform in our lessons.**
+
+When a cloud provider partners with First Break AI, their infrastructure becomes part of the curriculum itself:
+
+- Step 4's training lesson is written *around* your CLI and SDK
+- The exercise says "fine-tune Qwen3 on [your platform]," not "use any provider"
+- Your deployment pipeline is in the setup guide
+- Your monitoring dashboard appears in lesson screenshots
+- Participants set up accounts, run real workloads, and understand your platform deeply enough to teach it to others
+
+The difference between "we gave them $500 in credits" and "200 engineers now know our platform well enough to recommend it at work" is the difference between a marketing expense and a developer acquisition channel.
+
+---
+
+## Why this works better
+
+The most effective developer platforms in AI right now are the ones that made their tools the *teaching material*, not the coupon. They open-sourced their training framework, built community around it, and then offered the compute to run it. The tools *are* the education. The education creates the users. The users become customers.
+
+We apply the same model, but to a structured cohort:
+
+:::: {.comparison-table}
+
+::: {.comparison-row .comparison-header}
+::: {.comparison-cell .comparison-label}
+:::
+::: {.comparison-cell}
+**Passive sponsorship**
+:::
+::: {.comparison-cell}
+**First Break AI partnership**
+:::
+:::
+
+::: {.comparison-row}
+::: {.comparison-cell .comparison-label}
+Visibility
+:::
+::: {.comparison-cell}
+Logo on a sponsor page
+:::
+::: {.comparison-cell .comparison-highlight}
+Your platform in the lesson text and code
+:::
+:::
+
+::: {.comparison-row}
+::: {.comparison-cell .comparison-label}
+Credits
+:::
+::: {.comparison-cell}
+Bulk grant to one account
+:::
+::: {.comparison-cell .comparison-highlight}
+Per-participant allocation — 200 new accounts on your platform
+:::
+:::
+
+::: {.comparison-row}
+::: {.comparison-cell .comparison-label}
+Developer depth
+:::
+::: {.comparison-cell}
+Credits expire, developers leave
+:::
+::: {.comparison-cell .comparison-highlight}
+Developers learn your CLI, your SDK, your dashboard
+:::
+:::
+
+::: {.comparison-row}
+::: {.comparison-cell .comparison-label}
+Content
+:::
+::: {.comparison-cell}
+No curriculum tie-in
+:::
+::: {.comparison-cell .comparison-highlight}
+Dedicated lesson section: "Training on [Your Platform]"
+:::
+:::
+
+::: {.comparison-row}
+::: {.comparison-cell .comparison-label}
+Engagement
+:::
+::: {.comparison-cell}
+One-time mention
+:::
+::: {.comparison-cell .comparison-highlight}
+Your engineer presents in office hours, co-branded blog post
+:::
+:::
+
+::::
+
+---
+
+## Where compute is needed in the roadmap
+
+The curriculum is designed so participants hit the GPU wall at exactly the right moment — after they understand inference cold.
+
+| Roadmap Step | What participants build | Compute needed |
+|-------------|----------------------|---------------|
+| **Step 1** — First use of AI | IDE setup, GitHub, blog | None |
+| **Step 2** — Run a model locally | Qwen3-0.6B inference in pure C | CPU only |
+| **Step 3** — Inference deep-dive | API-based inference, benchmarking, KV cache | **Inference API credits** |
+| **Step 4** — Training fundamentals | Fine-tuning, training from scratch | **GPU credits (primary need)** |
+| **Step 5** — Build an AI product | Deploy a real AI-powered product | **Deployment / serverless GPU** |
+| **Step 6** — Capstone | Open-source contribution or portfolio piece | Varies |
+
+Steps 1–2 are CPU-only by design. By Step 3, participants understand attention, KV cache, and sampling at the C level. They *need* your compute now, and they understand *why* they need it.
+
+---
+
+## Partnership tiers
+
+:::: {.pricing-grid}
+
+::: {.pricing-card}
+### Compute Partner
+
+Your credits power participant workloads. Your platform appears in every lesson that uses your compute.
+
+- GPU or API credits allocated per participant (individual accounts, not bulk)
+- "Powered by [You]" badge on lessons that use your compute
+- Logo on sponsors page and homepage
+- Mention in cohort announcements (Discord, office hours)
+:::
+
+::: {.pricing-card .pricing-card-featured}
+### Infrastructure Partner
+
+Everything in Compute Partner, plus your platform becomes curriculum.
+
+- Dedicated lesson or tutorial section written around your platform
+- Co-branded blog post on the cohort site
+- Your platform in the recommended setup guide
+- Your engineer does a guest session in office hours
+- Joint social media announcement
+:::
+
+::: {.pricing-card}
+### Founding Partner
+
+Everything above, plus named ownership of a roadmap step.
+
+- Named step: "Step 4: Training Fundamentals, powered by [You]"
+- Your training framework and tools integrated into the open-source codebase
+- Post-cohort case study: what participants built, usage metrics, testimonials
+- First right of refusal for future cohorts
+- Joint roadmap planning for the next cohort
+:::
+
+::::
+
+---
+
+## The audience
+
+This is who learns on your platform:
+
+- **Engineers, career switchers, and builders** learning AI from first principles
+- Active on Discord and GitHub, building in public, writing technical blogs
+- Learning the **full stack**: inference, tokenization, attention, KV cache, training, deployment
+- Working with **open-source models** (Qwen3, DeepSeek) and **AI-native tools** (Cursor, Claude Code, HuggingFace)
+- The people who will **choose the compute platform** for their next startup or their team's next project
+
+Comparable paid AI cohorts charge $1,500–$2,000 per seat and provide $1,000–$2,000 in compute credits per student. First Break AI is free, reaches a broader audience, and runs for 3 months — longer engagement, deeper platform familiarity, stronger developer loyalty.
+
+---
+
+::: {.cta-banner}
+### Sponsor spots for Cohort 01 are open
+
+We're looking for compute and infrastructure partners who want to be the platform that the next generation of AI engineers learns on — not just the coupon they forget.
+
+[Let's talk](mailto:contact@bubblspace.com?subject=First%20Break%20AI%20—%20Sponsorship%20Inquiry){.cta-button}
+:::
+
+---
+
+## Contact
+
+**Email:** [contact@bubblspace.com](mailto:contact@bubblspace.com?subject=First%20Break%20AI%20—%20Sponsorship%20Inquiry)
+
+**Cohort lead:** [FireHacker](https://thefirehacker.github.io/) · [GitHub](https://github.com/thefirehacker) · [X](https://x.com/thefirehacker) · [LinkedIn](https://www.linkedin.com/in/thefirehacker/)
+
+[← Home](index.qmd) · [Roadmap](roadmap.qmd) · [Lessons](lessons/index.qmd) · [Teams](teams.qmd)
+
+:::

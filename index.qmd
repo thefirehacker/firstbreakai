@@ -222,6 +222,9 @@ You don't need a specific degree. You need a starting point. This cohort is for 
 
 **Cohort lead:** [FireHacker](https://thefirehacker.github.io/) (blog, TIL) · [GitHub @thefirehacker](https://github.com/thefirehacker) · [About](about.qmd)
 
+**For teams:** [First Break AI for Teams](teams.qmd) — instructor-led, with team dashboards, custom projects, and enterprise billing.
+**For compute providers:** [Partner with us](sponsors.qmd) — your platform becomes the curriculum, not just a coupon.
+
 ::: {.cta-banner}
 ### Ready to start your journey?
 

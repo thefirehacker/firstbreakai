@@ -1,0 +1,277 @@
+---
+title: "First Break AI for Teams"
+subtitle: "Upskill your engineering team on inference, training, and AI product building."
+description: "First Break AI for Teams — instructor-led AI upskilling with team dashboards, custom projects, enterprise billing, and completion certificates. Based on the same hands-on curriculum used by the free open cohort."
+title-block-style: none
+page-layout: full
+css:
+  - styles/home.css
+  - styles/pricing.css
+---
+
+::: {.content-section}
+
+::: {.cta-banner}
+### Your team doesn't have an AI skills gap. They have a build gap.
+
+They've watched the lectures. They've read the papers. But nobody on your team has trained a model from scratch, debugged a KV cache, or shipped an AI product end-to-end. That's the gap that costs you — in hiring, in velocity, in decisions made by people who've never touched the metal.
+:::
+
+## Close the gap by building, not watching
+
+First Break AI for Teams is the instructor-led version of the [free open cohort](index.qmd). Your team follows the same hands-on roadmap — inference in pure C, model training, AI product deployment — with dedicated support, private channels, and enterprise logistics.
+
+The free cohort stays free. Teams get accountability, access, and billing that works for organizations. Bring your own infrastructure — your team trains on the cloud accounts they already use at work.
+
+---
+
+:::: {.comparison-table}
+## Free vs Teams
+
+::: {.comparison-row .comparison-header}
+::: {.comparison-cell .comparison-label}
+:::
+::: {.comparison-cell}
+**Free Cohort**
+:::
+::: {.comparison-cell}
+**Teams**
+:::
+:::
+
+::: {.comparison-row}
+::: {.comparison-cell .comparison-label}
+Curriculum
+:::
+::: {.comparison-cell}
+Full roadmap, all lessons, all exercises
+:::
+::: {.comparison-cell .comparison-highlight}
+Same — nothing is gated
+:::
+:::
+
+::: {.comparison-row}
+::: {.comparison-cell .comparison-label}
+Pace
+:::
+::: {.comparison-cell}
+Self-directed
+:::
+::: {.comparison-cell .comparison-highlight}
+Instructor-led schedule with milestones
+:::
+:::
+
+::: {.comparison-row}
+::: {.comparison-cell .comparison-label}
+Support
+:::
+::: {.comparison-cell}
+Community Discord, public office hours
+:::
+::: {.comparison-cell .comparison-highlight}
+Private Discord or Teams channel + priority Q&A
+:::
+:::
+
+::: {.comparison-row}
+::: {.comparison-cell .comparison-label}
+Office hours
+:::
+::: {.comparison-cell}
+Weekly, shared with all participants
+:::
+::: {.comparison-cell .comparison-highlight}
+Dedicated session for your team
+:::
+:::
+
+::: {.comparison-row}
+::: {.comparison-cell .comparison-label}
+Progress tracking
+:::
+::: {.comparison-cell}
+Self-managed
+:::
+::: {.comparison-cell .comparison-highlight}
+Team dashboard — see who's on track
+:::
+:::
+
+::: {.comparison-row}
+::: {.comparison-cell .comparison-label}
+Projects
+:::
+::: {.comparison-cell}
+Open-ended
+:::
+::: {.comparison-cell .comparison-highlight}
+Custom project scoping tied to your stack
+:::
+:::
+
+::: {.comparison-row}
+::: {.comparison-cell .comparison-label}
+Infrastructure
+:::
+::: {.comparison-cell}
+Use cohort-provided resources
+:::
+::: {.comparison-cell .comparison-highlight}
+Bring Your Own Infra — train within your own cloud
+:::
+:::
+
+::: {.comparison-row}
+::: {.comparison-cell .comparison-label}
+Certificate
+:::
+::: {.comparison-cell}
+No
+:::
+::: {.comparison-cell .comparison-highlight}
+Completion certificate per participant
+:::
+:::
+
+::: {.comparison-row}
+::: {.comparison-cell .comparison-label}
+Billing
+:::
+::: {.comparison-cell}
+Free
+:::
+::: {.comparison-cell .comparison-highlight}
+PO / invoice / SOW — whatever your finance team needs
+:::
+:::
+
+::::
+
+---
+
+## Pricing
+
+:::: {.pricing-grid}
+
+::: {.pricing-card}
+### Individual
+
+::: {.pricing-amount}
+$1,999
+:::
+
+::: {.pricing-period}
+per person
+:::
+
+For individual engineers who want structured support on top of the free curriculum.
+
+- Full curriculum access (same as free)
+- Completion certificate (signed, verifiable)
+- Priority support via Discord DM
+- 1x 1:1 session with the cohort lead (30 min)
+- Access to recorded office hours archive
+:::
+
+::: {.pricing-card .pricing-card-featured}
+### Team
+
+::: {.pricing-amount}
+$999
+:::
+
+::: {.pricing-period}
+per seat · 5–20 seats
+:::
+
+For engineering teams upskilling together.
+
+- Everything in Individual
+- Private Discord or Teams channel with direct cohort lead access
+- Team progress dashboard
+- Custom exercises tied to your tech stack and use cases
+- Dedicated weekly office hours slot for your team
+- Onboarding call with team lead
+- **Bring Your Own Infra** — training on your own cloud accounts
+:::
+
+::: {.pricing-card}
+### Enterprise
+
+::: {.pricing-amount}
+Custom
+:::
+
+::: {.pricing-period}
+20+ seats
+:::
+
+For organizations with specific requirements.
+
+- Everything in Team
+- Statement of Work (SOW) and custom contract
+- Dedicated onboarding and kickoff session
+- Joint roadmap planning — align content with your team's goals
+- Post-cohort report with completion metrics and outcomes
+- **Bring Your Own Infra** — full support for training within your infrastructure
+- Option to add GPU compute credits (via our sponsor partners)
+:::
+
+::::
+
+---
+
+## What your team walks away with
+
+This is not a passive course. Every participant builds a real portfolio:
+
+- **A technical blog** documenting what they learned — hosted, public, employer-visible
+- **Hands-on inference experience** — running and understanding models at the C level
+- **A trained model** — fine-tuned or trained from scratch during Step 4
+- **A deployed AI product** — shipped and live during Step 5
+- **Optionally, a merged open-source contribution** — Step 6 capstone
+
+In 2026, this portfolio is a stronger signal than any certificate. But you get the certificate too.
+
+---
+
+::: {.cta-banner}
+### Ready to upskill your team?
+
+Tell us about your team size, timeline, and goals. We'll put together a plan that fits.
+
+[Request a quote](mailto:contact@bubblspace.com?subject=First%20Break%20AI%20for%20Teams%20—%20Quote%20Request){.cta-button}
+:::
+
+---
+
+## Frequently asked
+
+**Can we start mid-cohort?**
+Yes. The curriculum is modular. We'll scope a start point based on your team's existing skill level.
+
+**What does Bring Your Own Infra mean?**
+For Team and Enterprise tiers, your participants can run the training exercises (Step 4) on your organization's own cloud accounts — AWS, GCP, Azure, or any provider. We provide the curriculum and support; you provide the compute environment your team already uses at work.
+
+**What if someone on our team falls behind?**
+The team dashboard shows progress per person. The private channel gives your team a safe space to ask questions without the public Discord. The instructor-led pacing keeps everyone moving, but async catch-up is always available.
+
+**Can we customize the curriculum for our stack?**
+At the Team and Enterprise tiers, yes. We'll scope custom exercises around your tools, models, and deployment targets. The core roadmap stays the same — the customization is in the applied exercises and project.
+
+**Do you offer refunds?**
+Individual is refundable within 14 days if no certificate has been issued. Team and Enterprise terms are covered in the SOW.
+
+---
+
+## Contact
+
+**Email:** [contact@bubblspace.com](mailto:contact@bubblspace.com?subject=First%20Break%20AI%20for%20Teams)
+
+**Cohort lead:** [FireHacker](https://thefirehacker.github.io/) · [GitHub](https://github.com/thefirehacker) · [X](https://x.com/thefirehacker) · [LinkedIn](https://www.linkedin.com/in/thefirehacker/)
+
+[← Home](index.qmd) · [Roadmap](roadmap.qmd) · [Lessons](lessons/index.qmd) · [Sponsors](sponsors.qmd)
+
+:::
