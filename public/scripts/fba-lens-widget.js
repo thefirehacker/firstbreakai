@@ -18,6 +18,15 @@
   var TOKEN_KEY = 'fba-lens-token';
   var SIZE_KEY = 'fba-lens-panel-size';
   var AUTH_ORIGIN = ENDPOINT.replace(/\/widget\/mcp$/, '').replace(/\/mcp$/, '');
+  var STEP_NAMES = [
+    'Join Discord & create accounts',
+    'Quarto blog + GitHub Pages',
+    'Run a model locally',
+    'Inference deep dive',
+    'Training fundamentals',
+    'Build an AI product',
+    'Capstone'
+  ];
 
   var sessionId = null;
   var authToken = null;
@@ -651,12 +660,37 @@
         data.question_for_user || data.step_name || 'Next step ready.';
     } else if (name === 'profile') {
       if (data.discord_username) {
-        var html = '';
-        if (data.avatar_url) html += '<img src="' + escapeHtml(data.avatar_url) + '" style="width:32px;height:32px;border-radius:50%;vertical-align:middle;margin-right:8px" />';
-        html += '<strong>' + escapeHtml(data.discord_username) + '</strong>';
-        html += '<br/><span style="color:#7a6f62;font-size:12px">Step ' + (data.current_step || 0) + ' &bull; ' + (data.in_guild ? 'In FBA Discord' : 'Not in Discord yet') + '</span>';
-        if (data.blog_url) html += '<br/><span style="font-size:12px">Blog: ' + escapeHtml(data.blog_url) + '</span>';
-        if (data.profile_url) html += '<br/><span style="font-size:12px">Profile: ' + escapeHtml(data.profile_url) + '</span>';
+        var validated = data.validated_steps || [];
+        var curStep = data.current_step || 0;
+        var enrolled = data.enrolled_at ? new Date(data.enrolled_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+
+        var html = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">';
+        if (data.avatar_url) html += '<img src="' + escapeHtml(data.avatar_url) + '" style="width:40px;height:40px;border-radius:50%" />';
+        html += '<div><strong style="font-size:15px">' + escapeHtml(data.discord_username) + '</strong>';
+        html += '<br/><span style="color:#7a6f62;font-size:12px">';
+        if (enrolled) html += 'Enrolled ' + enrolled;
+        if (data.in_guild) html += (enrolled ? ' &bull; ' : '') + 'In FBA Discord';
+        html += '</span></div></div>';
+
+        html += '<div style="border-top:1px solid #e5e0d8;padding-top:8px;margin-top:4px">';
+        for (var i = 0; i < STEP_NAMES.length; i++) {
+          var done = validated.indexOf(i) !== -1;
+          var isCurrent = i === curStep && !done;
+          var icon = done ? '<span style="color:#10b981">&#10003;</span>' : (isCurrent ? '<span style="color:#d97706">&rarr;</span>' : '<span style="color:#ccc">&bull;</span>');
+          var labelStyle = done ? 'color:#10b981' : (isCurrent ? 'font-weight:600' : 'color:#aaa');
+          html += '<div style="font-size:13px;padding:2px 0;' + labelStyle + '">' + icon + ' Step ' + i + ': ' + escapeHtml(STEP_NAMES[i]);
+          if (isCurrent) html += ' <span style="font-size:11px;color:#d97706">(current)</span>';
+          html += '</div>';
+        }
+        html += '</div>';
+
+        if (data.blog_url || data.profile_url) {
+          html += '<div style="border-top:1px solid #e5e0d8;padding-top:8px;margin-top:8px;font-size:12px">';
+          if (data.blog_url) html += 'Blog: <a href="' + escapeHtml(data.blog_url) + '" target="_blank" style="color:#b8860b">' + escapeHtml(data.blog_url) + '</a><br/>';
+          if (data.profile_url) html += 'Profile: <a href="' + escapeHtml(data.profile_url) + '" target="_blank" style="color:#b8860b">' + escapeHtml(data.profile_url) + '</a>';
+          html += '</div>';
+        }
+
         loading.body.innerHTML = html;
       } else {
         loading.body.textContent = data.message || JSON.stringify(data);
