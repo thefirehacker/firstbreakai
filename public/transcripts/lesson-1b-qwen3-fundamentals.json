@@ -36,40 +36,44 @@
       "title": "Chapter 7: How the Forward Pass Uses These Pointers"
     },
     {
-      "t": 1500,
-      "title": "Chapter 8: How llama.cpp Does It Differently"
+      "t": 1400,
+      "title": "Chapter 8: Inside the Transformer Layer — Attention and the MLP"
+    },
+    {
+      "t": 1550,
+      "title": "Chapter 9: How llama.cpp Does It Differently"
     },
     {
       "t": 1700,
-      "title": "Chapter 9: The Custom Conversion Script"
+      "title": "Chapter 10: The Custom Conversion Script"
     },
     {
       "t": 1900,
-      "title": "Chapter 10: Putting It All Together — The Full Pipeline"
+      "title": "Chapter 11: Putting It All Together — The Full Pipeline"
     },
     {
       "t": 2100,
-      "title": "Chapter 11: SafeTensors — The Other File Format"
+      "title": "Chapter 12: SafeTensors — The Other File Format"
     },
     {
       "t": 2350,
-      "title": "Chapter 12: SafeTensors vs GGUF — A Detailed Comparison"
+      "title": "Chapter 13: SafeTensors vs GGUF — A Detailed Comparison"
     },
     {
       "t": 2600,
-      "title": "Chapter 13: Tensor Names — Framework Names vs Standardized Names"
+      "title": "Chapter 14: Tensor Names — Framework Names vs Standardized Names"
     },
     {
-      "t": 2800,
-      "title": "Chapter 14: The Conversion Pipeline — SafeTensors In, GGUF Out"
+      "t": 2750,
+      "title": "Chapter 15: The Conversion Pipeline — SafeTensors In, GGUF Out"
     },
     {
-      "t": 2900,
-      "title": "Chapter 15: From Logits to Text — Prefill, Sampling, and the Viz"
+      "t": 2850,
+      "title": "Chapter 16: From Logits to Text — Prefill, Sampling, and the Viz"
     },
     {
       "t": 2950,
-      "title": "Chapter 16: The KV Cache — Why the Model Remembers"
+      "title": "Chapter 17: The KV Cache — Why the Model Remembers"
     },
     {
       "t": 3000,
