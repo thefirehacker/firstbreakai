@@ -15,7 +15,7 @@
   var BUTTON_LABEL =
     (script && script.dataset.buttonLabel) || 'Open Cohort Lens';
   var STORAGE_KEY = 'fba-lens-session';
-  var TOKEN_KEY = 'fba-lens-token';
+  var TOKEN_KEY = 'fba_token';
   var SIZE_KEY = 'fba-lens-panel-size';
   var AUTH_ORIGIN = ENDPOINT.replace(/\/widget\/mcp$/, '').replace(/\/mcp$/, '');
   var STEP_NAMES = [

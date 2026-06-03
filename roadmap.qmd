@@ -415,5 +415,184 @@ function toggleView(mode) {
   }, { threshold: 0.15 });
   steps.forEach(function(s) { observer.observe(s); });
 })();
+
+// ── Progress overlay ──
+(function() {
+  var MCP_URL = 'https://fba-mcp.throbbing-thunder-4d33.workers.dev';
+  var DISCORD_INVITE = 'https://discord.gg/hRPese4H3F';
+  var LESSON_MAP = {
+    'lesson-0-welcome': '0',
+    'lesson-1-huggingface-beyond-upload': '1',
+    'lesson-1b-qwen3-fundamentals': '1b'
+  };
+
+  function getToken() {
+    return localStorage.getItem('fba_token');
+  }
+
+  function injectBanner(type, html) {
+    var container = document.querySelector('.view-toggle');
+    if (!container) return;
+    var banner = document.createElement('div');
+    banner.className = type;
+    banner.innerHTML = html;
+    container.parentNode.insertBefore(banner, container);
+    return banner;
+  }
+
+  function markStepCompleted(stepNum) {
+    // Visual view
+    var vizSteps = document.querySelectorAll('.timeline-step[data-step="' + stepNum + '"]');
+    vizSteps.forEach(function(el) {
+      el.setAttribute('data-completed', 'true');
+      var badge = document.createElement('span');
+      badge.className = 'step-completed-badge';
+      badge.textContent = '\u2713';
+      el.appendChild(badge);
+    });
+
+    // Normal view
+    var normalSteps = document.querySelectorAll('.step-normal');
+    normalSteps.forEach(function(el) {
+      var h3 = el.querySelector('h3');
+      if (!h3) return;
+      var match = h3.textContent.match(/Step\s+(\d+)/);
+      if (match && match[1] === String(stepNum)) {
+        el.setAttribute('data-completed', 'true');
+      }
+    });
+  }
+
+  function addValidateHint(stepNum) {
+    // Visual view
+    var vizSteps = document.querySelectorAll('.timeline-step[data-step="' + stepNum + '"]');
+    vizSteps.forEach(function(el) {
+      var card = el.querySelector('.step-card');
+      if (!card || card.querySelector('.step-validate-hint')) return;
+      var hint = document.createElement('div');
+      hint.className = 'step-validate-hint';
+      hint.innerHTML = 'Validate: <code>firstbreakai validate ' + stepNum + '</code>';
+      card.appendChild(hint);
+    });
+
+    // Normal view
+    var normalSteps = document.querySelectorAll('.step-normal');
+    normalSteps.forEach(function(el) {
+      var h3 = el.querySelector('h3');
+      if (!h3) return;
+      var match = h3.textContent.match(/Step\s+(\d+)/);
+      if (match && match[1] === String(stepNum)) {
+        if (el.querySelector('.step-validate-hint')) return;
+        var hint = document.createElement('div');
+        hint.className = 'step-validate-hint';
+        hint.innerHTML = 'Validate: <code>firstbreakai validate ' + stepNum + '</code>';
+        el.appendChild(hint);
+      }
+    });
+  }
+
+  function addLessonCheckboxes(completedLessons) {
+    var links = document.querySelectorAll('a[href*="lessons/"]');
+    links.forEach(function(a) {
+      if (a.parentNode.querySelector('.lesson-checkbox')) return;
+      var href = a.getAttribute('href') || '';
+      var lessonFile = href.replace(/.*lessons\//, '').replace(/\.qmd$/, '').replace(/\.html$/, '');
+      var lessonId = LESSON_MAP[lessonFile];
+      if (!lessonId) return;
+
+      var cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.className = 'lesson-checkbox';
+      cb.checked = completedLessons.indexOf(lessonId) !== -1;
+      cb.setAttribute('data-lesson-id', lessonId);
+
+      cb.addEventListener('change', function() {
+        var token = getToken();
+        if (!token) { cb.checked = !cb.checked; return; }
+        fetch(MCP_URL + '/widget/mcp', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify({
+            jsonrpc: '2.0', id: 1,
+            method: 'tools/call',
+            params: { name: 'do', arguments: { intent: 'mark_lesson', lesson_id: lessonId } }
+          })
+        }).catch(function() { cb.checked = !cb.checked; });
+      });
+
+      a.parentNode.insertBefore(cb, a);
+    });
+  }
+
+  function renderProgress(profile) {
+    if (!profile) {
+      // Not logged in — show login banner
+      if (document.querySelector('.roadmap-login-banner')) return;
+      var banner = injectBanner('roadmap-login-banner',
+        '<span class="banner-text">Log in with Discord to track your progress across devices.</span>' +
+        '<button class="banner-login-btn">Log in with Discord</button>'
+      );
+      if (banner) {
+        banner.querySelector('.banner-login-btn').addEventListener('click', function() {
+          var redirect = encodeURIComponent(window.location.href.split('?')[0]);
+          window.location.href = MCP_URL + '/auth/discord?redirect_url=' + redirect;
+        });
+      }
+      return;
+    }
+
+    // Remove login banner if present
+    var existing = document.querySelector('.roadmap-login-banner');
+    if (existing) existing.remove();
+
+    // Step completions
+    var completedSteps = [];
+    if (profile.step_completions && Array.isArray(profile.step_completions)) {
+      profile.step_completions.forEach(function(sc) {
+        if (sc.passed === 1 || sc.passed === true) {
+          completedSteps.push(Number(sc.step));
+          markStepCompleted(sc.step);
+        }
+      });
+    }
+
+    // Validate hints for steps 0-2 not completed
+    [0, 1, 2].forEach(function(s) {
+      if (completedSteps.indexOf(s) === -1) {
+        addValidateHint(s);
+      }
+    });
+
+    // Lesson checkboxes
+    var completedLessons = profile.lesson_completions || [];
+    addLessonCheckboxes(completedLessons);
+
+    // Guild banner
+    if (profile.in_guild === false && !document.querySelector('.roadmap-guild-banner')) {
+      injectBanner('roadmap-guild-banner',
+        '<span class="banner-text">Join the FBA Discord for community support and office hours.</span>' +
+        '<a class="banner-discord-btn" href="' + DISCORD_INVITE + '" target="_blank">Join Discord</a>'
+      );
+    }
+  }
+
+  // Listen for auth profile
+  if (window.__fba_profile) {
+    renderProgress(window.__fba_profile);
+  } else {
+    window.addEventListener('fba:profile', function(e) {
+      renderProgress(e.detail);
+    });
+    // If no login after a short delay, show login banner
+    setTimeout(function() {
+      if (!window.__fba_profile && !document.querySelector('.roadmap-login-banner')) {
+        renderProgress(null);
+      }
+    }, 1500);
+  }
+})();
 </script>
 ```
