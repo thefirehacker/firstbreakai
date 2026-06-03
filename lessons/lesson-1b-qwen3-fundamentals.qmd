@@ -20,7 +20,7 @@ css:
 ##### How a language model lives on disk and loads into memory — byte by byte. {.lesson-hero-subtitle}
 
 ::: {.lesson-hero-meta}
-[~110 min read]{.lesson-hero-chip} [Cohort 01](../office-hours/2026-05-08.qmd){.lesson-hero-chip} [Run a model locally](../roadmap.qmd){.lesson-hero-chip}
+[~120 min read]{.lesson-hero-chip} [Cohort 01](../office-hours/2026-05-08.qmd){.lesson-hero-chip} [Run a model locally](../roadmap.qmd){.lesson-hero-chip}
 :::
 :::
 
@@ -661,7 +661,252 @@ The `logits` array now has 151,936 values — one score for every possible next 
 
 ---
 
-## Chapter 8: How llama.cpp Does It Differently
+## Chapter 8: Inside the Transformer Layer — Attention and the MLP
+
+Chapter 7 showed you the forward pass as code — ten steps per layer. But *why* does each layer have this structure? Each of the 28 layers in Qwen3-0.6B has two main blocks:
+
+```
+Transformer Layer
+ ├── Attention block       ← tokens talk to each other
+ │    ├── q_proj (wq)
+ │    ├── k_proj (wk)
+ │    ├── v_proj (wv)
+ │    └── o_proj (wo)
+ │
+ └── MLP / FFN block       ← each token refines its own representation
+      ├── gate_proj (w3)
+      ├── up_proj (w1)
+      └── down_proj (w2)
+```
+
+Attention mixes information *across* tokens ("which other tokens should I look at?"). The MLP transforms each token's representation *independently* ("after seeing the context, how should I update this token's meaning?"). Both are required — one without the other is insufficient.
+
+### Multi-Head Attention — Why 16 Smaller Views Beat One Big One
+
+#### Single-head attention (the starting point)
+
+In the simplest version, each token gets one query, one key, and one value — all of size `dim` (1024). The attention score is a single dot product between Q and K, and the output is a single weighted sum of V. This gives each token *one way* of looking at the sequence.
+
+#### The problem with one head
+
+A token often needs to attend to different things simultaneously. Consider:
+
+```
+"The animal didn't cross the road because it was tired."
+```
+
+For the token "it", the model needs to:
+
+- Connect "it" to "animal" (coreference)
+- Track negation from "didn't" (semantics)
+- Understand "tired" as a state (predicate)
+- Recognize phrase boundaries (syntax)
+
+One attention pattern can't do all of this at once. It produces one set of attention weights — one "view" of the sequence.
+
+#### Multi-head: many smaller views in parallel
+
+Instead of one big attention with 1024-dimensional Q, K, V, the model splits them into **16 heads of 128 dimensions each**:
+
+```
+hidden_size = 1024
+n_heads     = 16
+head_dim    = 1024 / 16 = 64... wait — Qwen3 uses head_dim = 128
+```
+
+Qwen3's head_dim is 128, not 1024/16 = 64. So the full Q projection output is actually `n_heads × head_dim = 16 × 128 = 2048`, which is *larger* than the hidden size. This is why `wq` has shape `[2048, 1024]` — it projects 1024-dim input into 2048-dim Q space.
+
+#### Step by step in `run.c`
+
+**Step 1: Create Q, K, V.** The projections produce the full output:
+
+```c
+matmul(s->q, s->xb, w->wq + l * layer_offset, p->dim, att_head_dim);
+// s->q shape: [2048] = 16 heads × 128 dim per head
+
+matmul(s->k, s->xb, w->wk + l * layer_offset, p->dim, kv_dim);
+// s->k shape: [1024] = 8 KV heads × 128 dim per head (GQA!)
+```
+
+**Step 2: Split into heads.** The code doesn't explicitly reshape — it uses pointer arithmetic. Each head's Q is a slice of 128 floats:
+
+```c
+for (int h = 0; h < p->n_heads; h++) {
+    float* q = s->q + h * p->head_dim;  // head 0: q[0..127], head 1: q[128..255], ...
+```
+
+This is the "reshape" that frameworks like PyTorch do with `view()` and `transpose()` — but in C, it's just a pointer offset.
+
+**Step 3: Each head does independent attention.** Every head computes its own attention scores (dot products of Q with all past K vectors), applies softmax, and produces a weighted sum of V:
+
+```c
+    float* att = s->att + h * p->seq_len;  // this head's score buffer
+
+    for (int t = 0; t <= pos; t++) {
+        float* k = s->key_cache + loff + t * kv_dim + (h / kv_mul) * p->head_dim;
+        float score = 0;
+        for (int i = 0; i < p->head_dim; i++)
+            score += q[i] * k[i];
+        att[t] = score / sqrtf(p->head_dim);
+    }
+    softmax(att, pos + 1);
+
+    // weighted sum of values
+    float* xb3 = s->xb3 + h * p->head_dim;
+    memset(xb3, 0, p->head_dim * sizeof(float));
+    for (int t = 0; t <= pos; t++) {
+        float* v = s->value_cache + loff + t * kv_dim + (h / kv_mul) * p->head_dim;
+        float a = att[t];
+        for (int i = 0; i < p->head_dim; i++)
+            xb3[i] += a * v[i];
+    }
+}
+```
+
+Each head produces 128 floats. 16 heads × 128 = 2048 floats total, sitting contiguously in `s->xb3`.
+
+**Step 4: Output projection.** The `o_proj` (`w->wo`) mixes information across heads and projects back to 1024 dimensions:
+
+```c
+matmul(s->xb2, s->xb3, w->wo + l * layer_offset, att_head_dim, p->dim);
+// [2048] → [1024]
+```
+
+Without `o_proj`, the head outputs would remain separated — head 0's 128 floats wouldn't interact with head 7's 128 floats. The output projection lets the model combine what different heads learned.
+
+#### The full picture
+
+```
+Input x [1024]
+     │
+     ├─→ wq ─→ Q [2048] ─→ split into 16 heads of [128]
+     ├─→ wk ─→ K [1024] ─→ split into  8 heads of [128] (GQA)
+     └─→ wv ─→ V [1024] ─→ split into  8 heads of [128] (GQA)
+                                │
+                    ┌───────────┼───────────┐
+                 Head 0      Head 1  ...  Head 15
+                attention   attention    attention
+                 [128]       [128]        [128]
+                    └───────────┼───────────┘
+                                │
+                          concatenate [2048]
+                                │
+                         wo (o_proj) [2048 → 1024]
+                                │
+                    + residual connection
+                                │
+                          Output x [1024]
+```
+
+Each head can learn a different relationship. Head 3 might track coreference while head 11 tracks syntactic structure. The model doesn't assign these roles explicitly — the heads discover useful patterns during training.
+
+### The MLP Block — Up, Gate, and Down Projections
+
+After attention, each token has gathered context from the sequence. Now the MLP transforms each token's representation *independently* — no cross-token communication.
+
+#### Why not just 1024 → 1024?
+
+A direct projection from 1024 to 1024 is limited. The MLP expands to a larger internal space, works in that space, and compresses back:
+
+```
+1024  →  3072  →  1024
+```
+
+This is like solving a problem by expanding your working space, doing the reasoning, then compressing the final result. The larger intermediate dimension gives the network more expressive capacity to represent complex patterns.
+
+#### The three projections in Qwen3
+
+Qwen3 uses a **gated MLP** (SwiGLU style) with three projections:
+
+| Projection | `run.c` name | Shape | Role |
+|-----------|-------------|-------|------|
+| `up_proj` | `w->w1` | [1024, 3072] | Expand to candidate features |
+| `gate_proj` | `w->w3` | [1024, 3072] | Control which features pass |
+| `down_proj` | `w->w2` | [3072, 1024] | Compress back to hidden size |
+
+The computation:
+
+```
+x ──→ gate_proj ──→ SiLU activation ──┐
+                                       × ──→ down_proj ──→ output
+x ──→ up_proj ────────────────────────┘
+```
+
+Or as a formula: `output = down_proj( SiLU(gate_proj(x)) × up_proj(x) )`
+
+#### The code in `run.c`
+
+```c
+// up_proj: x [1024] → hb [3072]
+matmul(s->hb, s->xb, w->w1 + l * layer_offset, p->dim, p->hidden_dim);
+
+// gate_proj: x [1024] → hb2 [3072]
+matmul(s->hb2, s->xb, w->w3 + l * layer_offset, p->dim, p->hidden_dim);
+
+// SwiGLU: silu(gate) * up
+for (int i = 0; i < p->hidden_dim; i++) {
+    float val = s->hb2[i];
+    val *= (1.0f / (1.0f + expf(-val)));  // silu(x) = x * sigmoid(x)
+    val *= s->hb[i];                       // elementwise multiply with up_proj
+    s->hb2[i] = val;
+}
+
+// down_proj: [3072] → [1024]
+matmul(s->xb, s->hb2, w->w2 + l * layer_offset, p->hidden_dim, p->dim);
+```
+
+The `gate_proj` acts as a learned filter. It decides which of the 3072 intermediate features matter for this token. `up_proj` creates the candidate features. The elementwise multiply combines them — features where the gate is near zero get suppressed, features where the gate is large pass through.
+
+#### Intuition: the "bank" analogy
+
+Suppose a token's 1024-dim vector encodes the compressed meaning of `"bank"`. Depending on context, it could mean a river bank, a money bank, a banking API, or a bank angle in aviation. The MLP expands this into 3072 dimensions — room to create intermediate features like "is this financial?", "is this geographical?", "is this code?" (not with human labels, but conceptually). The gate selects which features are relevant given the context that attention already gathered. Then `down_proj` compresses the refined representation back to 1024 for the next layer.
+
+### Why Both Blocks Are Needed
+
+| Block | What it does | Operates on |
+|-------|-------------|-------------|
+| **Attention** | Mixes information across tokens | All tokens in the sequence |
+| **MLP** | Transforms features within each token | Each token independently |
+
+Attention answers: *"Which other tokens should I look at?"*
+
+The MLP answers: *"After seeing the context, how should I update this token's meaning?"*
+
+A model with only attention could gather context but couldn't transform it. A model with only MLPs could transform tokens but each token would be isolated — unable to see anything else in the sequence. The alternating attention-MLP structure, repeated 28 times, builds increasingly sophisticated representations.
+
+### The Complete Layer Flow
+
+Putting it all together — one of the 28 identical layers:
+
+```
+Input x [1024]
+     │
+     ├─→ RMSNorm
+     │     │
+     │     ├─→ Q, K, V projections
+     │     ├─→ QK norms + RoPE (position encoding)
+     │     ├─→ Multi-head attention (16 heads)
+     │     └─→ o_proj [2048 → 1024]
+     │              │
+     ├── + ─────────┘  (residual connection)
+     │
+     ├─→ RMSNorm
+     │     │
+     │     ├─→ up_proj  [1024 → 3072]
+     │     ├─→ gate_proj [1024 → 3072]
+     │     ├─→ SwiGLU activation
+     │     └─→ down_proj [3072 → 1024]
+     │              │
+     ├── + ─────────┘  (residual connection)
+     │
+Output x [1024]
+```
+
+The residual connections (`s->x[i] += ...`) are critical — they let the input pass through unchanged and only *add* what attention and the MLP learned. This makes deep networks trainable; without residuals, 28 layers of transformations would be nearly impossible to optimize.
+
+---
+
+## Chapter 9: How llama.cpp Does It Differently
 
 Now that you understand the "simple" approach in run.c, let's see how the production-grade llama.cpp handles the same problem.
 
@@ -732,7 +977,7 @@ These names are **different** from the HuggingFace names (e.g., `model.layers.0.
 
 ---
 
-## Chapter 9: The Custom Conversion Script — Making the Two Worlds Meet
+## Chapter 10: The Custom Conversion Script — Making the Two Worlds Meet
 
 ### The Bridge Between HuggingFace and run.c
 
@@ -788,7 +1033,7 @@ tokenizer files    ──────>
 
 ---
 
-## Chapter 10: Putting It All Together — The Full Pipeline
+## Chapter 11: Putting It All Together — The Full Pipeline
 
 Let's trace the entire journey from "you have a model" to "it generates a token."
 
@@ -852,7 +1097,7 @@ The difference between this and llama.cpp or vLLM or TensorRT-LLM is one of **fl
 
 ---
 
-## Chapter 11: SafeTensors — The Other File Format
+## Chapter 12: SafeTensors — The Other File Format
 
 In the previous chapters, we studied GGUF in detail. But when you download a model from HuggingFace, you don't get a GGUF file. You get **SafeTensors** files. So what are those, and why do we need to convert them?
 
@@ -980,7 +1225,7 @@ Compare this with `header.py` in our codebase, which needs 130 lines of manual b
 
 ---
 
-## Chapter 12: SafeTensors vs GGUF — A Detailed Comparison
+## Chapter 13: SafeTensors vs GGUF — A Detailed Comparison
 
 Now that you understand both formats, let's compare them systematically.
 
@@ -1151,7 +1396,7 @@ The JSON approach is simpler to implement (any language can parse JSON), but the
 
 ---
 
-## Chapter 13: Tensor Names — Framework Names vs Standardized Names
+## Chapter 14: Tensor Names — Framework Names vs Standardized Names
 
 This deserves its own chapter because tensor naming is the core of the translation between the two worlds.
 
@@ -1290,7 +1535,7 @@ w->wq + l * layer_offset                   (actual pointer used for layer l)
 
 ---
 
-## Chapter 14: The Conversion Pipeline — SafeTensors In, GGUF Out
+## Chapter 15: The Conversion Pipeline — SafeTensors In, GGUF Out
 
 Now we can see the full picture of how a model travels from HuggingFace to our run.c inference engine. This ties together everything from the previous chapters.
 
@@ -1463,7 +1708,7 @@ model.safetensors ───────┤                    │    metadata (c
 
 ---
 
-## Chapter 15: From Logits to Text — Prefill, Sampling, and What You Can See
+## Chapter 16: From Logits to Text — Prefill, Sampling, and What You Can See
 
 The previous chapters traced how weights get from disk into memory. This chapter traces what happens *after* the forward pass produces logits — and introduces the two-phase structure that every inference engine uses.
 
@@ -1911,7 +2156,7 @@ This chapter introduced prefill, decode, sampling, and the viz as they relate to
 
 ---
 
-## Chapter 16: The KV Cache — Why the Model Remembers
+## Chapter 17: The KV Cache — Why the Model Remembers
 
 ### The Problem
 
@@ -2071,7 +2316,7 @@ This is why:
 
 ### The Cache Connects Prefill and Decode
 
-Now the connection from Chapter 15 is complete:
+Now the connection from Chapter 16 is complete:
 
 - **Prefill exists to build the KV cache.** Each `forward()` call during prefill fills one position's K and V across all 28 layers. After a 200-token prompt, the cache has 200 rows filled — the model "remembers" the entire prompt.
 - **Decode reads the cache on every step.** Each generated token attends to everything in the cache — the entire prompt plus all previously generated tokens.
