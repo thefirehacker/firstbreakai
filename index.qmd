@@ -1,6 +1,6 @@
 ---
 title: "First Break AI"
-description: "First Break AI is a free, open cohort to learn AI by doing — inference, training, and product building. No prerequisites, just follow the roadmap and build in the open."
+description: "First Break AI is the first fully agentic AI cohort — AI agents guide your learning from first commit to capstone. Learn inference, training, and agentic AI product building with AI agents that answer questions, validate code, and track progress. Powered by FetchLens.ai. Free, no prerequisites."
 title-block-style: none
 css: styles/home.css
 ---
@@ -11,8 +11,8 @@ css: styles/home.css
   <div class="hero-overlay">
     <div class="hero-text">
       <h1 class="hero-title">First Break AI</h1>
-      <p class="hero-tagline">Your first break in AI — a guided journey from first commit to capstone</p>
-      <p class="hero-sub">Free, open cohort to upskill in training, inference, and AI product building.</p>
+      <p class="hero-tagline">The first fully agentic AI cohort — AI agents guide your journey from first commit to capstone</p>
+      <p class="hero-sub">Free, open cohort to upskill in training, inference, and agentic AI — powered by AI agents built on <a href="https://fetchlens.ai" target="_blank" rel="noopener" style="color:#f0ebe1;text-decoration:underline">FetchLens.ai</a></p>
       <a href="https://discord.gg/hRPese4H3F" class="hero-journey-btn" target="_blank" rel="noopener noreferrer">Start Journey, Join Discord &#9654;</a>
     </div>
   </div>
@@ -84,14 +84,14 @@ css: styles/home.css
 </script>
 <details id="install-fba-mcp" class="install-fba" aria-labelledby="install-fba-mcp-title">
   <summary>
-    <span class="install-fba-eyebrow">For builders</span>
-    <span class="install-fba-headline" id="install-fba-mcp-title">Install the First Break AI MCP server &amp; CLI</span>
-    <span class="install-fba-hint">Model Context Protocol · HuggingChat · Claude · Cursor · Codex · npm CLI · <a href="docs.html">Docs</a></span>
+    <span class="install-fba-eyebrow">For builders — fully agentic</span>
+    <span class="install-fba-headline" id="install-fba-mcp-title">Install the First Break AI MCP server &amp; CLI — AI agents built in</span>
+    <span class="install-fba-hint">Model Context Protocol · AI Agents · Agentic AI · HuggingChat · Claude · Cursor · Codex · npm CLI · <a href="docs.html">Docs</a></span>
   </summary>
   <div class="install-fba-body">
     <p class="install-fba-intro">
-      First Break AI runs a live <strong>MCP server</strong> (Model Context Protocol) — a standard way for AI assistants to call tools over HTTP.
-      Add it once in HuggingChat, Claude Desktop, Claude Code, Cursor, or OpenAI Codex, and your AI can use cohort tools (<code>ask</code>, <code>find</code>, <code>validate</code>, and more) without leaving the chat.
+      First Break AI is <strong>completely agentic</strong> — every part of the cohort is powered by AI agents. The live <strong>MCP server</strong> (Model Context Protocol) lets AI assistants call cohort tools over HTTP: answer questions, validate homework, track progress, and guide you through the roadmap.
+      Add it once in HuggingChat, Claude Desktop, Claude Code, Cursor, or OpenAI Codex, and your AI agent can use cohort tools (<code>ask</code>, <code>find</code>, <code>validate</code>, and more) without leaving the chat.
     </p>
     <div class="install-fba-endpoint">
       <label class="install-fba-endpoint-label" for="fba-mcp-url-display">MCP endpoint</label>
@@ -230,7 +230,7 @@ css: styles/home.css
 
 **Cohort: 1 May 2026 — 31 July 2026 (3 months)** [<span class="cohort-live-badge"><span class="cohort-live-dot" aria-hidden="true"></span>Live</span>]{.cohort-live-wrap}
 
-First Break AI is a free, community-driven cohort for anyone who wants their first break in AI. It doesn't matter what you studied or where you work — what matters is that you're ready to learn by doing. We focus on what matters: running and training models, understanding inference, and shipping AI-powered products. Most learning is self-directed and peer-supported; the roadmap, checklist, and resources live in the open so you can contribute and others can follow. The goal is simple: **upskill, build, showcase** — and get that first role or first break in AI.
+First Break AI is a free, community-driven cohort for anyone who wants their first break in AI — and the first cohort that is **completely agentic**. It doesn't matter what you studied or where you work — what matters is that you're ready to learn by doing. We focus on what matters: running and training models, understanding inference, building with AI agents, and shipping agentic AI products. AI agents are woven into every layer of the cohort: an agentic MCP server answers your questions, AI agents validate your code against rubrics, track your progress across devices, and guide you through the roadmap step by step. The agentic backbone is built on [FetchLens.ai](https://fetchlens.ai) — the same platform that makes AI agent traffic visible to websites. Most learning is self-directed and peer-supported; the roadmap, checklist, and resources live in the open so you can contribute and others can follow. The goal is simple: **upskill, build, showcase** — and get that first role or first break in AI.
 
 ## Who it's for
 
@@ -240,6 +240,22 @@ You don't need a specific degree. You need a starting point. This cohort is for 
 
 **For teams:** [First Break AI for Teams](teams.qmd) — instructor-led, with team dashboards, custom projects, and enterprise billing.
 **For compute providers:** [Partner with us](sponsors.qmd) — your platform becomes the curriculum, not just a coupon.
+
+## How AI agents enhance cohort learning
+
+Traditional online courses give you videos and quizzes. First Break AI gives you **AI agents that learn alongside you**. Every part of this cohort is powered by agentic AI — real AI agents that answer your questions, validate your code, track your progress, and guide you through the roadmap in real time.
+
+Here's what makes an **agentic AI cohort** different from a course PDF:
+
+- **AI agents answer questions in context.** The on-site AI assistant and CLI agent know the syllabus, the lessons, and your current step. Ask "What is GGUF?" and the AI agent answers from the cohort's own knowledge base — not a generic web search.
+- **AI agents validate your work.** When you finish a step, run `firstbreakai validate` in your terminal. An AI agent checks your code, your repo, and your environment against the rubric — deterministically, no hallucinations.
+- **AI agents track your progress.** Log in with Discord and your AI agent syncs your progress across the CLI, the roadmap page, and the MCP server. Every validated step and completed lesson is tracked by AI agents on the backend.
+- **AI agents integrate with your IDE.** Install the MCP server in Cursor, Claude Desktop, Claude Code, or OpenAI Codex. Your AI agent can call cohort tools (`ask`, `find`, `validate`, `next`) directly from your coding environment — no context switching.
+- **AI agents make the cohort scalable.** Instead of one instructor answering every question, AI agents handle the repetitive work — so office hours can focus on the hard, nuanced discussions that only humans can have.
+
+This agentic infrastructure is built on **[FetchLens.ai](https://fetchlens.ai)** — the same platform that powers AI agent observability for websites. FetchLens makes First Break AI agentic by providing the MCP server backbone, the AI agent widget on every page, and the Discord-authenticated progress tracking that ties the whole experience together.
+
+The result: **AI agents don't replace the instructor — they multiply the instructor.** Every learner gets a personal AI agent that knows the curriculum and their progress. That's the difference between a static course and an agentic AI cohort.
 
 ::: {.cta-banner}
 ### Ready to start your journey?
@@ -367,11 +383,21 @@ Recommended for learners aged **16+**. If you are under 18, please join only wit
       <p>We sit on top of that work and extend it in four directions:</p>
       <ul>
         <li><strong>Cohort-based.</strong> Live Friday office hours, 9–10 PM IST, where you can ask anything. Karpathy's lectures are one-way; this is two-way.</li>
-        <li><strong>2026-current stack.</strong> Qwen3 instead of GPT-2, <code>transformers</code> v5, vLLM, agent tooling, the HuggingFace supply-chain lens — but the teaching philosophy (run the model first, study the math after) is Karpathy's, applied to today's models.</li>
+        <li><strong>2026-current stack with AI agents.</strong> Qwen3 instead of GPT-2, <code>transformers</code> v5, vLLM, AI agents, agentic AI tooling, MCP, and the HuggingFace supply-chain lens — but the teaching philosophy (run the model first, study the math after) is Karpathy's, applied to today's models and agentic workflows.</li>
         <li><strong>Shipping a product is in scope.</strong> Step 5 of the roadmap is building a deployed AI product, not just training a model in a notebook.</li>
-        <li><strong>Agent-readable, by design.</strong> The site ships structured data (<code>Course</code>, <code>FAQPage</code>) for AI answer engines, and <a href="lessons/lesson-1-huggingface-beyond-upload.qmd">Lesson 1</a> walks you through <a href="https://huggingface.co/docs/dataset-viewer/croissant">Croissant</a> — the same machine-readable lens, applied to model and dataset releases. Per-lesson manifests are on the roadmap.</li>
+        <li><strong>Completely agentic, by design.</strong> First Break AI is built around AI agents from day one. The cohort ships a public MCP server, a CLI with built-in AI agent tools, an on-site AI assistant widget, and structured data (<code>Course</code>, <code>FAQPage</code>) for AI answer engines. Your AI agent can enroll you, validate your homework, track your progress, and guide you through the roadmap — all via standard agentic protocols (MCP). <a href="lessons/lesson-1-huggingface-beyond-upload.qmd">Lesson 1</a> walks you through <a href="https://huggingface.co/docs/dataset-viewer/croissant">Croissant</a> — the same machine-readable lens, applied to model and dataset releases.</li>
       </ul>
       <p>fast.ai and HuggingFace's free course are excellent complementary reads, and the <a href="roadmap.qmd">Roadmap</a> links to them where they fit.</p>
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>How do AI agents help students learn in a cohort?</summary>
+    <div class="faq-body">
+      <p>AI agents transform cohort-based learning by giving every student a <strong>personal agentic AI tutor</strong> that knows the syllabus, the lessons, and the student's current progress. In First Break AI, AI agents answer questions from the cohort knowledge base, validate homework against rubrics, track progress across devices, and guide learners through the roadmap — all in real time.</p>
+      <p>Unlike static courses where you watch videos alone, an agentic AI cohort like First Break AI uses AI agents to <strong>close the feedback loop instantly</strong>: you write code, the AI agent checks it, tells you what passed and what didn't, and suggests your next step. This is what makes agentic AI different from a chatbot — the AI agents take real actions (validate, enroll, track progress), not just answer questions.</p>
+      <p>The agentic infrastructure behind First Break AI is built on <strong><a href="https://fetchlens.ai">FetchLens.ai</a></strong>, which provides the MCP server, the AI agent widget on every page, and the authenticated progress tracking. FetchLens makes it possible for AI agents to operate across the website, the CLI, and AI IDEs like Cursor and Claude — giving learners a seamless agentic experience regardless of where they're working.</p>
+      <p>Research shows that <strong>immediate, personalized feedback</strong> is the single biggest driver of learning outcomes. AI agents deliver that at scale — every learner gets the equivalent of a teaching assistant available 24/7, powered by agentic AI.</p>
     </div>
   </details>
 
@@ -387,10 +413,10 @@ Recommended for learners aged **16+**. If you are under 18, please join only wit
   <details class="faq-item">
     <summary>Does the First Break AI cohort have an MCP server?</summary>
     <div class="faq-body">
-      <p><strong>Yes.</strong> First Break AI publishes a free, public <strong>MCP server</strong> (Model Context Protocol) so your AI assistant can talk to the cohort directly — search lessons, answer roadmap questions, help with enrollment, and validate homework against the rubric.</p>
+      <p><strong>Yes — and it's a core part of what makes First Break AI completely agentic.</strong> First Break AI publishes a free, public <strong>MCP server</strong> (Model Context Protocol) so your AI agent can talk to the cohort directly — search lessons, answer roadmap questions, help with enrollment, validate homework, and track your progress.</p>
       <p>The server uses <strong>Streamable HTTP</strong> (the current MCP transport). Install it in HuggingChat, Claude Desktop, Claude Code, Cursor, or OpenAI Codex by pasting one URL or config snippet. Step-by-step cards are in the <a href="#install-fba-mcp">Install the First Break AI MCP server</a> section at the top of this page.</p>
-      <p>Tools exposed by the server include <code>ask</code> (cohort Q&amp;A from lessons and FAQ), <code>find</code> (locate lessons and office-hours topics), <code>do</code> (enroll and Discord invite), <code>validate</code> (check submitted work), and <code>next</code> (suggest your next step). You can also use the <strong>Ask Anything</strong> chat on this site without installing anything.</p>
-      <p>No API key is required for read-only cohort tools; the cohort teaches MCP by having you install the same server you learn from — the same “agent-readable supply chain” idea as Lesson 1’s Croissant walkthrough, applied to the cohort itself.</p>
+      <p>Tools exposed by the server include <code>ask</code> (cohort Q&amp;A from lessons and FAQ), <code>find</code> (locate lessons and office-hours topics), <code>do</code> (enroll and Discord invite), <code>validate</code> (check submitted work), and <code>next</code> (suggest your next step). The on-site <strong>Ask Anything</strong> AI assistant widget uses the same agentic backend — no install needed.</p>
+      <p>No API key is required for read-only cohort tools; the cohort teaches agentic AI by having you install the same MCP server you learn from — the same “agent-readable supply chain” idea as Lesson 1’s Croissant walkthrough, applied to the cohort itself. You don't just learn about AI agents — you use them throughout the cohort.</p>
     </div>
   </details>
 
@@ -463,7 +489,15 @@ Recommended for learners aged **16+**. If you are under 18, please join only wit
       "name": "How is this different from fast.ai, Karpathy's lectures, or HuggingFace's free course?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "First Break AI is openly inspired by Andrej Karpathy's Let's reproduce GPT-2 (124M) and llm.c — the from-scratch, no-magic, run-it-in-pure-C approach to teaching how LLMs actually work. Those are still the gold standard for a single lecturer building a model in front of you, and they are the philosophical foundation under this entire cohort. The pure-C Qwen3 demo in Lesson 1 (code by William Song) is the direct intellectual descendant of llm.c. We sit on top of that work and extend it in four directions. First, cohort-based: live Friday office hours where you can ask anything. Second, a 2026-current stack: Qwen3 instead of GPT-2, transformers v5, vLLM, agent tooling, the HuggingFace supply-chain lens. Third, shipping a product is in scope — Step 5 of the roadmap is building a deployed AI product, not just training a model in a notebook. Fourth, agent-readable by design: the site ships structured data (Course, FAQPage) for AI answer engines, and Lesson 1 walks you through Croissant — the same machine-readable lens, applied to model and dataset releases. Per-lesson manifests are on the roadmap. fast.ai and HuggingFace's free course are excellent complementary reads, and the roadmap links to them where they fit."
+        "text": "First Break AI is openly inspired by Andrej Karpathy's Let's reproduce GPT-2 (124M) and llm.c — the from-scratch, no-magic, run-it-in-pure-C approach to teaching how LLMs actually work. Those are still the gold standard for a single lecturer building a model in front of you, and they are the philosophical foundation under this entire cohort. The pure-C Qwen3 demo in Lesson 1 (code by William Song) is the direct intellectual descendant of llm.c. We sit on top of that work and extend it in four directions. First, cohort-based: live Friday office hours where you can ask anything. Second, a 2026-current stack: Qwen3 instead of GPT-2, transformers v5, vLLM, AI agents, agentic AI tooling, the HuggingFace supply-chain lens. Third, shipping a product is in scope — Step 5 of the roadmap is building a deployed AI product, not just training a model in a notebook. Fourth, completely agentic by design: First Break AI is the first cohort built around AI agents from day one. AI agents answer questions, validate homework, track progress, and guide learners through the roadmap — all via the Model Context Protocol (MCP). The agentic infrastructure is powered by FetchLens.ai, which provides the MCP server backbone, the AI agent widget on every page, and authenticated progress tracking. You don't just learn about AI agents — you use them throughout the cohort. fast.ai and HuggingFace's free course are excellent complementary reads, and the roadmap links to them where they fit."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do AI agents help students learn in a cohort?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "AI agents transform cohort-based learning by giving every student a personal agentic AI tutor that knows the syllabus, lessons, and the student's current progress. In First Break AI, AI agents answer questions from the cohort knowledge base, validate homework against rubrics, track progress across devices, and guide learners through the roadmap in real time. Unlike static courses, an agentic AI cohort uses AI agents to close the feedback loop instantly: you write code, the AI agent checks it, tells you what passed, and suggests your next step. The agentic infrastructure is built on FetchLens.ai, which provides the MCP server, the AI agent widget on every page, and authenticated progress tracking. AI agents deliver immediate, personalized feedback at scale — every learner gets the equivalent of a teaching assistant available 24/7, powered by agentic AI."
       }
     },
     {
@@ -479,7 +513,7 @@ Recommended for learners aged **16+**. If you are under 18, please join only wit
       "name": "Does the First Break AI cohort have an MCP server?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. First Break AI publishes a free, public MCP server (Model Context Protocol) so your AI assistant can talk to the cohort directly — search lessons, answer roadmap questions, help with enrollment, and validate homework. The server uses Streamable HTTP. Install it in HuggingChat, Claude Desktop, Claude Code, Cursor, or OpenAI Codex by pasting one URL or config snippet from the Install the First Break AI MCP server section on the homepage. Tools include ask, find, do, validate, and next. No API key is required for read-only cohort tools. You can also use the Ask Anything chat on the site without installing anything."
+        "text": "Yes — and it's a core part of what makes First Break AI completely agentic. First Break AI publishes a free, public MCP server (Model Context Protocol) so your AI agent can talk to the cohort directly — search lessons, answer roadmap questions, help with enrollment, validate homework, and track your progress. The server uses Streamable HTTP. Install it in HuggingChat, Claude Desktop, Claude Code, Cursor, or OpenAI Codex by pasting one URL or config snippet from the Install the First Break AI MCP server section on the homepage. Tools include ask, find, do, validate, and next. The on-site Ask Anything AI assistant widget uses the same agentic backend — no install needed. No API key is required for read-only cohort tools. The cohort teaches agentic AI by having you install the same MCP server you learn from. You don't just learn about AI agents — you use them throughout the cohort."
       }
     }
   ]

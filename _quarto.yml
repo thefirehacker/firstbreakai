@@ -20,7 +20,7 @@ project:
 
 website:
   title: "First Break AI"
-  description: "A free, open cohort to learn AI by doing — inference, training, and AI product building. No prerequisites, follow the roadmap and build in the open."
+  description: "The first fully agentic AI cohort — AI agents guide your learning from first commit to capstone. Learn inference, training, and agentic AI with AI agents that validate code, track progress, and answer questions. Powered by FetchLens.ai. Free, no prerequisites."
   site-url: "https://cohort.bubblnet.com/"
   favicon: public/images/favicon_io/favicon.ico
   google-analytics: "G-VB604Y51JX"
