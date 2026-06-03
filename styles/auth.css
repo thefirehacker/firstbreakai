@@ -1,0 +1,69 @@
+/* Auth bar — fixed bottom-right corner */
+.fba-auth-bar {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Discord login button */
+.fba-login-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: #5865f2;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  transition: background 0.2s, transform 0.1s;
+}
+.fba-login-btn:hover {
+  background: #4752c4;
+  transform: translateY(-1px);
+}
+.fba-login-btn svg {
+  flex-shrink: 0;
+}
+
+/* Profile badge */
+.fba-profile-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 0.5rem;
+  background: #2c2417;
+  color: #f0ebe1;
+  font-size: 0.8rem;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.fba-profile-name {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fba-logout-btn {
+  border: none;
+  background: none;
+  color: #f0ebe1;
+  opacity: 0.6;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0 0.2rem;
+  line-height: 1;
+}
+.fba-logout-btn:hover {
+  opacity: 1;
+}

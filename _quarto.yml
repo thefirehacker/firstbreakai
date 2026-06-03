@@ -93,6 +93,7 @@ format:
     css:
       - styles/global.css
       - styles/fba-lens-widget.css
+      - styles/auth.css
     include-in-header:
       - includes/schema.html
     filters:
@@ -102,5 +103,6 @@ format:
       - includes/mermaid-zoom.html
       - includes/github-card.html
       - includes/lesson-player.html
+      - includes/auth-login.html
     mermaid:
       theme: neutral
