@@ -50,6 +50,8 @@ website:
         text: Checklist
       - href: setup.qmd
         text: AI Setup
+      - href: docs.qmd
+        text: Docs
       - href: blog/index.qmd
         text: Blog
       - href: project-watch/index.qmd

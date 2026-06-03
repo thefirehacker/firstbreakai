@@ -85,8 +85,8 @@ css: styles/home.css
 <details id="install-fba-mcp" class="install-fba" aria-labelledby="install-fba-mcp-title">
   <summary>
     <span class="install-fba-eyebrow">For builders</span>
-    <span class="install-fba-headline" id="install-fba-mcp-title">Install the First Break AI MCP server</span>
-    <span class="install-fba-hint">Model Context Protocol · HuggingChat · Claude · Cursor · Codex</span>
+    <span class="install-fba-headline" id="install-fba-mcp-title">Install the First Break AI MCP server &amp; CLI</span>
+    <span class="install-fba-hint">Model Context Protocol · HuggingChat · Claude · Cursor · Codex · npm CLI · <a href="docs.html">Docs</a></span>
   </summary>
   <div class="install-fba-body">
     <p class="install-fba-intro">
@@ -178,6 +178,22 @@ css: styles/home.css
         <li><code>validate</code> — judge your submitted work against the rubric and unlock the next step.</li>
         <li><code>next</code> — tell your AI what to ask you next so you keep moving.</li>
       </ul>
+    </details>
+    <details class="install-fba-tools">
+      <summary>Want a local CLI too? Install the npm package</summary>
+      <div class="install-fba-cli-detail">
+        <p>The <a href="https://www.npmjs.com/package/@aiedx/firstbreakai" target="_blank" rel="noopener"><code>@aiedx/firstbreakai</code></a> npm package gives you a terminal CLI <em>and</em> a local MCP server in one install:</p>
+        <pre><code>npm install -g @aiedx/firstbreakai</code></pre>
+        <ul>
+          <li><code>firstbreakai doctor</code> — check your dev environment (Git, Python, Quarto, HF CLI)</li>
+          <li><code>firstbreakai init</code> — scaffold a Quarto blog for Step 1</li>
+          <li><code>firstbreakai validate 1</code> — run local checks on your work</li>
+          <li><code>firstbreakai status</code> / <code>done</code> / <code>next</code> — track and navigate your progress</li>
+          <li><code>firstbreakai ask "..."</code> — query the FBA assistant from your terminal</li>
+          <li><code>firstbreakai mcp</code> — start a local MCP server for Cursor, Claude Desktop, etc.</li>
+        </ul>
+        <p><a href="docs.html"><strong>Full CLI &amp; MCP docs →</strong></a></p>
+      </div>
     </details>
     <p class="install-fba-fallback">
       Or, if you'd rather stay on this page,
@@ -360,6 +376,15 @@ Recommended for learners aged **16+**. If you are under 18, please join only wit
   </details>
 
   <details class="faq-item">
+    <summary>Is there a CLI or npm package for the cohort?</summary>
+    <div class="faq-body">
+      <p><strong>Yes.</strong> Install <a href="https://www.npmjs.com/package/@aiedx/firstbreakai" target="_blank" rel="noopener"><code>@aiedx/firstbreakai</code></a> from npm to get a terminal CLI and local MCP server in one package.</p>
+      <p>The CLI checks your dev environment (<code>firstbreakai doctor</code>), scaffolds a Quarto blog (<code>firstbreakai init</code>), tracks your cohort progress (<code>firstbreakai status</code>/<code>done</code>/<code>next</code>), validates exercises locally (<code>firstbreakai validate</code>), and lets you ask the AI assistant from the terminal (<code>firstbreakai ask</code>).</p>
+      <p>Run <code>firstbreakai mcp</code> to start it as a local MCP server for Cursor, Claude Desktop, or Claude Code. Full documentation is on the <a href="docs.html">Docs</a> page.</p>
+    </div>
+  </details>
+
+  <details class="faq-item">
     <summary>Does the First Break AI cohort have an MCP server?</summary>
     <div class="faq-body">
       <p><strong>Yes.</strong> First Break AI publishes a free, public <strong>MCP server</strong> (Model Context Protocol) so your AI assistant can talk to the cohort directly — search lessons, answer roadmap questions, help with enrollment, and validate homework against the rubric.</p>
@@ -439,6 +464,14 @@ Recommended for learners aged **16+**. If you are under 18, please join only wit
       "acceptedAnswer": {
         "@type": "Answer",
         "text": "First Break AI is openly inspired by Andrej Karpathy's Let's reproduce GPT-2 (124M) and llm.c — the from-scratch, no-magic, run-it-in-pure-C approach to teaching how LLMs actually work. Those are still the gold standard for a single lecturer building a model in front of you, and they are the philosophical foundation under this entire cohort. The pure-C Qwen3 demo in Lesson 1 (code by William Song) is the direct intellectual descendant of llm.c. We sit on top of that work and extend it in four directions. First, cohort-based: live Friday office hours where you can ask anything. Second, a 2026-current stack: Qwen3 instead of GPT-2, transformers v5, vLLM, agent tooling, the HuggingFace supply-chain lens. Third, shipping a product is in scope — Step 5 of the roadmap is building a deployed AI product, not just training a model in a notebook. Fourth, agent-readable by design: the site ships structured data (Course, FAQPage) for AI answer engines, and Lesson 1 walks you through Croissant — the same machine-readable lens, applied to model and dataset releases. Per-lesson manifests are on the roadmap. fast.ai and HuggingFace's free course are excellent complementary reads, and the roadmap links to them where they fit."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a CLI or npm package for the cohort?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Install @aiedx/firstbreakai from npm to get a terminal CLI and local MCP server in one package. The CLI checks your dev environment (firstbreakai doctor), scaffolds a Quarto blog (firstbreakai init), tracks your cohort progress (firstbreakai status/done/next), validates exercises locally (firstbreakai validate), and lets you ask the AI assistant from the terminal (firstbreakai ask). Run firstbreakai mcp to start it as a local MCP server for Cursor, Claude Desktop, or Claude Code. Full documentation is on the Docs page at cohort.bubblnet.com/docs."
       }
     },
     {

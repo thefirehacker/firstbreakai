@@ -1,0 +1,15 @@
+---
+title: "Getting Started with First Break AI"
+date: today
+categories: [cohort, ai, learning]
+---
+
+This is my first post as part of the [First Break AI](https://cohort.bubblnet.com) cohort.
+
+## What I'm learning
+
+I'm following the [roadmap](https://cohort.bubblnet.com/roadmap) to learn AI from the ground up — starting with setting up my dev environment and building this blog.
+
+## Next steps
+
+Check the [checklist](https://cohort.bubblnet.com/checklist) to see what accounts and tools you need.
