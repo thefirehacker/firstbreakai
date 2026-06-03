@@ -1,0 +1,9 @@
+---
+title: "My AI Learning Blog"
+---
+
+Welcome to my blog! I'm documenting my journey through the [First Break AI](https://cohort.bubblnet.com) cohort — learning inference, training, and AI product building from scratch.
+
+## Recent Posts
+
+- [My First Post](first-post.qmd)

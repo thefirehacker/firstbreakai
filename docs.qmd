@@ -1,0 +1,384 @@
+---
+title: "Docs — CLI & MCP Server"
+description: "Developer documentation for the First Break AI CLI tool and MCP server. Install, configure, and use the @aiedx/firstbreakai npm package to check your environment, track progress, validate exercises, and integrate with AI IDEs."
+css: styles/docs.css
+---
+
+```{=html}
+<div class="docs-hero">
+  <h1 class="docs-hero-title">Developer Docs</h1>
+  <p class="docs-hero-sub">Everything you need to use First Break AI from the terminal or your AI IDE.</p>
+  <div class="docs-hero-badges">
+    <a href="https://www.npmjs.com/package/@aiedx/firstbreakai" target="_blank" rel="noopener"><img src="https://img.shields.io/npm/v/@aiedx/firstbreakai?label=npm&color=CB3837" alt="npm version" /></a>
+    <a href="https://github.com/thefirehacker/firstbreakai" target="_blank" rel="noopener"><img src="https://img.shields.io/github/stars/thefirehacker/firstbreakai?style=social" alt="GitHub stars" /></a>
+  </div>
+</div>
+```
+
+First Break AI ships two developer tools:
+
+1. **CLI** (`@aiedx/firstbreakai`) — a terminal tool to check your environment, scaffold a blog, track cohort progress, validate exercises, and ask the AI assistant.
+2. **MCP server** — the same CLI doubles as a local [Model Context Protocol](https://modelcontextprotocol.io/) server for Cursor, Claude Desktop, Claude Code, and other AI IDEs.
+
+Both are part of the same npm package. Install once, use everywhere.
+
+---
+
+## Get started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) **18 or later** (check with `node --version`)
+- A terminal (macOS Terminal, iTerm, Windows Terminal with WSL, or any Linux terminal)
+
+### Install
+
+Install globally so you can run `firstbreakai` from anywhere:
+
+```bash
+npm install -g @aiedx/firstbreakai
+```
+
+Or run any command without installing:
+
+```bash
+npx @aiedx/firstbreakai doctor
+```
+
+### Verify
+
+```bash
+firstbreakai doctor
+```
+
+You should see a checklist of tools (Git, Python, Quarto, HuggingFace CLI, Node.js, Cursor/VS Code) with a pass/fail status for each.
+
+---
+
+## CLI reference
+
+### `firstbreakai doctor`
+
+Checks your development environment for every tool the cohort needs.
+
+```bash
+firstbreakai doctor
+```
+
+**Output:**
+
+```
+  First Break AI — Environment Check
+
+  ✓ Git v2.41.0
+  ✓ Python v3.11.1
+  ✓ Quarto v1.8.24
+  ✓ HuggingFace CLI v0.28.1
+  ✓ Node.js v22.2.0
+  ✓ Cursor detected
+
+  All checks passed — you're ready for the cohort!
+```
+
+Each failing check includes an install link.
+
+---
+
+### `firstbreakai status`
+
+Shows your cohort progress — which steps are complete, which are pending.
+
+```bash
+firstbreakai status
+```
+
+**Output:**
+
+```
+  First Break AI — Your Progress
+
+  ✓ Step 0: Join Discord & create accounts (5/15/2026)
+  ✓ Step 1: First use of AI for coding (5/20/2026)
+  ○ Step 2: Run a model locally
+      · HuggingFace Beyond Upload
+      · Qwen3 Fundamentals
+  ○ Step 3: Inference deep dive (coming soon)
+  ...
+
+  2/7 steps completed
+```
+
+Progress is stored locally in `~/.firstbreakai.json`.
+
+---
+
+### `firstbreakai done <step>`
+
+Marks a step as complete.
+
+```bash
+firstbreakai done 1
+```
+
+```
+  ✓ Step 1: First use of AI for coding — marked complete!
+  Next up: Step 2 — Run a model locally
+```
+
+---
+
+### `firstbreakai init`
+
+Scaffolds a new [Quarto](https://quarto.org/) blog in the current directory — the starting point for Step 1.
+
+```bash
+mkdir my-ai-blog && cd my-ai-blog
+firstbreakai init
+```
+
+Creates `_quarto.yml`, `index.qmd`, and `first-post.qmd`. Then:
+
+```bash
+quarto preview        # preview locally
+git init && git add . && git commit -m "Initial blog"
+```
+
+Full guide: [Lesson 0 — Welcome](lessons/lesson-0-welcome.qmd)
+
+---
+
+### `firstbreakai open <page>`
+
+Opens a cohort page in your default browser.
+
+```bash
+firstbreakai open roadmap
+firstbreakai open discord
+firstbreakai open lessons
+```
+
+**Available pages:** `home`, `roadmap`, `checklist`, `lessons`, `setup`, `blog`, `discord`, `repo`, `office`
+
+---
+
+### `firstbreakai next`
+
+Opens the next incomplete step in your browser, based on your local progress.
+
+```bash
+firstbreakai next
+```
+
+---
+
+### `firstbreakai ask "<question>"`
+
+Sends your question to the [FBA AI assistant](index.qmd#install-fba-mcp) and prints the answer in your terminal.
+
+```bash
+firstbreakai ask "How do I download a model from HuggingFace?"
+firstbreakai ask "What is GGUF?"
+```
+
+This calls the remote FBA MCP server — requires an internet connection.
+
+---
+
+### `firstbreakai validate <step>`
+
+Runs **local, deterministic checks** for a cohort step. No LLM, no network required — just file and tool presence checks.
+
+```bash
+cd ~/my-ai-blog
+firstbreakai validate 1
+```
+
+**Step 1 checks:**
+
+- `_quarto.yml` exists and has `type: website`
+- At least one `.qmd` file exists
+- Git repo initialized with a GitHub remote
+- At least one commit
+
+**Step 2 checks:**
+
+- `run.c` or `run` binary exists and is executable
+- `config.json` (model config) exists
+- Tokenizer file exists (`tokenizer.json` or `tokenizer.model`)
+- Model weights file exists (`.bin` or `.safetensors`)
+
+If you're logged in, results are also saved to your profile on the FBA server.
+
+---
+
+### `firstbreakai login`
+
+Authenticates via Discord OAuth. Opens your browser, you approve, and a token is saved locally.
+
+```bash
+firstbreakai login
+```
+
+Login is **optional** — all local commands work without it. Login enables saving validation results to your server-side profile.
+
+---
+
+## MCP server
+
+The same `@aiedx/firstbreakai` package doubles as a local MCP server. This lets AI assistants in Cursor, Claude Desktop, Claude Code, or any MCP-capable tool call cohort commands directly.
+
+### Setup for Cursor
+
+Add to `.cursor/mcp.json` in your project (or `~/.cursor/mcp.json` globally):
+
+```json
+{
+  "mcpServers": {
+    "firstbreakai": {
+      "command": "npx",
+      "args": ["@aiedx/firstbreakai", "mcp"]
+    }
+  }
+}
+```
+
+### Setup for Claude Desktop
+
+Add to your Claude Desktop MCP config (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
+
+```json
+{
+  "mcpServers": {
+    "firstbreakai": {
+      "command": "npx",
+      "args": ["@aiedx/firstbreakai", "mcp"]
+    }
+  }
+}
+```
+
+### Setup for Claude Code
+
+```bash
+claude mcp add firstbreakai -- npx @aiedx/firstbreakai mcp
+```
+
+Or add to `.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "firstbreakai": {
+      "command": "npx",
+      "args": ["@aiedx/firstbreakai", "mcp"]
+    }
+  }
+}
+```
+
+### MCP tools reference
+
+Once configured, your AI assistant can call these tools:
+
+| Tool | Description | Example prompt |
+|------|-------------|----------------|
+| `cohort_doctor` | Check dev environment | "Check if I have all the tools for First Break AI" |
+| `cohort_status` | Show progress | "What's my cohort progress?" |
+| `cohort_done` | Mark step complete | "Mark step 1 as done" |
+| `cohort_validate` | Run validation checks | "Validate my Step 1 work" |
+| `cohort_open` | Open a cohort page | "Open the First Break AI roadmap" |
+| `cohort_next` | Open next step | "What should I work on next?" |
+| `cohort_ask` | Ask the AI assistant | "Ask FBA how GGUF quantization works" |
+
+### Local MCP vs remote MCP
+
+First Break AI has **two** MCP servers:
+
+| | Local MCP (this package) | Remote MCP (FBA server) |
+|--|-------------------------|------------------------|
+| **Transport** | stdio (runs on your machine) | Streamable HTTP |
+| **Install** | `npm install -g @aiedx/firstbreakai` | Paste URL in your AI tool |
+| **URL** | N/A (local process) | `https://fba-mcp.throbbing-thunder-4d33.workers.dev/mcp` |
+| **Tools** | `cohort_doctor`, `cohort_status`, `cohort_done`, `cohort_validate`, `cohort_open`, `cohort_next`, `cohort_ask` | `ask`, `find`, `do`, `validate`, `next` |
+| **Runs offline** | Yes (except `cohort_ask`) | No |
+| **Use case** | Personal dev workflow | Cohort-wide Q&A, enrollment, server-side validation |
+
+You can use both — they complement each other. The local MCP checks your files and environment; the remote MCP answers questions from the cohort knowledge base.
+
+---
+
+## Configuration
+
+### Progress file
+
+All local state is stored in `~/.firstbreakai.json`:
+
+```json
+{
+  "version": 1,
+  "learner_id": null,
+  "access_token": null,
+  "steps": {
+    "0": { "done": true, "at": "2026-05-15T10:00:00Z" },
+    "1": { "done": true, "at": "2026-05-20T14:30:00Z" }
+  }
+}
+```
+
+- `learner_id` and `access_token` are set after `firstbreakai login`
+- `steps` tracks which steps you've completed locally
+- Delete this file to reset all progress
+
+### Environment variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `TERM_PROGRAM` | (auto) | Used to detect Cursor / VS Code in `doctor` |
+
+No other environment variables are required.
+
+---
+
+## Package details
+
+| Field | Value |
+|-------|-------|
+| **Package** | [`@aiedx/firstbreakai`](https://www.npmjs.com/package/@aiedx/firstbreakai) |
+| **Version** | 0.1.0 |
+| **License** | MIT |
+| **Node.js** | >= 18 |
+| **Repository** | [github.com/thefirehacker/firstbreakai](https://github.com/thefirehacker/firstbreakai) |
+| **Homepage** | [cohort.bubblnet.com](https://cohort.bubblnet.com) |
+| **Author** | [First Break AI](https://cohort.bubblnet.com) |
+
+### Dependencies
+
+The CLI has only two runtime dependencies:
+
+- [`chalk`](https://www.npmjs.com/package/chalk) — terminal colors
+- [`open`](https://www.npmjs.com/package/open) — cross-platform browser opener
+
+Everything else uses Node.js built-in modules (`fs`, `path`, `http`, `child_process`).
+
+---
+
+## Troubleshooting
+
+**`firstbreakai: command not found`** — Make sure you installed globally: `npm install -g @aiedx/firstbreakai`. Or use `npx @aiedx/firstbreakai <command>`.
+
+**`doctor` says HuggingFace CLI not found** — Install it: `pip install huggingface_hub[cli]`
+
+**`validate` fails but I've done the step** — Make sure you run `validate` from the correct directory (your blog folder for Step 1, your model folder for Step 2).
+
+**`ask` returns a connection error** — The `ask` command needs internet access to reach the FBA server. Check your connection.
+
+**MCP server not appearing in Cursor** — Make sure the `mcp.json` config is valid JSON. Restart Cursor after adding the config. Check with `npx @aiedx/firstbreakai mcp` in a terminal to verify the package loads.
+
+---
+
+## What's next
+
+- [Roadmap](roadmap.qmd) — see all six steps of the cohort
+- [Checklist](checklist.qmd) — accounts and tools to set up
+- [Lessons](lessons/) — start learning
+- [Discord](https://discord.gg/hRPese4H3F) — join the community
