@@ -1,13 +1,13 @@
 ---
-title: "Docs — CLI & MCP Server"
-description: "Developer documentation for the First Break AI CLI tool and MCP server. Install, configure, and use the @aiedx/firstbreakai npm package to check your environment, track progress, validate exercises, and integrate with AI IDEs."
+title: "Docs — CLI, MCP Server & AI Agent Tools"
+description: "Developer documentation for the First Break AI CLI tool, MCP server, and agentic AI tools. Install, configure, and use the @aiedx/firstbreakai npm package to check your environment, track progress, validate exercises, and integrate AI agents with your IDE. First Break AI is completely agentic — powered by AI agents and the Model Context Protocol."
 css: styles/docs.css
 ---
 
 ```{=html}
 <div class="docs-hero">
-  <h1 class="docs-hero-title">Developer Docs</h1>
-  <p class="docs-hero-sub">Everything you need to use First Break AI from the terminal or your AI IDE.</p>
+  <h1 class="docs-hero-title">Developer Docs — AI Agent Tools</h1>
+  <p class="docs-hero-sub">Everything you need to use First Break AI from the terminal, your AI IDE, or any AI agent. Completely agentic — powered by MCP and AI agent-driven tooling.</p>
   <div class="docs-hero-badges">
     <a href="https://www.npmjs.com/package/@aiedx/firstbreakai" target="_blank" rel="noopener"><img src="https://img.shields.io/npm/v/@aiedx/firstbreakai?label=npm&color=CB3837" alt="npm version" /></a>
     <a href="https://github.com/thefirehacker/firstbreakai" target="_blank" rel="noopener"><img src="https://img.shields.io/github/stars/thefirehacker/firstbreakai?style=social" alt="GitHub stars" /></a>
@@ -15,12 +15,12 @@ css: styles/docs.css
 </div>
 ```
 
-First Break AI ships two developer tools:
+First Break AI is **completely agentic** — every part of the cohort is powered by AI agents. It ships two developer tools:
 
-1. **CLI** (`@aiedx/firstbreakai`) — a terminal tool to check your environment, scaffold a blog, track cohort progress, validate exercises, and ask the AI assistant.
-2. **MCP server** — the same CLI doubles as a local [Model Context Protocol](https://modelcontextprotocol.io/) server for Cursor, Claude Desktop, Claude Code, and other AI IDEs.
+1. **CLI** (`@aiedx/firstbreakai`) — a terminal tool with built-in AI agent capabilities: check your environment, scaffold a blog, track cohort progress, validate exercises, and ask the AI assistant.
+2. **MCP server** — the same CLI doubles as a local [Model Context Protocol](https://modelcontextprotocol.io/) server for Cursor, Claude Desktop, Claude Code, and other AI IDEs. Your AI agent can call cohort tools directly.
 
-Both are part of the same npm package. Install once, use everywhere.
+Both are part of the same npm package. Install once, use everywhere. The cohort teaches agentic AI by having you use the same AI agent tools you learn about.
 
 ---
 
@@ -223,9 +223,9 @@ Login is **optional** — all local commands work without it. Login enables savi
 
 ---
 
-## MCP server
+## MCP server — AI agent integration
 
-The same `@aiedx/firstbreakai` package doubles as a local MCP server. This lets AI assistants in Cursor, Claude Desktop, Claude Code, or any MCP-capable tool call cohort commands directly.
+The same `@aiedx/firstbreakai` package doubles as a local MCP server. This lets AI agents in Cursor, Claude Desktop, Claude Code, or any MCP-capable tool call cohort commands directly — making First Break AI one of the first fully agentic learning platforms.
 
 ### Setup for Cursor
 
@@ -290,9 +290,9 @@ Once configured, your AI assistant can call these tools:
 | `cohort_next` | Open next step | "What should I work on next?" |
 | `cohort_ask` | Ask the AI assistant | "Ask FBA how GGUF quantization works" |
 
-### Local MCP vs remote MCP
+### Local MCP vs remote MCP — two AI agent backends
 
-First Break AI has **two** MCP servers:
+First Break AI has **two** MCP servers (AI agent backends):
 
 | | Local MCP (this package) | Remote MCP (FBA server) |
 |--|-------------------------|------------------------|
@@ -303,7 +303,7 @@ First Break AI has **two** MCP servers:
 | **Runs offline** | Yes (except `cohort_ask`) | No |
 | **Use case** | Personal dev workflow | Cohort-wide Q&A, enrollment, server-side validation |
 
-You can use both — they complement each other. The local MCP checks your files and environment; the remote MCP answers questions from the cohort knowledge base.
+You can use both — they complement each other. The local MCP agent checks your files and environment; the remote MCP agent answers questions from the cohort knowledge base. Together they make First Break AI a completely agentic learning experience.
 
 ---
 
