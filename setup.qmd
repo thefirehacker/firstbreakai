@@ -3,17 +3,28 @@ title: "AI Setup — Tools for the Cohort"
 description: "AI tools for the First Break AI cohort: Cursor IDE, Claude Code, ChatGPT, Open Router, Modal, E2E Networks, and Weights & Biases. Start with free tiers and upgrade as you grow."
 ---
 
-Tools you’ll use during the cohort. Start with the free tiers; upgrade as you grow.
+Tools you'll use during the cohort. Start with the free tiers; upgrade as you grow.
+
+## Watch: How to Use Agentic AI in First Break AI {.unnumbered}
+
+{{< video https://youtu.be/OuxF-cxUy1s >}}
+
+This walkthrough covers:
+
+- Using the **Ask Anything** MCP widget on the cohort site
+- Installing and logging in with the **firstbreakai CLI** (`npm i -g @aiedx/firstbreakai`)
+- Adding the FBA **MCP server** to Cursor or Claude Code
+- Checking your cohort status and validating steps via AI agents
 
 ## AI-based IDE — Cursor or Claude Code
 
-We recommend **Cursor** to start (e.g. $20 plan). It’s similar to VS Code (it’s a fork) and lets you see code changes clearly. **Claude Code** is also strong but is terminal-based.
+We recommend **Cursor** to start (e.g. $20 plan). It's similar to VS Code (it's a fork) and lets you see code changes clearly. **Claude Code** is also strong but is terminal-based.
 
 Use your AI-based IDE for the first milestone: setting up a Quarto blog and pushing to GitHub.
 
 ## ChatGPT
 
-You can start with the free tier. As your skills grow, a minimum ~$20/month subscription is useful to use better “thinking” models.
+You can start with the free tier. As your skills grow, a minimum ~$20/month subscription is useful to use better "thinking" models.
 
 ## Open Router
 
