@@ -23,6 +23,18 @@ Cohort 01 runs **1 May 2026 — 31 July 2026**. These are the live sessions for 
 ::: {.blog-cards .oh-cohort-row}
 
 :::: {.blog-card .blog-card-oh-cohort .blog-card-oh-featured}
+[Cohort 01 · Session 2]{.blog-card-label}
+
+### 5 June 2026
+
+::: {.blog-card-desc}
+**Agentic AI meets the cohort.** A live Claude + Blender + First Break AI MCP demo that turned Lesson 1B's GGUF format into a 3D tower, the new **Discord-authenticated cohort widget** and **`firstbreakai` CLI** (login, status, validate — wired to Discord notifications), the roadmap as an LMS, and a deeper run at Qwen3 in pure C — **live token-probability visualisation** over a 151,936-token vocabulary, **top-p / nucleus sampling**, temperature, chat templates with `<|im_start|>` / `<|im_end|>`, the recursive-clone setup, and replay mode.
+:::
+
+[Read session notes](2026-06-05.qmd){.blog-card-link}
+::::
+
+:::: {.blog-card .blog-card-oh-cohort}
 [Cohort 01 · Session 1]{.blog-card-label}
 
 ### 8 May 2026
