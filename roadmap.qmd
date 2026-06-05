@@ -54,6 +54,8 @@ Set up a **Quarto blog** and host it on GitHub with an about-me page, blog posts
 
 <p><strong>Office Hours sessions:</strong></p>
 <ul>
+<li><a href="office-hours/2026-06-05.qmd#topic-3-fba-cli">The firstbreakai CLI — validate your Quarto blog from inside the repo</a> (5 Jun, Cohort 01)</li>
+<li><a href="office-hours/2026-06-05.qmd#topic-2-fba-agentic-widget">Agentic First Break AI — the cohort widget and the roadmap-as-LMS</a> (5 Jun, Cohort 01)</li>
 <li><a href="office-hours/2026-05-08.qmd#topic-5-markdown-knowledge-base">Markdown everywhere — and Karpathy's AI-managed knowledge base</a> (8 May, Cohort 01)</li>
 <li><a href="office-hours/2026-03-13.qmd#topic-1-github-collaboration">GitHub collaboration — PRs, conflicts, rebasing</a> (13 Mar)</li>
 <li><a href="office-hours/2026-04-10.qmd#topic-2-claude-code-harness-leak">Claude Code harness — skills, sub-agents, safe learning</a> (10 Apr)</li>
@@ -106,6 +108,11 @@ Run Qwen3 0.6B locally in pure C — trace every operation from tokenization to 
 
 <p><strong>Office Hours sessions:</strong></p>
 <ul>
+<li><a href="office-hours/2026-06-05.qmd#topic-9-sampling-deep-dive">Sampling deep dive — temperature, top-p, and the "original" 1.4% surprise</a> (5 Jun, Cohort 01)</li>
+<li><a href="office-hours/2026-06-05.qmd#topic-8-token-viz">Live token-probability visualisation — top-20 over a 151,936-token vocab</a> (5 Jun, Cohort 01)</li>
+<li><a href="office-hours/2026-06-05.qmd#topic-10-chat-templates">Chat templates and special tokens — talking to the model</a> (5 Jun, Cohort 01)</li>
+<li><a href="office-hours/2026-06-05.qmd#topic-11-setup-walkthrough">Setup walkthrough — recursive clone, model download, make run, WSL</a> (5 Jun, Cohort 01)</li>
+<li><a href="office-hours/2026-06-05.qmd#topic-1-agentic-blender">Agentic AI in action — Claude + Blender + FBA MCP build a 3D GGUF tower</a> (5 Jun, Cohort 01)</li>
 <li><a href="office-hours/2026-05-08.qmd#topic-1-three-intuitions">Three intuitions — model shape, autoregressive generation, vocab-wide probabilities</a> (8 May, Cohort 01)</li>
 <li><a href="office-hours/2026-05-08.qmd#topic-2-why-qwen3-0-6b">Why Qwen3 0.6B — small but structurally identical to large models</a> (8 May, Cohort 01)</li>
 <li><a href="office-hours/2026-05-08.qmd#topic-3-huggingface">HuggingFace — the GitHub for models (LFS → Xet, model cards)</a> (8 May, Cohort 01)</li>
@@ -283,6 +290,8 @@ Prove what you've learned. Pick one: ship a capstone project or make a meaningfu
 
 **Office Hours sessions:**
 
+- [The firstbreakai CLI — validate your Quarto blog from inside the repo](office-hours/2026-06-05.qmd#topic-3-fba-cli) (5 Jun, Cohort 01)
+- [Agentic First Break AI — the cohort widget and the roadmap-as-LMS](office-hours/2026-06-05.qmd#topic-2-fba-agentic-widget) (5 Jun, Cohort 01)
 - [Markdown everywhere — and Karpathy's AI-managed knowledge base](office-hours/2026-05-08.qmd#topic-5-markdown-knowledge-base) (8 May, Cohort 01)
 - [GitHub collaboration — PRs, conflicts, rebasing](office-hours/2026-03-13.qmd#topic-1-github-collaboration) (13 Mar)
 - [Claude Code harness — skills, sub-agents, safe learning](office-hours/2026-04-10.qmd#topic-2-claude-code-harness-leak) (10 Apr)
@@ -314,6 +323,11 @@ Prove what you've learned. Pick one: ship a capstone project or make a meaningfu
 
 **Office Hours sessions:**
 
+- [Sampling deep dive — temperature, top-p, and the "original" 1.4% surprise](office-hours/2026-06-05.qmd#topic-9-sampling-deep-dive) (5 Jun, Cohort 01)
+- [Live token-probability visualisation — top-20 over a 151,936-token vocab](office-hours/2026-06-05.qmd#topic-8-token-viz) (5 Jun, Cohort 01)
+- [Chat templates and special tokens — talking to the model](office-hours/2026-06-05.qmd#topic-10-chat-templates) (5 Jun, Cohort 01)
+- [Setup walkthrough — recursive clone, model download, make run, WSL](office-hours/2026-06-05.qmd#topic-11-setup-walkthrough) (5 Jun, Cohort 01)
+- [Agentic AI in action — Claude + Blender + FBA MCP build a 3D GGUF tower](office-hours/2026-06-05.qmd#topic-1-agentic-blender) (5 Jun, Cohort 01)
 - [Three intuitions — model shape, autoregressive generation, vocab-wide probabilities](office-hours/2026-05-08.qmd#topic-1-three-intuitions) (8 May, Cohort 01)
 - [Why Qwen3 0.6B — small but structurally identical to large models](office-hours/2026-05-08.qmd#topic-2-why-qwen3-0-6b) (8 May, Cohort 01)
 - [HuggingFace — the GitHub for models (LFS → Xet, model cards)](office-hours/2026-05-08.qmd#topic-3-huggingface) (8 May, Cohort 01)

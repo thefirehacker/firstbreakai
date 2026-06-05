@@ -1,0 +1,490 @@
+---
+title: "Office Hours — 5 June 2026"
+description: "Cohort 01 Session 2: agentic AI in action with Claude + Blender + the First Break AI MCP server, the new Discord-authenticated cohort widget and CLI, the roadmap as an LMS, and a live Qwen3-in-pure-C demo with token-probability visualisation — temperature, top-p sampling, chat templates, and the full setup walkthrough."
+date: 2026-06-05
+categories: [office-hours, cohort-01, agentic-ai, mcp, claude, blender, discord, cli, qwen3, gguf, sampling, top-p, temperature, chat-templates, visualization, inference]
+css: ../styles/blog.css
+---
+
+> **First Break AI — Office Hours**
+>
+> Session 6 — 5 June 2026 · **Cohort 01 — Session 2**. The first hour was split clean down the middle: the first half on **agentic AI** — Claude + Blender + the new First Break AI MCP server, the Discord-authenticated cohort widget, and the `firstbreakai` CLI — and the second half on **running Qwen3 locally in pure C** with a live token-probability visualiser, top-p sampling, and the chat template.
+
+---
+
+## What we covered
+
+| # | Topic | Roadmap link |
+|---|---|---|
+| 1 | [Agentic AI in action — Claude + Blender + FBA MCP build a 3D GGUF tower](#topic-1-agentic-blender) | [Step 2](../roadmap.qmd#run-a-model-locally) |
+| 2 | [Agentic First Break AI — the cohort widget and the roadmap-as-LMS](#topic-2-fba-agentic-widget) | [Roadmap overview](../roadmap.qmd) |
+| 3 | [The `firstbreakai` CLI — login, status, validate, Discord notifications](#topic-3-fba-cli) | [Step 1](../roadmap.qmd#first-use-of-ai-for-coding) |
+| 4 | [From static Quarto to an AI-native learning app](#topic-4-static-to-agentic) | [Roadmap overview](../roadmap.qmd) |
+| 5 | [Custom lessons on demand — agentic course curation](#topic-5-custom-lessons) | [Roadmap overview](../roadmap.qmd) |
+| 6 | [The QWEN3-RunLocally repo — submodules vs monorepos](#topic-6-repo-structure) | [Step 2](../roadmap.qmd#run-a-model-locally) |
+| 7 | [System prompts in pure C — the "king of the jungle" demo](#topic-7-system-prompts-live) | [Step 2](../roadmap.qmd#run-a-model-locally) |
+| 8 | [Live token-probability visualisation — top-20 over a 151,936-token vocab](#topic-8-token-viz) | [Step 2](../roadmap.qmd#run-a-model-locally) |
+| 9 | [Sampling deep dive — temperature, top-p, and the "original" surprise](#topic-9-sampling-deep-dive) | [Step 2](../roadmap.qmd#run-a-model-locally) |
+| 10 | [Chat templates and special tokens — how you actually talk to the model](#topic-10-chat-templates) | [Step 2](../roadmap.qmd#run-a-model-locally) |
+| 11 | [Setup walkthrough — recursive clone, model download, `make run`, WSL on Windows](#topic-11-setup-walkthrough) | [Step 2](../roadmap.qmd#run-a-model-locally) |
+| 12 | [Replay mode — saving a run and loading it back later](#topic-12-replay-mode) | [Step 2](../roadmap.qmd#run-a-model-locally) |
+| 13 | [What's next — Lesson 1B video, AI tutor widget](#topic-13-whats-next) | [Step 2](../roadmap.qmd#run-a-model-locally) |
+| 14 | [Resources and links](#topic-14-resources) | — |
+
+---
+
+# Topic 1: Agentic AI in action — Claude + Blender + FBA MCP {#topic-1-agentic-blender}
+
+**Roadmap connection:** [Step 2 — Run a model locally](../roadmap.qmd)
+
+The session opened with a live agentic demo. The setup:
+
+```text
+                ┌──────────────┐
+                │ Claude (orch)│
+                └──────┬───────┘
+                       │  MCP
+        ┌──────────────┼──────────────┐
+        │                             │
+  ┌─────▼─────┐                ┌──────▼──────┐
+  │   FBA     │                │   Blender   │
+  │  MCP svr  │                │  MCP svr    │
+  │ (cohort   │                │ (3D content │
+  │  state)   │                │  authoring) │
+  └───────────┘                └─────────────┘
+```
+
+Claude was wired up to two MCP tool servers:
+
+- **First Break AI MCP** — exposes cohort state: where the learner is on the roadmap, what's completed, what's next.
+- **Blender MCP** — exposes Blender's scene graph: create objects, set materials, scale, render.
+
+The instruction was simple: *"Look at the latest chapter (Lesson 1B — Qwen3 Fundamentals) and create a small concept visual."* Claude read the chapter via the FBA MCP, decided the **GGUF file format** was the most visual-worthy idea, and asked Blender to build it as a stacked tower.
+
+## What it produced
+
+A 3D "tower" of the four sections of a GGUF file, stacked in roughly correct proportion:
+
+| Block | Size in the tower |
+|---|---|
+| **Header** | ~32 bytes — a sliver on top |
+| **Metadata** | small |
+| **Tensor info** | small |
+| **Tensor data (weights)** | the entire base of the tower — **virtually the whole file** |
+
+Reading that out loud and reading a 600M-parameter `.gguf` byte-by-byte gives you the same fact. Seeing it as a stack-of-bricks tower makes the fact *stick* in a way a paragraph cannot.
+
+**The actual takeaway is bigger than the tower.** The takeaway is: *agentic AI can convert any chapter in the roadmap into a custom artefact.* The next ten years will not separate cleanly into "people who use AI" and "people who don't." It will separate into **people who are good at agentic AI** and people who are not. Tool-using, multi-step Claude is the wedge; everything in the cohort is, in the end, in service of you being one of the people who can drive it.
+
+---
+
+# Topic 2: Agentic First Break AI — the cohort widget and the roadmap-as-LMS {#topic-2-fba-agentic-widget}
+
+**Roadmap connection:** [Roadmap overview](../roadmap.qmd)
+
+If you look at the bottom-right of any cohort page now, there's an **Ask Anything** widget. The flow:
+
+1. Click **Log in with Discord**.
+2. A small auth popup opens — click **Authorize**.
+3. You're logged in. Now ask: *"What is my profile?"* or *"Where am I on the roadmap?"* and the widget answers using your actual progress.
+
+What just happened under the hood: the widget is a thin chat surface that talks to the same MCP server Claude was using in Topic 1. Your Discord identity → your cohort record → the widget can read and write that state.
+
+## The roadmap is now an LMS
+
+The roadmap page used to be static — a nice-looking list of six steps. Logged in, it's something else:
+
+- **Step status badges** show which steps you've completed, which one is current.
+- **Lessons inside a step** have checkboxes you can tick as you go.
+- **Reads, videos, and chapters** are individually markable.
+
+Open the roadmap logged in and you see *your* position on it, not a generic one. The Lessons page has the same treatment — you can mark a YouTube video as watched and the state persists across devices because it lives in your cohort record, not in localStorage.
+
+That's the LMS most cohort platforms are; the difference is the underlying surface is a static Quarto site, made *behaviourally* alive by agentic actions. (More on that in Topic 4.)
+
+---
+
+# Topic 3: The `firstbreakai` CLI — login, status, validate {#topic-3-fba-cli}
+
+**Roadmap connection:** [Step 1 — First use of AI for coding](../roadmap.qmd)
+
+The widget is for browsing. The **CLI** is for shipping. It runs inside whichever repo you're working in (Quarto blog now, Qwen3 repo later) and validates whether you've actually completed the work for a roadmap step.
+
+```bash
+# one-time install
+npm install -g firstbreakai
+
+# auth (uses the same Discord OAuth as the widget)
+firstbreakai login
+
+# see where you are on the roadmap
+firstbreakai status
+
+# validate a specific step from inside its repo
+firstbreakai validate 0
+firstbreakai validate 1
+```
+
+## What `validate` actually does
+
+`validate <step>` runs **static checks** specific to that step against the repo you're standing in.
+
+| Step | What `validate` checks |
+|---|---|
+| `validate 0` | Setup sanity — are you logged in, is `git` installed, basic env. |
+| `validate 1` | Quarto blog — is there a `_quarto.yml`, are there posts, does it build. |
+
+When a check passes, two things happen:
+
+1. The CLI prints the green check and updates your progress on the cohort site.
+2. A notification fires into the host's private Discord channel — *"learner X cleared step Y."*
+
+**Why route via Discord?** Because every learner is already in Discord, the host already lives in Discord, and "progress" is now a Discord event the host can see in real time. Future cohorts can be run almost end-to-end from the host's Discord — no separate dashboard, no separate notification system.
+
+More step-specific checks are coming as the repo grows. The shape stays the same: `validate <step>` from inside the relevant repo.
+
+---
+
+# Topic 4: From static Quarto to an AI-native learning app {#topic-4-static-to-agentic}
+
+**Roadmap connection:** [Roadmap overview](../roadmap.qmd)
+
+Step back from the widget and the CLI for a second and look at the bigger arc.
+
+| Layer | What it is |
+|---|---|
+| **Static surface** | The Quarto site — Markdown, HTML, CSS. Renders with no JS. |
+| **Identity** | Discord OAuth → a cohort record per learner. |
+| **State** | Roadmap progress, lesson checkboxes, validations — stored centrally. |
+| **Agentic layer** | An MCP server exposing that state + a widget and a CLI that drive it. |
+
+The point: **Quarto is a static-site generator**. Sites built with it can't normally "behave like apps." But by layering identity + state + an agentic surface, the same `.qmd` files become a logged-in, personalised learning app — without abandoning Quarto's strengths (Git-friendly Markdown, fast builds, clean SEO).
+
+This is one of the cohort's core ambitions: **what is "a step to ship a product"?** Pick your capstone direction — inferencing, agentic AI, something else — and you'll see this pattern again: take something static or boring, add an agentic layer, ship a product. The First Break AI site itself is the working example.
+
+---
+
+# Topic 5: Custom lessons on demand — agentic course curation {#topic-5-custom-lessons}
+
+**Roadmap connection:** [Roadmap overview](../roadmap.qmd)
+
+Lesson 1B is a long video. The transcript has chapter markers. With the agentic layer in place, you can do something the static surface can't:
+
+> *"I'm Kamal. I want to skip the first part. I like the data-analysis part of Lesson 1 starting around 18:30. Build me a mini-lesson."*
+
+The agent reads the transcript chapters, picks segments matching your ask, and assembles a **custom video sequence** with its own step-by-step notes — your own mini-course derived from the long lesson. Same source content, different cut, personalised to where *you* are.
+
+The future shape of this: an in-page **AI tutor** powered by an existing product (BubblSpace) integrated into the cohort site. Free for all Cohort 01 learners. Ask any question about any lesson and the tutor answers using the lessons + your progress as context.
+
+---
+
+# Topic 6: The QWEN3-RunLocally repo — submodules vs monorepos {#topic-6-repo-structure}
+
+**Roadmap connection:** [Step 2 — Run a model locally](../roadmap.qmd)
+
+The cohort repo for running Qwen3 in pure C is **[github.com/thefirehacker/QWEN3-RunLocally](https://github.com/thefirehacker/QWEN3-RunLocally)**. Open it on GitHub and you'll see it isn't really *one* repo — it's a parent repo that pulls in two more as **submodules**. Each of those is a separately maintained GitHub project, and the parent stitches them together.
+
+## When to reach for which
+
+| Pattern | When | What you share |
+|---|---|---|
+| **Monorepo** | Multiple projects need to share *code* — config files, type definitions, utilities. | Source files, lint/CI config, build tooling. |
+| **Submodules** | Multiple projects need to be *bundled together* but don't share code. | Just the wiring — each piece stays a clean independent repo. |
+
+QWEN3-RunLocally is the submodule case. The base C implementation came from another author's brilliant repo; we've extended it with visualisations and tooling. Keeping it as a submodule means upstream improvements flow through cleanly and the extensions stay isolated.
+
+**Practical consequence for cloning:** a normal `git clone` of the parent will give you an empty submodule folder. You need the recursive flag — covered in Topic 11.
+
+---
+
+# Topic 7: System prompts in pure C — the "king of the jungle" demo {#topic-7-system-prompts-live}
+
+**Roadmap connection:** [Step 2 — Run a model locally](../roadmap.qmd)
+
+Recap from Cohort 01 Session 1 ([8 May notes — Topic 7](2026-05-08.qmd#topic-7-pure-c-demo)): `make run` builds a C binary that loads a `.gguf` file and runs the model on CPU. This time we asked it a different question:
+
+```text
+--system "You are an expert writer."
+prompt : "Who was the king in the jungle?"
+```
+
+A small model with a tilted system prompt will produce a tilted answer. The model went into its `<think>` block, generated some thinking ("the user is asking who was the king of the jungle... let me start by recalling the Jungle Book story...") and then started answering — confidently, and partly wrong.
+
+**Two things are worth pausing on:**
+
+1. **TTFT — time to first token.** There was a noticeable pause before the first character appeared. That pause is **prefill** — the model is consuming the entire prompt ("You are an expert writer. Who was the king in the jungle?") in one shot to build the **KV cache** before it can decode the first output token. The longer your prompt, the longer this pause.
+2. **The output stream is functionally identical to ChatGPT.** Same system-prompt + user-prompt + thinking + answer shape, same one-token-at-a-time streaming. The only thing different is *what's running* — a 600M-parameter C binary on your laptop CPU instead of a frontier-scale model on a server.
+
+This is the same loop Intuition 2 from Cohort 01 Session 1 described ([8 May notes — Three intuitions](2026-05-08.qmd#topic-1-three-intuitions)). Seeing it stream out of a C binary on your laptop is what locks it in.
+
+---
+
+# Topic 8: Live token-probability visualisation — top-20 over a 151,936-token vocab {#topic-8-token-viz}
+
+**Roadmap connection:** [Step 2 — Run a model locally](../roadmap.qmd)
+
+The repo has a second mode: instead of just running the model, you run it **with a bridge to a visualiser** that captures the per-token probability distribution. (Setup details in Topic 11.)
+
+What you see, live:
+
+- Each generated token, in order.
+- For each token, the **top 20** of the 151,936 vocabulary entries the model could have picked — ranked by probability, with the chosen one highlighted.
+- The numeric probability for each, plus the cumulative mass.
+
+This is **Intuition 3 from Cohort 01 Session 1** ([8 May notes](2026-05-08.qmd#topic-1-three-intuitions)) made literal: the model is not picking a word, it is producing a probability vector of length 151,936 at every step. The visualiser just takes the top slice of that vector and renders it.
+
+```text
+At step k, after "You are an expert writer. Who was the king of the jungle? <think> ..."
+
+  token_id    prob     surface form
+  ───────  ───────   ─────────────────
+   12831     0.342   "the"
+   18203     0.118   "Sri"          ← model picked this; partly wrong about Jungle Book
+   ...
+   <remaining 151,916 tokens>       ← combined mass: small but nonzero
+```
+
+Click any chosen token in the UI and you get the full top-20 view *for that step* — including the runners-up the model almost picked instead. That's the entry point to understanding sampling.
+
+---
+
+# Topic 9: Sampling deep dive — temperature, top-p, and the "original" surprise {#topic-9-sampling-deep-dive}
+
+**Roadmap connection:** [Step 2 — Run a model locally](../roadmap.qmd)
+
+The model gives you 151,936 probabilities. **Sampling** is how you turn that vector into a single token. Two knobs do most of the work.
+
+## Top-p (nucleus sampling)
+
+Set a cumulative cutoff — typically `0.95`. Walk the sorted probabilities from highest down and keep tokens until the running sum crosses the cutoff. **The set of kept tokens is called the nucleus.** Everything outside is rejected.
+
+Concrete example from the live run:
+
+| Rank | Token (illustrative) | Prob | Cumulative |
+|---|---|---|---|
+| 1 | "is" | 0.80 | 0.80 |
+| 2 | "was" | 0.12 | 0.92 |
+| 3 | "okay" | 0.075 | 0.995 |
+| 4 | tail (148K tokens) | 0.005 (combined) | — |
+
+The first three combined make ~99.5% of the mass; the **tail mass** is ~1.3%. With `top-p = 0.95`, the nucleus here is just three tokens — everything else is discarded, then we sample within the nucleus.
+
+The nucleus size is *dynamic* — at one step it might be 3 tokens, at another it might be 50 (when the model is genuinely uncertain across many options).
+
+## Temperature
+
+Temperature reshapes the distribution *before* top-p picks the nucleus.
+
+| Temperature | Effect |
+|---|---|
+| `T = 0` | Greedy. Always pick the highest-probability token. Fully deterministic. |
+| `T = 1` | Sample directly from the model's own distribution. |
+| `T > 1` | Flatten the distribution — lower-probability tokens become more competitive. More creative, more risk of nonsense. |
+
+## The "original" surprise
+
+The most interesting moment in the live visualisation was a step where the model said *"I should clarify that the **original** ..."* — and clicking that token showed it had been picked **at only ~1.4% probability**, with a "logit score" of 16.5, while several higher-probability tokens were available: `story`, `book`, `jungle`, `king`, `main`, `user`.
+
+That happened because temperature was set high enough to introduce randomness. The greedy choice would have been one of `story` / `book` / `king`. Picking `original` opened a different sentence path. **Most of the time, higher temperature still picks the top token. Some of the time it does this — and that's where the "creativity" of a model comes from.** It's not a property of the weights; it's a property of how you sample.
+
+## Who uses this in production
+
+**Nucleus / top-p sampling is the default in practically every major API** — Claude, GPT, Qwen, DeepSeek. When you set `temperature` and `top_p` on the OpenAI or Anthropic SDK, that's the exact pair of knobs you're turning.
+
+---
+
+# Topic 10: Chat templates and special tokens {#topic-10-chat-templates}
+
+**Roadmap connection:** [Step 2 — Run a model locally](../roadmap.qmd)
+
+Every instruction-tuned model expects its prompt to be wrapped in a specific template. For Qwen3 it looks like this:
+
+```text
+<|im_start|>system
+You are an expert writer.<|im_end|>
+<|im_start|>user
+Who was the king in the jungle?<|im_end|>
+<|im_start|>assistant
+```
+
+The pieces:
+
+- `<|im_start|>` and `<|im_end|>` are **special tokens** — single token IDs in the vocabulary that mark message boundaries. They are not text the model "reads" character-by-character; they are tokens it learned the meaning of during training.
+- `system`, `user`, `assistant` are the roles.
+- Generation starts at the trailing `<|im_start|>assistant\n` — the model will produce tokens until it emits `<|im_end|>`.
+
+## Special tokens vs normal vocabulary
+
+Every model has two categories of tokens in its 151K-ish vocabulary:
+
+| Category | Examples | Purpose |
+|---|---|---|
+| **Normal** | `the`, `Ġworld`, `tion`, byte-level fragments | The text the model reads and writes. |
+| **Special** | `<|im_start|>`, `<|im_end|>`, `<|endoftext|>`, `<think>`, `</think>` | Structural — define roles, message boundaries, reasoning blocks. |
+
+You can find the full list in the model's `tokenizer.json` or `tokenizer_config.json`. (For GGUF files, the same information is embedded in the metadata block — see Topic 1's tower diagram and the [GGUF vs SafeTensors guide](../blog/model-formats-gguf-safetensors.qmd).)
+
+## Why this matters in code
+
+If you're building a chatbot that talks to Qwen3 — via API or via the C binary we ran today — **you are responsible for formatting the prompt in this template** before sending it in, and for stripping the `<|im_start|>assistant` / `<|im_end|>` wrappers off the response before displaying it. The Transformers library hides this for you (`tokenizer.apply_chat_template(...)`). When you go to pure C, or when you write your own thin API wrapper, it stops being hidden — and that's a useful place to be.
+
+There's a detailed write-up linked in the chapter (the Qwen team's chat-template blog) — read it before you write your first wrapper.
+
+---
+
+# Topic 11: Setup walkthrough — recursive clone, model download, `make run`, WSL on Windows {#topic-11-setup-walkthrough}
+
+**Roadmap connection:** [Step 2 — Run a model locally](../roadmap.qmd)
+
+End-to-end, here's what running the demo actually takes.
+
+## 1. Clone — **recursively**
+
+```bash
+git clone --recursive https://github.com/thefirehacker/QWEN3-RunLocally
+cd QWEN3-RunLocally
+```
+
+The `--recursive` flag is mandatory because of the submodule layout (Topic 6). A plain clone gives you empty subdirectories and confusing build errors.
+
+## 2. Get the model file
+
+The repo's submodule points at the Qwen3-0.6B GGUF on HuggingFace. After the recursive clone, the model lives inside one of the submodule folders.
+
+**Move it into `qwen3.c/`** — that is the working directory for the C binary, and it expects the `.gguf` file next to the source. The file is ~1–2 GB; the download takes a minute, the move is instant.
+
+## 3. Windows users — switch to WSL first
+
+The C build chain assumes a Unix toolchain. On Windows:
+
+```bash
+# from PowerShell — one-time install
+wsl --install
+
+# then, in every new terminal where you build/run
+wsl
+```
+
+Once you're inside WSL, everything else is the same as macOS/Linux. Plain `bash` on Windows (Git Bash, MSYS) will get you partway but tends to trip over compiler flags — WSL avoids that.
+
+## 4. Build the binary — one time
+
+```bash
+cd qwen3.c
+make run
+```
+
+`make` produces a single executable called `run`. This is a **one-time step** — you don't re-run `make` between sessions.
+
+## 5. Run
+
+```bash
+./run \
+  --model qwen3-0.6b.gguf \
+  --system "You are an expert writer." \
+  --thinking on \
+  --multi-turn on
+```
+
+`./run` with no arguments prints the full flag list — same shape as any CLI tool.
+
+That's the whole basic path. Once the binary exists, **you're doing real inference** — not a tutorial demo, not a notebook, a 600M-parameter LLM running on your CPU. You can put that on your CV.
+
+---
+
+# Topic 12: Replay mode — saving a run and loading it back later {#topic-12-replay-mode}
+
+**Roadmap connection:** [Step 2 — Run a model locally](../roadmap.qmd)
+
+The live visualisation in Topic 8 needs **two processes** running:
+
+- The C binary (`./run`), with the visualisation flag on — this generates tokens and emits per-step probability data over a local bridge.
+- The node viewer (`npm run dev` inside the viz sub-app) — this is the React UI you see in the browser.
+
+The C binary writes everything it generates — for every token, the top-20 probabilities and the chosen one — into a **JSON file** in the viz app's `public/` folder.
+
+This unlocks a useful trick: **replay mode.**
+
+```text
+./run --viz ...   # writes captures.json
+                  # then later, even after the C process exits:
+[browser]   →    "Load file"   →   captures.json   →   full UI, no model needed
+```
+
+You don't need the model running to inspect a past run. As long as you have the JSON, you can reload it weeks later, click any token, and inspect the top-20 alternatives the model considered. **Save interesting runs.** The "original" example from Topic 9 was actually a saved run from three days earlier — exactly because it caught a rare-token selection worth studying.
+
+**Heads up:** running the visualiser overwrites the default capture file. If you want to keep a run, **rename or copy the JSON before the next session**, or you'll lose it.
+
+---
+
+# Topic 13: What's next — Lesson 1B video, AI tutor widget {#topic-13-whats-next}
+
+**Roadmap connection:** [Step 2 — Run a model locally](../roadmap.qmd)
+
+A few things landing soon:
+
+| What | Where it fits |
+|---|---|
+| **Lesson 1B video — Part 1** | A long, detailed video walkthrough of Qwen3 fundamentals. Same arc as today's office hours (system prompt, sampling, top-p, chat template) but with the visualisation embedded inline. |
+| **Lesson 1B video — Parts 2 & 3** | Deeper into the C code, the GGUF blocks, memory mapping, and the forward pass. |
+| **Dedicated attention lesson** | Self-attention, multi-head, KV cache, RoPE — finally connected to the actual code that runs them. |
+| **Enhanced AI tutor widget** | The Ask Anything widget gets the BubblSpace AI-tutor brain — free for Cohort 01 learners. Ask any question about any lesson and get a grounded answer. |
+| **More CLI validations** | `validate 2` onward — each new step in the roadmap gets its own static checks. |
+
+The shape of Lesson 1B itself, recapped:
+
+```text
+1. Index — make the chapter scannable
+2. The file (GGUF) — header, metadata, tensor info, tensor data
+3. How GGUF differs from SafeTensors and why both exist
+4. Memory mapping — how the OS lets us treat a 1GB file as a pointer
+5. Forward pass — one inference step, end to end
+6. Sampling — the topic we already covered live today
+7. Code tour — what each section of `run.c` actually does
+```
+
+Today's office hours covered the parts of that chapter that are easiest to *see* — the agentic angle, the live demo, and sampling. The video lesson goes through the *code*.
+
+---
+
+# Topic 14: Resources and links {#topic-14-resources}
+
+Everything referenced today, in one place.
+
+## Code and repos
+
+- **[QWEN3-RunLocally](https://github.com/thefirehacker/QWEN3-RunLocally)** — the cohort repo for running Qwen3 in pure C with GGUF, plus the live visualisation. Use `git clone --recursive`.
+- **[`Qwen3ForCausalLM` — transformers source](https://github.com/huggingface/transformers/blob/main/src/transformers/models/qwen3/modeling_qwen3.py#L442)** — the production Python reference for what our C code is doing.
+
+## Cohort tooling
+
+- **[First Break AI site](../index.qmd)** — log in via Discord (bottom-right widget) to unlock roadmap progress and lesson checkboxes.
+- **`firstbreakai` CLI** — `npm install -g firstbreakai`, then `firstbreakai login`, `firstbreakai status`, `firstbreakai validate <step>`.
+- **[Discord](https://discord.gg/hRPese4H3F)** — auth + notifications + every cohort question.
+
+## Lessons and chapters
+
+- **[Lesson 1 — HuggingFace Beyond Upload](../lessons/lesson-1-huggingface-beyond-upload.qmd)** — context: open models are a supply chain, not a file.
+- **[Lesson 1b — Qwen3 Fundamentals](../lessons/lesson-1b-qwen3-fundamentals.qmd)** — the long-form chapter today's session pulled from.
+- **[Run Qwen3 0.6B in pure C](../blog/qwen3-run-locally.qmd)** — the written guide that mirrors the Topic 11 walkthrough.
+- **[GGUF vs SafeTensors](../blog/model-formats-gguf-safetensors.qmd)** — the file-format guide that complements Topic 1's tower diagram.
+
+## Previous office hours
+
+- **[8 May — Cohort 01 Session 1](2026-05-08.qmd)** — the three intuitions, HuggingFace, the pure-C demo. Required background for everything today.
+
+---
+
+## Follow-ups from this session
+
+- **[Cohort]** Install `firstbreakai`, run `firstbreakai login`, then `firstbreakai validate 1` from inside your Quarto blog repo. Watch the cohort site update.
+- **[Cohort]** Clone [QWEN3-RunLocally](https://github.com/thefirehacker/QWEN3-RunLocally) with `--recursive`, move the GGUF into `qwen3.c/`, `make run`, then `./run` with a system prompt of your own. Save the resulting capture JSON if you find an interesting moment.
+- **[Cohort]** Open the visualiser, find a token whose chosen probability was under 5% — note what the top-1 alternative was, and think about how the rest of the sentence would have read.
+- **[Host]** Publish Lesson 1B video Part 1 (system prompt → sampling → chat template) and Parts 2–3 (code tour, forward pass, memory mapping).
+- **[Host]** Ship the AI tutor integration into the Ask Anything widget for Cohort 01.
+
+---
+
+::: {.blog-back}
+[← Back to Office Hours](index.qmd) | [← Back to Roadmap](../roadmap.qmd)
+:::
