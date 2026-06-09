@@ -1,0 +1,2968 @@
+{
+  "video_id": "YL-r5PMMtow",
+  "title": "Lesson 1b Part A: Run Qwen3 Locally in Pure C",
+  "duration": 2272,
+  "chapters": [
+    {
+      "t": 0,
+      "title": "Introduction: Run Qwen3 Locally"
+    },
+    {
+      "t": 33,
+      "title": "Setup: Repo and Model Download"
+    },
+    {
+      "t": 368,
+      "title": "Compile and Run in Pure C"
+    },
+    {
+      "t": 640,
+      "title": "Visualizing Local LLM Inference"
+    },
+    {
+      "t": 760,
+      "title": "Key LLM Intuitions"
+    },
+    {
+      "t": 1020,
+      "title": "Token Generation Demo"
+    },
+    {
+      "t": 1415,
+      "title": "Sampling, Temperature and Top-P"
+    },
+    {
+      "t": 1785,
+      "title": "Sampling Code Walkthrough"
+    },
+    {
+      "t": 2040,
+      "title": "Live Streaming and TTFT"
+    },
+    {
+      "t": 2140,
+      "title": "Windows / WSL Setup"
+    },
+    {
+      "t": 2190,
+      "title": "Recap and Next Lesson"
+    }
+  ],
+  "segments": [
+    {
+      "start_time": 0.1,
+      "end_time": 1,
+      "text": "Hello, everyone."
+    },
+    {
+      "start_time": 1.3,
+      "end_time": 3.9,
+      "text": "Welcome to FBA, First Break AI."
+    },
+    {
+      "start_time": 4.3,
+      "end_time": 9.1,
+      "text": "Today we are looking at lesson one B, where we will run Qwen"
+    },
+    {
+      "start_time": 9.1,
+      "end_time": 12.2,
+      "text": "three locally using PureC"
+    },
+    {
+      "start_time": 14.2,
+      "end_time": 15.9,
+      "text": "Let's look at the lesson page"
+    },
+    {
+      "start_time": 18.3,
+      "end_time": 21.5,
+      "text": "On the lesson page, we have a hero card which mentions the"
+    },
+    {
+      "start_time": 21.5,
+      "end_time": 23.5,
+      "text": "link to the GitHub repository."
+    },
+    {
+      "start_time": 23.9,
+      "end_time": 27.4,
+      "text": "Using this repo, you will be able to run Q3 locally."
+    },
+    {
+      "start_time": 28.5,
+      "end_time": 31.2,
+      "text": "Let's look at some salient features of this repo."
+    },
+    {
+      "start_time": 33,
+      "end_time": 35.2,
+      "text": "This repo allows you to run"
+    },
+    {
+      "start_time": 37.4,
+      "end_time": 42.9,
+      "text": "Qwen3 locally on Mac, Windows or Linux in three easy steps."
+    },
+    {
+      "start_time": 44,
+      "end_time": 48.1,
+      "text": "These are the steps that you need to follow to run Qwen3"
+    },
+    {
+      "start_time": 48.1,
+      "end_time": 50.3,
+      "text": "on your laptop or desktop."
+    },
+    {
+      "start_time": 51.3,
+      "end_time": 54,
+      "text": "The first step is simply to download Qwen3"
+    },
+    {
+      "start_time": 56.6,
+      "end_time": 59.1,
+      "text": "model, a GGUF file, and place it inside the folder."
+    },
+    {
+      "start_time": 60.3,
+      "end_time": 66.8,
+      "text": "Second step is to use make command to create a binary executable file."
+    },
+    {
+      "start_time": 66.8,
+      "end_time": 72,
+      "text": "And the third step is to just use this file along with the model file or"
+    },
+    {
+      "start_time": 72,
+      "end_time": 78.6,
+      "text": "the GGUF file that you have used and basically run the Qwen3 model locally."
+    },
+    {
+      "start_time": 79.2,
+      "end_time": 81.6,
+      "text": "So there are a few salient features of this repo."
+    },
+    {
+      "start_time": 82.1,
+      "end_time": 88,
+      "text": "The first, uh, is th- uh, that you can run Mac-- run Qwen3"
+    },
+    {
+      "start_time": 88,
+      "end_time": 90.7,
+      "text": "on Mac or Windows or Linux."
+    },
+    {
+      "start_time": 91.6,
+      "end_time": 96.8,
+      "text": "The second part is that you can visualize, uh, the output of the"
+    },
+    {
+      "start_time": 96.8,
+      "end_time": 101.6,
+      "text": "model and understand decoding using special visualization features."
+    },
+    {
+      "start_time": 102.2,
+      "end_time": 106.5,
+      "text": "And this visualization feature also works in replay mode, which means that"
+    },
+    {
+      "start_time": 106.5,
+      "end_time": 109.5,
+      "text": "you need not run the, uh, file locally."
+    },
+    {
+      "start_time": 109.8,
+      "end_time": 115,
+      "text": "You can even use your previous runs to visualize what went-- uh,"
+    },
+    {
+      "start_time": 115,
+      "end_time": 116.6,
+      "text": "what was going on inside the model."
+    },
+    {
+      "start_time": 117.5,
+      "end_time": 121.3,
+      "text": "And you can also learn by changing various knobs like temperature,"
+    },
+    {
+      "start_time": 121.3,
+      "end_time": 122.7,
+      "text": "thinking flags, and much more."
+    },
+    {
+      "start_time": 123.2,
+      "end_time": 124.6,
+      "text": "So it's a very useful repo."
+    },
+    {
+      "start_time": 126.5,
+      "end_time": 132,
+      "text": "Uh, before we start about this repo, I want to talk about GitHub submodules."
+    },
+    {
+      "start_time": 132,
+      "end_time": 137.5,
+      "text": "This, uh, repo basically contains two other GitHub repos, uh, and"
+    },
+    {
+      "start_time": 137.5,
+      "end_time": 139.8,
+      "text": "this is via GitHub submodules."
+    },
+    {
+      "start_time": 140.2,
+      "end_time": 145.4,
+      "text": "So you don't have to pull all three repos separately."
+    },
+    {
+      "start_time": 145.4,
+      "end_time": 150.6,
+      "text": "You-- A single command works really well and, uh, which is"
+    },
+    {
+      "start_time": 150.6,
+      "end_time": 153.7,
+      "text": "called, uh, git submodule command."
+    },
+    {
+      "start_time": 154.4,
+      "end_time": 157.8,
+      "text": "So if you go to the GitHub repo"
+    },
+    {
+      "start_time": 160.9,
+      "end_time": 164.1,
+      "text": "And you go to the quick start section, it is going to mention that"
+    },
+    {
+      "start_time": 164.1,
+      "end_time": 167,
+      "text": "you can use this Git clone command."
+    },
+    {
+      "start_time": 167.4,
+      "end_time": 174.7,
+      "text": "So Git clone with arguments recursive submodule, and this will not only"
+    },
+    {
+      "start_time": 177,
+      "end_time": 182.8,
+      "text": "pull or clone this main repo, but it will clone both the submodules"
+    },
+    {
+      "start_time": 183.9,
+      "end_time": 185.5,
+      "text": "or subrepos along with it."
+    },
+    {
+      "start_time": 185.6,
+      "end_time": 189.3,
+      "text": "So one command helps you manage the entire submodule."
+    },
+    {
+      "start_time": 189.5,
+      "end_time": 197.5,
+      "text": "So submodule is very useful when you want to club multiple repos together"
+    },
+    {
+      "start_time": 197.5,
+      "end_time": 201.2,
+      "text": "for your course or for any other reason."
+    },
+    {
+      "start_time": 201.5,
+      "end_time": 204.9,
+      "text": "This is a learning course, so it's easier to, you know, maintain a"
+    },
+    {
+      "start_time": 204.9,
+      "end_time": 206.2,
+      "text": "single repo rather than three."
+    },
+    {
+      "start_time": 207.5,
+      "end_time": 213.4,
+      "text": "So the first step is going to be to ru-- uh, to do a Git clone, as I"
+    },
+    {
+      "start_time": 213.4,
+      "end_time": 216.9,
+      "text": "mentioned, but the Git clone should not be done in a normal manner."
+    },
+    {
+      "start_time": 217.2,
+      "end_time": 220.6,
+      "text": "It should be done with a argument of recursive submodule."
+    },
+    {
+      "start_time": 220.6,
+      "end_time": 222.4,
+      "text": "And then you can CD into the"
+    },
+    {
+      "start_time": 224.7,
+      "end_time": 229.9,
+      "text": "Actual, uh, repository and then move forward with it, right?"
+    },
+    {
+      "start_time": 230.2,
+      "end_time": 234.7,
+      "text": "So the first step is going to be you will have to CD into the repo,"
+    },
+    {
+      "start_time": 234.7,
+      "end_time": 239.1,
+      "text": "which is Quen3.c. So if you go to the repo itself, you can see there"
+    },
+    {
+      "start_time": 239.1,
+      "end_time": 241,
+      "text": "are going to be multiple files."
+    },
+    {
+      "start_time": 241,
+      "end_time": 241,
+      "text": "And"
+    },
+    {
+      "start_time": 243.1,
+      "end_time": 247.5,
+      "text": "in this repo, you will have Quen3.c and Quen3.cu."
+    },
+    {
+      "start_time": 247.5,
+      "end_time": 251,
+      "text": "Today, we are working on pure C. So you move into this folder."
+    },
+    {
+      "start_time": 251,
+      "end_time": 254.5,
+      "text": "So if you can do LS CD repos, right?"
+    },
+    {
+      "start_time": 254.5,
+      "end_time": 257.6,
+      "text": "Again, if you do LS, you'll list both them, both the repos"
+    },
+    {
+      "start_time": 261.1,
+      "end_time": 262.7,
+      "text": "So, QUEN3, right?"
+    },
+    {
+      "start_time": 262.9,
+      "end_time": 270.1,
+      "text": "So now we are inside the, inside our main repo, and as I said, we"
+    },
+    {
+      "start_time": 270.1,
+      "end_time": 275.8,
+      "text": "can work in three easy… We can run this repo in three easy steps."
+    },
+    {
+      "start_time": 277,
+      "end_time": 284.1,
+      "text": "Those three steps being number one, download a QUEN3 model file."
+    },
+    {
+      "start_time": 284.3,
+      "end_time": 287.4,
+      "text": "So to do that, you need to just run this command, which"
+    },
+    {
+      "start_time": 287.4,
+      "end_time": 288.7,
+      "text": "is going to pull a QUEN3.6bfp32"
+    },
+    {
+      "start_time": 292.8,
+      "end_time": 296.7,
+      "text": "model, and it's going to pull the model."
+    },
+    {
+      "start_time": 297.3,
+      "end_time": 301.1,
+      "text": "Once the model is pulled, you need to move it inside our"
+    },
+    {
+      "start_time": 306.4,
+      "end_time": 307.6,
+      "text": "Our current file."
+    },
+    {
+      "start_time": 307.7,
+      "end_time": 311.2,
+      "text": "So you need to move it inside Qwen three dot C. So you will-- Once you"
+    },
+    {
+      "start_time": 311.2,
+      "end_time": 316.8,
+      "text": "have done both these steps, basically pull the model, uh, into this particular"
+    },
+    {
+      "start_time": 316.8,
+      "end_time": 320.8,
+      "text": "folder, and then from this folder, you're going to move it to our Qwen"
+    },
+    {
+      "start_time": 320.8,
+      "end_time": 322.3,
+      "text": "three dot C, which is our core folder."
+    },
+    {
+      "start_time": 322.6,
+      "end_time": 327.6,
+      "text": "You will see a model file like this called Qwen three, uh, hyphen point six B"
+    },
+    {
+      "start_time": 327.6,
+      "end_time": 331.5,
+      "text": "hyphen FP32 point-- uh, dot GGUF, right?"
+    },
+    {
+      "start_time": 331.8,
+      "end_time": 334,
+      "text": "So this particular file is very important."
+    },
+    {
+      "start_time": 334.5,
+      "end_time": 336.9,
+      "text": "Uh, this is our main file which we are going to run,"
+    },
+    {
+      "start_time": 338.9,
+      "end_time": 339.2,
+      "text": "right?"
+    },
+    {
+      "start_time": 339.5,
+      "end_time": 344.6,
+      "text": "So if you basically just want to run this file, you will have to go to the terminal."
+    },
+    {
+      "start_time": 345.1,
+      "end_time": 346.4,
+      "text": "Let's see if this file is here"
+    },
+    {
+      "start_time": 350.4,
+      "end_time": 351.7,
+      "text": "Yeah, configure file, right?"
+    },
+    {
+      "start_time": 352.7,
+      "end_time": 355,
+      "text": "So our main file is run"
+    },
+    {
+      "start_time": 357.7,
+      "end_time": 362.3,
+      "text": "underscore viz.c. This is the file with the entire code."
+    },
+    {
+      "start_time": 362.8,
+      "end_time": 365.9,
+      "text": "Now come step two, you will have to create a binary."
+    },
+    {
+      "start_time": 365.9,
+      "end_time": 367.1,
+      "text": "This is a binary, right?"
+    },
+    {
+      "start_time": 367.8,
+      "end_time": 371.4,
+      "text": "Uh, to create this binary, you have to run the make command."
+    },
+    {
+      "start_time": 371.5,
+      "end_time": 375.8,
+      "text": "So what you have to do is you have to do make run and give the"
+    },
+    {
+      "start_time": 378.8,
+      "end_time": 380.1,
+      "text": "Uh, make run.viz."
+    },
+    {
+      "start_time": 380.3,
+      "end_time": 381.6,
+      "text": "So we have two binaries here."
+    },
+    {
+      "start_time": 381.9,
+      "end_time": 383,
+      "text": "You can use either run or run_viz."
+    },
+    {
+      "start_time": 384.7,
+      "end_time": 386.9,
+      "text": "So your command is going to be make run"
+    },
+    {
+      "start_time": 390.9,
+      "end_time": 391.8,
+      "text": "underscore viz."
+    },
+    {
+      "start_time": 391.8,
+      "end_time": 398.8,
+      "text": "So instead of this, we are going to just use make run underscore viz, right?"
+    },
+    {
+      "start_time": 399.3,
+      "end_time": 401.2,
+      "text": "And once that is done, then we can"
+    },
+    {
+      "start_time": 403.7,
+      "end_time": 405,
+      "text": "Once that is done, we can do"
+    },
+    {
+      "start_time": 407.3,
+      "end_time": 411.1,
+      "text": "We can run this executable very easily using this command."
+    },
+    {
+      "start_time": 411.1,
+      "end_time": 414.7,
+      "text": "So let me expand, let me expand this box a bit."
+    },
+    {
+      "start_time": 415.5,
+      "end_time": 416.2,
+      "text": "Here we go."
+    },
+    {
+      "start_time": 416.3,
+      "end_time": 420.8,
+      "text": "The second command is… So yeah, this is the updated command."
+    },
+    {
+      "start_time": 422.8,
+      "end_time": 423,
+      "text": "Right."
+    },
+    {
+      "start_time": 423.2,
+      "end_time": 426.2,
+      "text": "So using these two commands, so step two is make run_viz."
+    },
+    {
+      "start_time": 427.4,
+      "end_time": 433.5,
+      "text": "Step three is dot, uh, which basically tells, uh, tells the"
+    },
+    {
+      "start_time": 433.5,
+      "end_time": 436.8,
+      "text": "system that you have to run, uh, this"
+    },
+    {
+      "start_time": 439.4,
+      "end_time": 439.4,
+      "text": "file."
+    },
+    {
+      "start_time": 439.4,
+      "end_time": 440.7,
+      "text": "And we are going to use this."
+    },
+    {
+      "start_time": 440.7,
+      "end_time": 441.6,
+      "text": "This is the argument of the file."
+    },
+    {
+      "start_time": 441.7,
+      "end_time": 443.8,
+      "text": "It requires this argument minimum."
+    },
+    {
+      "start_time": 444.6,
+      "end_time": 448.1,
+      "text": "There are other arguments as well, but minimum it requires the name of the"
+    },
+    {
+      "start_time": 450.3,
+      "end_time": 450.7,
+      "text": "Model file."
+    },
+    {
+      "start_time": 450.7,
+      "end_time": 450.9,
+      "text": "Right?"
+    },
+    {
+      "start_time": 452,
+      "end_time": 454.2,
+      "text": "So using these three, we'll be able to run."
+    },
+    {
+      "start_time": 454.2,
+      "end_time": 460.2,
+      "text": "So if I am already here, right, and I have completed the make command, we"
+    },
+    {
+      "start_time": 460.2,
+      "end_time": 462.8,
+      "text": "are on step three, so this should work"
+    },
+    {
+      "start_time": 468.3,
+      "end_time": 470.5,
+      "text": "So you can see the model is loaded."
+    },
+    {
+      "start_time": 470.8,
+      "end_time": 473.9,
+      "text": "It is printing what are our flags."
+    },
+    {
+      "start_time": 474,
+      "end_time": 479.2,
+      "text": "Multiturn is on, thinking is on, other flags are there, temperature, top P, and"
+    },
+    {
+      "start_time": 479.2,
+      "end_time": 481.3,
+      "text": "visualization is off by default, right?"
+    },
+    {
+      "start_time": 481.6,
+      "end_time": 483.9,
+      "text": "So now I can end-- give my system prompt."
+    },
+    {
+      "start_time": 484.2,
+      "end_time": 488.3,
+      "text": "This is very similar to cha-- going to ChatGPT and, you know, uh,"
+    },
+    {
+      "start_time": 489.1,
+      "end_time": 491.5,
+      "text": "like typing something like tell me"
+    },
+    {
+      "start_time": 497.9,
+      "end_time": 498.8,
+      "text": "Tell me about"
+    },
+    {
+      "start_time": 503.1,
+      "end_time": 506.2,
+      "text": "And I can basically give my… Yeah."
+    },
+    {
+      "start_time": 506.3,
+      "end_time": 509.1,
+      "text": "So I'm just, uh, typing a normal command, right?"
+    },
+    {
+      "start_time": 509.3,
+      "end_time": 512.9,
+      "text": "And let's do instant and let's set… I'm sorry."
+    },
+    {
+      "start_time": 513.3,
+      "end_time": 516.5,
+      "text": "So, so there isn't, uh-"
+    },
+    {
+      "start_time": 518.7,
+      "end_time": 521.9,
+      "text": "Instead, let's use something better."
+    },
+    {
+      "start_time": 521.9,
+      "end_time": 525.9,
+      "text": "Tell me about the king in"
+    },
+    {
+      "start_time": 529,
+      "end_time": 529.2,
+      "text": "Jungle book."
+    },
+    {
+      "start_time": 529.3,
+      "end_time": 530.1,
+      "text": "Just this much, right?"
+    },
+    {
+      "start_time": 530.6,
+      "end_time": 533.1,
+      "text": "We'll disable web search."
+    },
+    {
+      "start_time": 533.4,
+      "end_time": 535.5,
+      "text": "Web search is disabled, and this is our prompt."
+    },
+    {
+      "start_time": 536.1,
+      "end_time": 540.5,
+      "text": "So whatever, whatever is the output, right?"
+    },
+    {
+      "start_time": 540.6,
+      "end_time": 542.3,
+      "text": "Now let's see what happens in our local."
+    },
+    {
+      "start_time": 542.6,
+      "end_time": 544.3,
+      "text": "So wha-- first there is a system prompt."
+    },
+    {
+      "start_time": 544.4,
+      "end_time": 550.1,
+      "text": "We can either skip this or type something like, \"You are an expert"
+    },
+    {
+      "start_time": 552.7,
+      "end_time": 553.6,
+      "text": "Writer, right?"
+    },
+    {
+      "start_time": 554,
+      "end_time": 555.6,
+      "text": "And let's give the same prompt."
+    },
+    {
+      "start_time": 555.8,
+      "end_time": 559.2,
+      "text": "So tell me about the king of the jungle, right."
+    },
+    {
+      "start_time": 559.3,
+      "end_time": 564.7,
+      "text": "So this is going to run this particular model locally, similar"
+    },
+    {
+      "start_time": 564.7,
+      "end_time": 571.1,
+      "text": "to how, uh, whatever model is being run right now, it's five point five."
+    },
+    {
+      "start_time": 571.4,
+      "end_time": 573.5,
+      "text": "So GPT five point five on ChatGPT."
+    },
+    {
+      "start_time": 573.8,
+      "end_time": 577.6,
+      "text": "This is your local, local version of that model."
+    },
+    {
+      "start_time": 578,
+      "end_time": 580.8,
+      "text": "And we will learn how this model works."
+    },
+    {
+      "start_time": 580.9,
+      "end_time": 584.9,
+      "text": "What is decoding, what is-- what are these special tokens,"
+    },
+    {
+      "start_time": 585.3,
+      "end_time": 586.7,
+      "text": "uh, what is a chat template?"
+    },
+    {
+      "start_time": 586.8,
+      "end_time": 588.7,
+      "text": "You know, all these things we'll be able to learn."
+    },
+    {
+      "start_time": 589.9,
+      "end_time": 591.6,
+      "text": "So basically it's printing things."
+    },
+    {
+      "start_time": 592,
+      "end_time": 593.9,
+      "text": "We'll stop that, right."
+    },
+    {
+      "start_time": 594.1,
+      "end_time": 599.8,
+      "text": "So this is how you can run this particular, uh, this"
+    },
+    {
+      "start_time": 599.8,
+      "end_time": 601.5,
+      "text": "particular file locally."
+    },
+    {
+      "start_time": 602.2,
+      "end_time": 605.6,
+      "text": "Uh, pretty easy in three simple steps."
+    },
+    {
+      "start_time": 606.2,
+      "end_time": 610.2,
+      "text": "As we mentioned, the three steps are… Excalibur is here, yeah."
+    },
+    {
+      "start_time": 610.5,
+      "end_time": 615.8,
+      "text": "Download the Qwen three model file and place it inside Qwen three.C. That's"
+    },
+    {
+      "start_time": 615.8,
+      "end_time": 620.3,
+      "text": "our main repo that-- or the main folder in which we are going to work."
+    },
+    {
+      "start_time": 620.5,
+      "end_time": 625.1,
+      "text": "The second one is go inside this repo and create an executable file."
+    },
+    {
+      "start_time": 625.4,
+      "end_time": 630.5,
+      "text": "And third is, once this executable file is created, you will be, uh, uh, you can"
+    },
+    {
+      "start_time": 630.5,
+      "end_time": 633.3,
+      "text": "run, you can start this model, right."
+    },
+    {
+      "start_time": 633.7,
+      "end_time": 638.1,
+      "text": "So this is how you basically create, uh, how, how do you run"
+    },
+    {
+      "start_time": 638.1,
+      "end_time": 640.3,
+      "text": "this particular, uh, file locally."
+    },
+    {
+      "start_time": 640.7,
+      "end_time": 643.5,
+      "text": "And in the next part, we will look at visualization."
+    },
+    {
+      "start_time": 643.9,
+      "end_time": 647.3,
+      "text": "Uh, not-- Let's, let's take visualization also in this part, right."
+    },
+    {
+      "start_time": 647.6,
+      "end_time": 652.7,
+      "text": "So this is about how to run this file, uh, the bare, bare, bare minimum,"
+    },
+    {
+      "start_time": 652.9,
+      "end_time": 654.6,
+      "text": "minimum easy way to run this file."
+    },
+    {
+      "start_time": 654.9,
+      "end_time": 657.5,
+      "text": "As I said, there is a visualization feature as well, right."
+    },
+    {
+      "start_time": 657.9,
+      "end_time": 660.9,
+      "text": "So for that, what we'll do is we'll open another terminal."
+    },
+    {
+      "start_time": 660.9,
+      "end_time": 662.7,
+      "text": "So we need two terminals for this, right?"
+    },
+    {
+      "start_time": 663.3,
+      "end_time": 664.2,
+      "text": "Uh, where are we?"
+    },
+    {
+      "start_time": 666.1,
+      "end_time": 668,
+      "text": "Mm. Okay, this is good."
+    },
+    {
+      "start_time": 668,
+      "end_time": 674,
+      "text": "So for that, we need to, uh… So there is another, uh, repo"
+    },
+    {
+      "start_time": 674,
+      "end_time": 675.6,
+      "text": "called-- another folder called Apps."
+    },
+    {
+      "start_time": 676,
+      "end_time": 682.2,
+      "text": "And this is a basic React, Next J-Next.js kind of a, uh, repo, which allows you"
+    },
+    {
+      "start_time": 682.2,
+      "end_time": 685.8,
+      "text": "to visualize how the model works, right?"
+    },
+    {
+      "start_time": 685.9,
+      "end_time": 690.2,
+      "text": "So when this model was spitting these, uh, or giving this output, what we"
+    },
+    {
+      "start_time": 690.2,
+      "end_time": 696.7,
+      "text": "do is we capture everything about the output and put it in a file."
+    },
+    {
+      "start_time": 696.8,
+      "end_time": 698.6,
+      "text": "So if you go to public."
+    },
+    {
+      "start_time": 699.4,
+      "end_time": 700.5,
+      "text": "Uh, where is public?"
+    },
+    {
+      "start_time": 700.5,
+      "end_time": 700.5,
+      "text": "But"
+    },
+    {
+      "start_time": 703.8,
+      "end_time": 705.6,
+      "text": "Not in repos, maybe in assets."
+    },
+    {
+      "start_time": 707.4,
+      "end_time": 708.8,
+      "text": "Yeah, it's right here, right?"
+    },
+    {
+      "start_time": 708.8,
+      "end_time": 711.8,
+      "text": "There'll be a file called sampling, uh, session JSON."
+    },
+    {
+      "start_time": 712.1,
+      "end_time": 715.3,
+      "text": "So this is going to capture everything, uh, as the model"
+    },
+    {
+      "start_time": 715.7,
+      "end_time": 717,
+      "text": "thinks, you know, thinking token."
+    },
+    {
+      "start_time": 717.6,
+      "end_time": 721.1,
+      "text": "All the raw logic data is going to be captured."
+    },
+    {
+      "start_time": 721.3,
+      "end_time": 724.1,
+      "text": "All the raw data is going to be captured so that we can understand"
+    },
+    {
+      "start_time": 724.5,
+      "end_time": 729,
+      "text": "what is going on, so that we also understand what is sampling, right?"
+    },
+    {
+      "start_time": 729.2,
+      "end_time": 733.1,
+      "text": "So before we do that, we are going to understand why do we"
+    },
+    {
+      "start_time": 733.1,
+      "end_time": 736,
+      "text": "need this visualization, right?"
+    },
+    {
+      "start_time": 736.1,
+      "end_time": 737.4,
+      "text": "Why do we need this visualization?"
+    },
+    {
+      "start_time": 737.4,
+      "end_time": 739.6,
+      "text": "For this we'll have to go to lesson one."
+    },
+    {
+      "start_time": 740.7,
+      "end_time": 742.6,
+      "text": "So we'll go to our lessons."
+    },
+    {
+      "start_time": 743,
+      "end_time": 744,
+      "text": "Yes, this is lessons."
+    },
+    {
+      "start_time": 744.6,
+      "end_time": 746.5,
+      "text": "And we'll go to our first lesson, right?"
+    },
+    {
+      "start_time": 746.5,
+      "end_time": 752.3,
+      "text": "Hugging Face and beyond Where we spoke about three intuitions that"
+    },
+    {
+      "start_time": 752.3,
+      "end_time": 753.8,
+      "text": "hold this cohort together, right?"
+    },
+    {
+      "start_time": 754.1,
+      "end_time": 758.4,
+      "text": "The first intuition was that the model is just a stack of repeatable blocks,"
+    },
+    {
+      "start_time": 758.8,
+      "end_time": 762.7,
+      "text": "which we will see, uh, practically when we open this particular file."
+    },
+    {
+      "start_time": 763.3,
+      "end_time": 766.1,
+      "text": "This, uh, intuition is actually easy to understand."
+    },
+    {
+      "start_time": 766.3,
+      "end_time": 770.9,
+      "text": "Uh, all you have to do is go to your mo-- uh, main repo, or you go to your,"
+    },
+    {
+      "start_time": 771,
+      "end_time": 779.3,
+      "text": "uh, run or run-viz.c file, and this, this is your code to run that gguf file."
+    },
+    {
+      "start_time": 779.6,
+      "end_time": 783.7,
+      "text": "So this is a stack of repeatable blocks."
+    },
+    {
+      "start_time": 784,
+      "end_time": 786.7,
+      "text": "It has an architecture, but basically it's just a stack, right?"
+    },
+    {
+      "start_time": 788.2,
+      "end_time": 793.8,
+      "text": "The second visualization is that at one point, at any point, the model is going"
+    },
+    {
+      "start_time": 793.8,
+      "end_time": 797.5,
+      "text": "to give you an output, but it's going to be a single token, a single word, right?"
+    },
+    {
+      "start_time": 798.2,
+      "end_time": 805.7,
+      "text": "So which we saw that when this particular model was loaded, it didn't s-- like,"
+    },
+    {
+      "start_time": 805.7,
+      "end_time": 807.3,
+      "text": "give you the entire output in one go."
+    },
+    {
+      "start_time": 807.5,
+      "end_time": 809.1,
+      "text": "You can see that I have stopped the output."
+    },
+    {
+      "start_time": 809.6,
+      "end_time": 815.2,
+      "text": "So it started with think, then okay, then comma, then space, then the, right?"
+    },
+    {
+      "start_time": 815.6,
+      "end_time": 817.3,
+      "text": "It's giving you one token at a time."
+    },
+    {
+      "start_time": 817.3,
+      "end_time": 818.9,
+      "text": "That's the second intuition."
+    },
+    {
+      "start_time": 819.1,
+      "end_time": 823,
+      "text": "The third one is which is why we need this visualization, which is very,"
+    },
+    {
+      "start_time": 823,
+      "end_time": 824.3,
+      "text": "very difficult to understand, right?"
+    },
+    {
+      "start_time": 824.9,
+      "end_time": 830.1,
+      "text": "Is that when the model was, say, outputting okay, one token, right?"
+    },
+    {
+      "start_time": 830.7,
+      "end_time": 833.2,
+      "text": "It wasn't just outputting okay."
+    },
+    {
+      "start_time": 833.2,
+      "end_time": 838.3,
+      "text": "It was-- It basically gave you an output which was the entire vocabulary."
+    },
+    {
+      "start_time": 838.3,
+      "end_time": 841.2,
+      "text": "The vocabulary size of this is more than one fifty k, one"
+    },
+    {
+      "start_time": 841.2,
+      "end_time": 841.8,
+      "text": "hundred and fifty thousand."
+    },
+    {
+      "start_time": 842.5,
+      "end_time": 846.9,
+      "text": "It gave you probability or logits for the entire one fifty k, right?"
+    },
+    {
+      "start_time": 846.9,
+      "end_time": 850.5,
+      "text": "And we'll see that using our visualization tool."
+    },
+    {
+      "start_time": 850.6,
+      "end_time": 855.4,
+      "text": "So we are visualizing to understand intuition number three, which is"
+    },
+    {
+      "start_time": 855.9,
+      "end_time": 860.6,
+      "text": "the m-most important, is that when the model produces the next token,"
+    },
+    {
+      "start_time": 860.9,
+      "end_time": 864,
+      "text": "when the model produces the next token, it does not pick a single one."
+    },
+    {
+      "start_time": 864.4,
+      "end_time": 869.4,
+      "text": "It pr- it produces a probability, a single floating point number for every"
+    },
+    {
+      "start_time": 869.4,
+      "end_time": 871.9,
+      "text": "one of its vocabulary tokens, right?"
+    },
+    {
+      "start_time": 871.9,
+      "end_time": 875.8,
+      "text": "So there are one five one nine three six token, vocabulary tokens."
+    },
+    {
+      "start_time": 875.8,
+      "end_time": 878,
+      "text": "It's going to give you a number for each of them."
+    },
+    {
+      "start_time": 878.3,
+      "end_time": 882.1,
+      "text": "You will have to choose, or we'll have to choose what-- which"
+    },
+    {
+      "start_time": 882.1,
+      "end_time": 883.3,
+      "text": "is the best one for us, right?"
+    },
+    {
+      "start_time": 884.5,
+      "end_time": 885.2,
+      "text": "Through a strategy."
+    },
+    {
+      "start_time": 885.8,
+      "end_time": 887.8,
+      "text": "So we'll see that."
+    },
+    {
+      "start_time": 888.1,
+      "end_time": 891.2,
+      "text": "Now, as I mentioned, to do this, we need to open another terminal."
+    },
+    {
+      "start_time": 891.2,
+      "end_time": 896.7,
+      "text": "In, in the first one, in the main terminal, we are just going to, uh, we're"
+    },
+    {
+      "start_time": 896.7,
+      "end_time": 901.8,
+      "text": "just going to basically do the same thing that we did earlier, run the model locally"
+    },
+    {
+      "start_time": 903.3,
+      "end_time": 905,
+      "text": "with a command similar to this, right?"
+    },
+    {
+      "start_time": 905,
+      "end_time": 906.7,
+      "text": "There'll just be an addition to this command."
+    },
+    {
+      "start_time": 907.3,
+      "end_time": 912.1,
+      "text": "And in this one, we are going to… In the second terminal,"
+    },
+    {
+      "start_time": 912.1,
+      "end_time": 913.4,
+      "text": "we are going to run another app."
+    },
+    {
+      "start_time": 913.9,
+      "end_time": 919.4,
+      "text": "So we have app number one which is a visualization app."
+    },
+    {
+      "start_time": 919.4,
+      "end_time": 922.5,
+      "text": "We have app number two on command line, which is a regular"
+    },
+    {
+      "start_time": 922.6,
+      "end_time": 924.3,
+      "text": "app which runs Quench three."
+    },
+    {
+      "start_time": 924.8,
+      "end_time": 930,
+      "text": "And we have… Basically, it's app number two, uh, one is going to be a bridge."
+    },
+    {
+      "start_time": 930.3,
+      "end_time": 934.9,
+      "text": "It's going to use this file to display data to you in a very nice manner, right?"
+    },
+    {
+      "start_time": 935.2,
+      "end_time": 937.3,
+      "text": "So all we have to do is we have to…"
+    },
+    {
+      "start_time": 937.8,
+      "end_time": 942,
+      "text": "If you are running this for the first time, you have to go to-- You have to"
+    },
+    {
+      "start_time": 942.1,
+      "end_time": 945.7,
+      "text": "install, uh, you have to do NPM install."
+    },
+    {
+      "start_time": 945.8,
+      "end_time": 951.5,
+      "text": "So you have to, uh, just go to CD to tools and do an NPM install for the first time."
+    },
+    {
+      "start_time": 951.5,
+      "end_time": 953,
+      "text": "Just, just one time requirement, right?"
+    },
+    {
+      "start_time": 953.2,
+      "end_time": 956.7,
+      "text": "Similarly, go to CD apps and do an NPM install."
+    },
+    {
+      "start_time": 956.7,
+      "end_time": 960.3,
+      "text": "This is just going to install the required libraries."
+    },
+    {
+      "start_time": 960.4,
+      "end_time": 962.3,
+      "text": "So this command has to be run for the first time."
+    },
+    {
+      "start_time": 962.5,
+      "end_time": 965,
+      "text": "Once this is done, uh, things are very easy."
+    },
+    {
+      "start_time": 965.5,
+      "end_time": 966.8,
+      "text": "We have to go to"
+    },
+    {
+      "start_time": 972.8,
+      "end_time": 973,
+      "text": "Yeah."
+    },
+    {
+      "start_time": 973.3,
+      "end_time": 977.2,
+      "text": "So we cd into this folder for our app number one."
+    },
+    {
+      "start_time": 977.6,
+      "end_time": 981.9,
+      "text": "We are into the folder, and you do npm install, and then you do npm run dev."
+    },
+    {
+      "start_time": 982.3,
+      "end_time": 985.3,
+      "text": "I've already done npm install, but I'll just do npm run dev."
+    },
+    {
+      "start_time": 985.6,
+      "end_time": 989.3,
+      "text": "So our first app is live, which is our visualization li-- uh, which"
+    },
+    {
+      "start_time": 989.3,
+      "end_time": 991.1,
+      "text": "is our visualization part, right?"
+    },
+    {
+      "start_time": 991.4,
+      "end_time": 994.2,
+      "text": "So this opens on localhost three thousand."
+    },
+    {
+      "start_time": 994.6,
+      "end_time": 998.8,
+      "text": "All you have to do is go to your browser and just put this out, right?"
+    },
+    {
+      "start_time": 999.1,
+      "end_time": 1001.5,
+      "text": "So this is our visualization app."
+    },
+    {
+      "start_time": 1002.6,
+      "end_time": 1002.8,
+      "text": "Right."
+    },
+    {
+      "start_time": 1002.8,
+      "end_time": 1006.4,
+      "text": "You'll be able to see something like this, or you'll be able to see on,"
+    },
+    {
+      "start_time": 1007.3,
+      "end_time": 1009.8,
+      "text": "like, uh, start, start loading the file."
+    },
+    {
+      "start_time": 1010.2,
+      "end_time": 1012.5,
+      "text": "Some homepage will be visible to you."
+    },
+    {
+      "start_time": 1014.2,
+      "end_time": 1014.3,
+      "text": "Right."
+    },
+    {
+      "start_time": 1014.6,
+      "end_time": 1015.2,
+      "text": "So this is done."
+    },
+    {
+      "start_time": 1016.8,
+      "end_time": 1021.6,
+      "text": "Now we'll do our main part, which is running the QUEN3 model."
+    },
+    {
+      "start_time": 1021.6,
+      "end_time": 1021.8,
+      "text": "Right."
+    },
+    {
+      "start_time": 1021.8,
+      "end_time": 1026.7,
+      "text": "So for this, cd into this, then do npm install, which is done."
+    },
+    {
+      "start_time": 1027.2,
+      "end_time": 1031.6,
+      "text": "And then all you have to do is run this, this command."
+    },
+    {
+      "start_time": 1032,
+      "end_time": 1032.2,
+      "text": "Right."
+    },
+    {
+      "start_time": 1032.4,
+      "end_time": 1035.5,
+      "text": "So earlier we basically ran… Sorry"
+    },
+    {
+      "start_time": 1038.3,
+      "end_time": 1040.1,
+      "text": "Yeah, we just ran this command, right?"
+    },
+    {
+      "start_time": 1040.5,
+      "end_time": 1041.9,
+      "text": "Run visual."
+    },
+    {
+      "start_time": 1042.2,
+      "end_time": 1045.8,
+      "text": "This is a compound command which is running another bridge."
+    },
+    {
+      "start_time": 1046.1,
+      "end_time": 1048.9,
+      "text": "So just copy-paste this, run this."
+    },
+    {
+      "start_time": 1049.6,
+      "end_time": 1053,
+      "text": "The same prompt is there for you."
+    },
+    {
+      "start_time": 1053.2,
+      "end_time": 1059.2,
+      "text": "Again, we will say you are an expert writer."
+    },
+    {
+      "start_time": 1059.5,
+      "end_time": 1059.8,
+      "text": "Correct?"
+    },
+    {
+      "start_time": 1060.7,
+      "end_time": 1062,
+      "text": "And now comes our main command."
+    },
+    {
+      "start_time": 1062.1,
+      "end_time": 1066.2,
+      "text": "Who was the king in-"
+    },
+    {
+      "start_time": 1069.7,
+      "end_time": 1070.3,
+      "text": "Jungle Book, right?"
+    },
+    {
+      "start_time": 1070.6,
+      "end_time": 1070.9,
+      "text": "That's it."
+    },
+    {
+      "start_time": 1071,
+      "end_time": 1072.8,
+      "text": "I'm not, I have not pressed enter."
+    },
+    {
+      "start_time": 1073.3,
+      "end_time": 1076,
+      "text": "Uh, I'll move my focus to this, right?"
+    },
+    {
+      "start_time": 1076.2,
+      "end_time": 1080,
+      "text": "So let's, let's get ready to hit and see what happens, right?"
+    },
+    {
+      "start_time": 1080.4,
+      "end_time": 1085.7,
+      "text": "The moment I… So, uh, before I do that, before we go live with this,"
+    },
+    {
+      "start_time": 1086,
+      "end_time": 1087.6,
+      "text": "let's see what this is trying to show."
+    },
+    {
+      "start_time": 1088,
+      "end_time": 1091,
+      "text": "So when I click on author, this is okay."
+    },
+    {
+      "start_time": 1091.2,
+      "end_time": 1091.6,
+      "text": "Okay."
+    },
+    {
+      "start_time": 1091.7,
+      "end_time": 1092.9,
+      "text": "Information is okay."
+    },
+    {
+      "start_time": 1093.5,
+      "end_time": 1094.3,
+      "text": "Think Jungle."
+    },
+    {
+      "start_time": 1094.3,
+      "end_time": 1094.5,
+      "text": "Yeah."
+    },
+    {
+      "start_time": 1094.8,
+      "end_time": 1095.8,
+      "text": "Let's look at Jungle, right?"
+    },
+    {
+      "start_time": 1096.1,
+      "end_time": 1104.1,
+      "text": "So when the, uh, the model has already out-- given you the output from"
+    },
+    {
+      "start_time": 1106.3,
+      "end_time": 1110.3,
+      "text": "All the way from think, okay, the user is asking who is, right?"
+    },
+    {
+      "start_time": 1110.8,
+      "end_time": 1113.6,
+      "text": "We are-- The model has reached this point, and we are thinking"
+    },
+    {
+      "start_time": 1113.6,
+      "end_time": 1114.6,
+      "text": "of the next token jungle."
+    },
+    {
+      "start_time": 1115.1,
+      "end_time": 1119.4,
+      "text": "We want to understand why did the model at this point output jungle, right?"
+    },
+    {
+      "start_time": 1119.8,
+      "end_time": 1122.4,
+      "text": "You can see that these are the top twenty tokens."
+    },
+    {
+      "start_time": 1122.7,
+      "end_time": 1127.7,
+      "text": "So we have jungle, but we have star, we have book, we have got story,"
+    },
+    {
+      "start_time": 1127.7,
+      "end_time": 1131.6,
+      "text": "novel, king, original, Indian, author, children, king, books."
+    },
+    {
+      "start_time": 1132.2,
+      "end_time": 1133.5,
+      "text": "There were these to-tokens, right?"
+    },
+    {
+      "start_time": 1133.7,
+      "end_time": 1141.1,
+      "text": "Why, why did the-- this particular model choose jungle and not book and"
+    },
+    {
+      "start_time": 1141.1,
+      "end_time": 1142.7,
+      "text": "not story or novel or king, right?"
+    },
+    {
+      "start_time": 1143,
+      "end_time": 1143.7,
+      "text": "That is the question."
+    },
+    {
+      "start_time": 1144.1,
+      "end_time": 1146.1,
+      "text": "So we are at this point, we are at jungle, right?"
+    },
+    {
+      "start_time": 1146.3,
+      "end_time": 1152.9,
+      "text": "So the output could have been, \"The Jungle Book is a…\" Book,"
+    },
+    {
+      "start_time": 1153.2,
+      "end_time": 1154.5,
+      "text": "book part is not yet done."
+    },
+    {
+      "start_time": 1154.6,
+      "end_time": 1155.7,
+      "text": "We are just at this point."
+    },
+    {
+      "start_time": 1156.1,
+      "end_time": 1159.7,
+      "text": "The model has… You can ignore the text beyond jungle, right?"
+    },
+    {
+      "start_time": 1160,
+      "end_time": 1164.9,
+      "text": "The jungle, it could have been the movie, it could have been the"
+    },
+    {
+      "start_time": 1164.9,
+      "end_time": 1166.7,
+      "text": "story, it could have been the king."
+    },
+    {
+      "start_time": 1167.5,
+      "end_time": 1171.7,
+      "text": "So if the model would have chosen king, it would have gone"
+    },
+    {
+      "start_time": 1171.7,
+      "end_time": 1172.7,
+      "text": "into a different direction."
+    },
+    {
+      "start_time": 1172.7,
+      "end_time": 1177,
+      "text": "Right now it's trying to talk about that the book-- The Jungle Book is"
+    },
+    {
+      "start_time": 1177,
+      "end_time": 1178.7,
+      "text": "a children's fantasy novel, right?"
+    },
+    {
+      "start_time": 1179.2,
+      "end_time": 1184.8,
+      "text": "So if we hold ourselves at this point and we look at the token,"
+    },
+    {
+      "start_time": 1185,
+      "end_time": 1186.6,
+      "text": "so token is jungle, right?"
+    },
+    {
+      "start_time": 1187.1,
+      "end_time": 1189.9,
+      "text": "And where is it going after this?"
+    },
+    {
+      "start_time": 1191,
+      "end_time": 1192.7,
+      "text": "Like, what is it talking about?"
+    },
+    {
+      "start_time": 1193.7,
+      "end_time": 1194,
+      "text": "Sorry."
+    },
+    {
+      "start_time": 1194.4,
+      "end_time": 1196.8,
+      "text": "After this, here is the sampling, right?"
+    },
+    {
+      "start_time": 1197.2,
+      "end_time": 1200.3,
+      "text": "It's basically just saying The Jungle Book is a children's story."
+    },
+    {
+      "start_time": 1200.5,
+      "end_time": 1201.2,
+      "text": "You know, something like that."
+    },
+    {
+      "start_time": 1202.2,
+      "end_time": 1204.7,
+      "text": "So yeah"
+    },
+    {
+      "start_time": 1229.7,
+      "end_time": 1235.8,
+      "text": "The Jungle Book is a children's story, right?"
+    },
+    {
+      "start_time": 1235.9,
+      "end_time": 1236.5,
+      "text": "Something of this kind."
+    },
+    {
+      "start_time": 1236.7,
+      "end_time": 1242.6,
+      "text": "It is trying to explain The Jungle Book concept, but let's imagine, let's force"
+    },
+    {
+      "start_time": 1243,
+      "end_time": 1244.7,
+      "text": "the model to pick something else, right?"
+    },
+    {
+      "start_time": 1245,
+      "end_time": 1247.7,
+      "text": "In fact, we can make this enhancement, right?"
+    },
+    {
+      "start_time": 1248,
+      "end_time": 1252.6,
+      "text": "Uh, we can, we can stop the model, and we can force it to"
+    },
+    {
+      "start_time": 1252.6,
+      "end_time": 1254.9,
+      "text": "choose one versus the other."
+    },
+    {
+      "start_time": 1255.5,
+      "end_time": 1256,
+      "text": "That'll be cool."
+    },
+    {
+      "start_time": 1256.9,
+      "end_time": 1259,
+      "text": "So let's think of that as a new project."
+    },
+    {
+      "start_time": 1259.5,
+      "end_time": 1262.3,
+      "text": "For now, let's just do one thing."
+    },
+    {
+      "start_time": 1262.5,
+      "end_time": 1267.2,
+      "text": "Uh, think about instead of jungle, we would have maybe, uh,"
+    },
+    {
+      "start_time": 1269.2,
+      "end_time": 1270.9,
+      "text": "thinking about there was a movie, right?"
+    },
+    {
+      "start_time": 1270.9,
+      "end_time": 1273.7,
+      "text": "The movie or the book."
+    },
+    {
+      "start_time": 1274.6,
+      "end_time": 1275.5,
+      "text": "Let's say the movie"
+    },
+    {
+      "start_time": 1280.9,
+      "end_time": 1280.9,
+      "text": "Yeah."
+    },
+    {
+      "start_time": 1282.3,
+      "end_time": 1283.1,
+      "text": "So not here."
+    },
+    {
+      "start_time": 1283.1,
+      "end_time": 1285,
+      "text": "Go to Excalibur."
+    },
+    {
+      "start_time": 1286,
+      "end_time": 1289.2,
+      "text": "This is our current… Sorry, this is our current version."
+    },
+    {
+      "start_time": 1289.2,
+      "end_time": 1294.3,
+      "text": "We will copy this here and our path number two."
+    },
+    {
+      "start_time": 1294.4,
+      "end_time": 1295.3,
+      "text": "So these are two paths, right?"
+    },
+    {
+      "start_time": 1295.3,
+      "end_time": 1301.9,
+      "text": "So this is like… Um, this side is"
+    },
+    {
+      "start_time": 1305.7,
+      "end_time": 1306.2,
+      "text": "Part one"
+    },
+    {
+      "start_time": 1314.1,
+      "end_time": 1317.3,
+      "text": "And we can say part two on this side, right?"
+    },
+    {
+      "start_time": 1317.9,
+      "end_time": 1319.1,
+      "text": "Left side path one, part two."
+    },
+    {
+      "start_time": 1319.4,
+      "end_time": 1320.6,
+      "text": "This is the current one."
+    },
+    {
+      "start_time": 1321.2,
+      "end_time": 1322.8,
+      "text": "Obviously, this is the current path."
+    },
+    {
+      "start_time": 1323.7,
+      "end_time": 1325,
+      "text": "Let's highlight that as well"
+    },
+    {
+      "start_time": 1327.5,
+      "end_time": 1328.9,
+      "text": "करण पाठ"
+    },
+    {
+      "start_time": 1332.8,
+      "end_time": 1333.7,
+      "text": "Or direction"
+    },
+    {
+      "start_time": 1336.6,
+      "end_time": 1337.8,
+      "text": "model took, right?"
+    },
+    {
+      "start_time": 1338,
+      "end_time": 1341.6,
+      "text": "What if, what if the model took a different direction"
+    },
+    {
+      "start_time": 1345.1,
+      "end_time": 1345.9,
+      "text": "What are we thinking?"
+    },
+    {
+      "start_time": 1346.3,
+      "end_time": 1347.1,
+      "text": "What if the model"
+    },
+    {
+      "start_time": 1350,
+      "end_time": 1355.5,
+      "text": "thought or chose something else, right?"
+    },
+    {
+      "start_time": 1355.9,
+      "end_time": 1358.6,
+      "text": "So we are thinking in that, that sense, right?"
+    },
+    {
+      "start_time": 1358.9,
+      "end_time": 1359.5,
+      "text": "Thought experiment."
+    },
+    {
+      "start_time": 1360.1,
+      "end_time": 1363.8,
+      "text": "So right now our main focus is with this."
+    },
+    {
+      "start_time": 1365.1,
+      "end_time": 1368.5,
+      "text": "So the path is also in terms of jungle"
+    },
+    {
+      "start_time": 1375.5,
+      "end_time": 1375.6,
+      "text": "Right."
+    },
+    {
+      "start_time": 1375.6,
+      "end_time": 1376.8,
+      "text": "So this is the path, jungle"
+    },
+    {
+      "start_time": 1379.1,
+      "end_time": 1385,
+      "text": "And what is, what is the other option?"
+    },
+    {
+      "start_time": 1386.6,
+      "end_time": 1393.7,
+      "text": "Is book, but we can also think of king or there was movie, which is"
+    },
+    {
+      "start_time": 1394.7,
+      "end_time": 1396.4,
+      "text": "very low, but let's look at movie"
+    },
+    {
+      "start_time": 1401.3,
+      "end_time": 1403,
+      "text": "In this case, we are thinking of movie"
+    },
+    {
+      "start_time": 1407,
+      "end_time": 1409,
+      "text": "So this is pretty easy to understand, right?"
+    },
+    {
+      "start_time": 1409,
+      "end_time": 1411.4,
+      "text": "Right now, the focus has come to book."
+    },
+    {
+      "start_time": 1412.1,
+      "end_time": 1417.5,
+      "text": "But if it was the movie, then it would speak about the movie, right?"
+    },
+    {
+      "start_time": 1417.5,
+      "end_time": 1419.5,
+      "text": "It would, like, form the text about the movie."
+    },
+    {
+      "start_time": 1420.1,
+      "end_time": 1421.1,
+      "text": "It won't focus on"
+    },
+    {
+      "start_time": 1423.2,
+      "end_time": 1424.9,
+      "text": "Uh, the book."
+    },
+    {
+      "start_time": 1424.9,
+      "end_time": 1429.8,
+      "text": "So you would get a very different output if you had stopped at jungle, right?"
+    },
+    {
+      "start_time": 1429.9,
+      "end_time": 1433,
+      "text": "And you, you would get a very different output if you"
+    },
+    {
+      "start_time": 1435,
+      "end_time": 1435.1,
+      "text": "had stopped at jungle."
+    },
+    {
+      "start_time": 1435.1,
+      "end_time": 1435.4,
+      "text": "That's for sure."
+    },
+    {
+      "start_time": 1435.4,
+      "end_time": 1435.4,
+      "text": "Correct."
+    },
+    {
+      "start_time": 1435.4,
+      "end_time": 1438.4,
+      "text": "So what is this particular visualization telling you?"
+    },
+    {
+      "start_time": 1438.4,
+      "end_time": 1444.3,
+      "text": "First is that you are creating like a selection criteria, a cutoff."
+    },
+    {
+      "start_time": 1444.6,
+      "end_time": 1449.1,
+      "text": "Your cutoff is called as top P. What you are saying is that whatever you"
+    },
+    {
+      "start_time": 1449.1,
+      "end_time": 1453.8,
+      "text": "select, the cumulative has to be greater than ninety-five percent, and you"
+    },
+    {
+      "start_time": 1453.8,
+      "end_time": 1455.6,
+      "text": "are going to discard the rest, right?"
+    },
+    {
+      "start_time": 1455.8,
+      "end_time": 1459.2,
+      "text": "The-- So first comes temperature."
+    },
+    {
+      "start_time": 1459.6,
+      "end_time": 1464.5,
+      "text": "Temperature allows you to think creatively or not creatively."
+    },
+    {
+      "start_time": 1465.2,
+      "end_time": 1468.4,
+      "text": "Zero means you are basically not thinking creatively."
+    },
+    {
+      "start_time": 1468.4,
+      "end_time": 1472.7,
+      "text": "You just want the top probability, which is jungle all the time."
+    },
+    {
+      "start_time": 1473.3,
+      "end_time": 1478.1,
+      "text": "But there's another one where you basically don't want to do this."
+    },
+    {
+      "start_time": 1478.2,
+      "end_time": 1483.3,
+      "text": "You want to sometimes choose a random path, right?"
+    },
+    {
+      "start_time": 1483.6,
+      "end_time": 1485,
+      "text": "So first comes temperature."
+    },
+    {
+      "start_time": 1485.2,
+      "end_time": 1487.2,
+      "text": "We are saying we have a temperature of point six."
+    },
+    {
+      "start_time": 1487.2,
+      "end_time": 1492.7,
+      "text": "We want some variation or change in the thinking, some creativity, right?"
+    },
+    {
+      "start_time": 1494.1,
+      "end_time": 1499.3,
+      "text": "After temperature scaling is done, you decide the top P and you come up."
+    },
+    {
+      "start_time": 1499.8,
+      "end_time": 1502.5,
+      "text": "So you get raw logits and you convert it into probability."
+    },
+    {
+      "start_time": 1502.5,
+      "end_time": 1508.6,
+      "text": "You can see that once you do that, certain tokens get very high probability."
+    },
+    {
+      "start_time": 1508.8,
+      "end_time": 1515,
+      "text": "Like, the, the reason this particular model has cho-chosen jungle is because"
+    },
+    {
+      "start_time": 1515,
+      "end_time": 1520.2,
+      "text": "after we did temperature scaling and we are selecting where we calculated"
+    },
+    {
+      "start_time": 1520.2,
+      "end_time": 1525.7,
+      "text": "a probability, at this point, uh, jungle has a very high probability."
+    },
+    {
+      "start_time": 1526.1,
+      "end_time": 1529.5,
+      "text": "Even though you can see that the logic scores weren't far"
+    },
+    {
+      "start_time": 1529.5,
+      "end_time": 1532.7,
+      "text": "away, the probability scores are wildly, wildly different, right?"
+    },
+    {
+      "start_time": 1533.1,
+      "end_time": 1537.7,
+      "text": "I mean, star and book are no-not close enough to jungle."
+    },
+    {
+      "start_time": 1539.1,
+      "end_time": 1544.2,
+      "text": "So this is because of this particular flag or knob that we have chosen, right?"
+    },
+    {
+      "start_time": 1544.3,
+      "end_time": 1545.5,
+      "text": "So this is how this works."
+    },
+    {
+      "start_time": 1545.7,
+      "end_time": 1550.8,
+      "text": "Now, there was a unique example in the lesson."
+    },
+    {
+      "start_time": 1552,
+      "end_time": 1553.7,
+      "text": "Uh, huge lesson."
+    },
+    {
+      "start_time": 1554,
+      "end_time": 1557.1,
+      "text": "Almost requires you to spend more than two hours, I think."
+    },
+    {
+      "start_time": 1558.5,
+      "end_time": 1560.3,
+      "text": "Uh, this is the first lesson, the second one."
+    },
+    {
+      "start_time": 1560.7,
+      "end_time": 1561.7,
+      "text": "Let's go to our second lesson."
+    },
+    {
+      "start_time": 1562.1,
+      "end_time": 1565.8,
+      "text": "So this particular lesson, QEN 3 Fundamentals, is like one twenty"
+    },
+    {
+      "start_time": 1565.8,
+      "end_time": 1569,
+      "text": "minutes, but probably needs more effort and time, right?"
+    },
+    {
+      "start_time": 1569.3,
+      "end_time": 1573.4,
+      "text": "So we go to the section at the bottom"
+    },
+    {
+      "start_time": 1576,
+      "end_time": 1577.4,
+      "text": "where a very"
+    },
+    {
+      "start_time": 1579.7,
+      "end_time": 1583.2,
+      "text": "where we see this creative part, temperature part in action"
+    },
+    {
+      "start_time": 1587.3,
+      "end_time": 1590.7,
+      "text": "So a lot of technical things about GGUF model and why it works."
+    },
+    {
+      "start_time": 1591,
+      "end_time": 1596.3,
+      "text": "So this is the section which talks about the visualization, how, uh,"
+    },
+    {
+      "start_time": 1596.6,
+      "end_time": 1602.2,
+      "text": "nucleus sampling works, top, top P works, what is temperature, right."
+    },
+    {
+      "start_time": 1602.3,
+      "end_time": 1605.9,
+      "text": "So there was a… Let's try and zoom"
+    },
+    {
+      "start_time": 1608.4,
+      "end_time": 1614.2,
+      "text": "So similar to the visualization we saw, in this case, our, uh, top P cutoff is"
+    },
+    {
+      "start_time": 1614.2,
+      "end_time": 1617.6,
+      "text": "ninety-five percent, which is correct, but our nucleus size is longer because"
+    },
+    {
+      "start_time": 1617.7,
+      "end_time": 1619.4,
+      "text": "of the probability distribution."
+    },
+    {
+      "start_time": 1619.6,
+      "end_time": 1622.6,
+      "text": "You can see there are a lot of answers which are very similar."
+    },
+    {
+      "start_time": 1623.3,
+      "end_time": 1627,
+      "text": "The, the model is-- thinks that all of these tokens have a right"
+    },
+    {
+      "start_time": 1627.3,
+      "end_time": 1629.5,
+      "text": "to appear, to be chosen, right?"
+    },
+    {
+      "start_time": 1629.7,
+      "end_time": 1631.8,
+      "text": "So you can see the logit is eighteen point two."
+    },
+    {
+      "start_time": 1631.8,
+      "end_time": 1634.6,
+      "text": "For book, it is eighteen point two."
+    },
+    {
+      "start_time": 1634.7,
+      "end_time": 1636.1,
+      "text": "For story, it is eighteen point two."
+    },
+    {
+      "start_time": 1636.1,
+      "end_time": 1637.3,
+      "text": "For jungle, it is eighteen point two."
+    },
+    {
+      "start_time": 1637.6,
+      "end_time": 1640.2,
+      "text": "But the model has chosen original here."
+    },
+    {
+      "start_time": 1640.6,
+      "end_time": 1642.2,
+      "text": "So you can see here it is original."
+    },
+    {
+      "start_time": 1642.5,
+      "end_time": 1645.7,
+      "text": "I should clarify that the original book, the original, right?"
+    },
+    {
+      "start_time": 1646.1,
+      "end_time": 1646.9,
+      "text": "It could have said I c-- I should clarify that the original."
+    },
+    {
+      "start_time": 1646.9,
+      "end_time": 1647.1,
+      "text": "I should clarify that the story."
+    },
+    {
+      "start_time": 1647.1,
+      "end_time": 1647.3,
+      "text": "That could"
+    },
+    {
+      "start_time": 1654.2,
+      "end_time": 1655.1,
+      "text": "have been the path."
+    },
+    {
+      "start_time": 1655.4,
+      "end_time": 1659.5,
+      "text": "I could-- I should clarify that the book, but it went for original."
+    },
+    {
+      "start_time": 1659.6,
+      "end_time": 1664.4,
+      "text": "Original isn't even the highest logit, you know, or the highest probability."
+    },
+    {
+      "start_time": 1664.8,
+      "end_time": 1667.9,
+      "text": "This is your randomness at play."
+    },
+    {
+      "start_time": 1668.2,
+      "end_time": 1675.4,
+      "text": "Because our temperature is point six, there will be random times"
+    },
+    {
+      "start_time": 1676,
+      "end_time": 1684.2,
+      "text": "when your model will pick, uh, your, your model will pick not the top"
+    },
+    {
+      "start_time": 1684.4,
+      "end_time": 1686.4,
+      "text": "probability, but something different."
+    },
+    {
+      "start_time": 1686.6,
+      "end_time": 1690.9,
+      "text": "So you can see that this pushes the model into creative zone."
+    },
+    {
+      "start_time": 1690.9,
+      "end_time": 1695.7,
+      "text": "It basically push the model into… But this is purely at the end, right?"
+    },
+    {
+      "start_time": 1695.9,
+      "end_time": 1701,
+      "text": "So when we see-- when we think about, when we think about the model as a"
+    },
+    {
+      "start_time": 1701.1,
+      "end_time": 1705.6,
+      "text": "stack, the first, the first intuition that we have, the model as a stack."
+    },
+    {
+      "start_time": 1707.3,
+      "end_time": 1709.7,
+      "text": "Let me check the m-- Yeah, the recording was going fine."
+    },
+    {
+      "start_time": 1710.1,
+      "end_time": 1715.9,
+      "text": "The model as a stack, at that point, uh, basically, uh, we are"
+    },
+    {
+      "start_time": 1718.2,
+      "end_time": 1723.8,
+      "text": "Trying to come-- the model is trying to, uh, understand what your context"
+    },
+    {
+      "start_time": 1723.8,
+      "end_time": 1725.6,
+      "text": "and trying to give you an answer, right?"
+    },
+    {
+      "start_time": 1725.7,
+      "end_time": 1728.8,
+      "text": "It's going through those stacks, going through those layers one by one."
+    },
+    {
+      "start_time": 1729.6,
+      "end_time": 1733.1,
+      "text": "That is fine, but all of this sampling that you're doing is not"
+    },
+    {
+      "start_time": 1733.1,
+      "end_time": 1735.6,
+      "text": "actually part of the model thinking."
+    },
+    {
+      "start_time": 1736.4,
+      "end_time": 1740.1,
+      "text": "The change is actually post the model has done because the model"
+    },
+    {
+      "start_time": 1740.1,
+      "end_time": 1741.7,
+      "text": "has already given you logit scores."
+    },
+    {
+      "start_time": 1742.1,
+      "end_time": 1743.2,
+      "text": "There's nothing that you can change."
+    },
+    {
+      "start_time": 1743.5,
+      "end_time": 1748.7,
+      "text": "But if you change this particular token, if you decide to choose one"
+    },
+    {
+      "start_time": 1748.7,
+      "end_time": 1752.1,
+      "text": "token rather than the other, the next one will get impacted, and so the"
+    },
+    {
+      "start_time": 1752.1,
+      "end_time": 1753.4,
+      "text": "model thinking will change, right?"
+    },
+    {
+      "start_time": 1753.9,
+      "end_time": 1760.6,
+      "text": "So, this is like a weighted lottery where something which had very small"
+    },
+    {
+      "start_time": 1760.7,
+      "end_time": 1766.1,
+      "text": "chance of winning has won because of a temperature flag, right?"
+    },
+    {
+      "start_time": 1766.4,
+      "end_time": 1767.8,
+      "text": "Not always picking the top token."
+    },
+    {
+      "start_time": 1768.4,
+      "end_time": 1769,
+      "text": "Uh, sorry."
+    },
+    {
+      "start_time": 1769.3,
+      "end_time": 1770.9,
+      "text": "Not always picking the top token, but"
+    },
+    {
+      "start_time": 1776.9,
+      "end_time": 1776.9,
+      "text": "Yeah."
+    },
+    {
+      "start_time": 1778.1,
+      "end_time": 1782.4,
+      "text": "Not always picking a top token, not being greedy, so, but being a bit creative."
+    },
+    {
+      "start_time": 1782.5,
+      "end_time": 1784.5,
+      "text": "That's the idea here, right?"
+    },
+    {
+      "start_time": 1784.6,
+      "end_time": 1785.1,
+      "text": "So-"
+    },
+    {
+      "start_time": 1790.5,
+      "end_time": 1791.8,
+      "text": "The relevant code is here and"
+    },
+    {
+      "start_time": 1797.7,
+      "end_time": 1800.3,
+      "text": "Float r going to probability."
+    },
+    {
+      "start_time": 1800.9,
+      "end_time": 1803.4,
+      "text": "CDF is zero, int is zero."
+    },
+    {
+      "start_time": 1804.6,
+      "end_time": 1806.4,
+      "text": "I is less than last index."
+    },
+    {
+      "start_time": 1806.5,
+      "end_time": 1808.1,
+      "text": "Okay, this is the loop."
+    },
+    {
+      "start_time": 1809.6,
+      "end_time": 1815.8,
+      "text": "CDF was set to zero, and we are pulling the probability index dot probability."
+    },
+    {
+      "start_time": 1817.3,
+      "end_time": 1817.7,
+      "text": "Okay."
+    },
+    {
+      "start_time": 1818.8,
+      "end_time": 1823.5,
+      "text": "And if r is less than the CDF count at this point, we are"
+    },
+    {
+      "start_time": 1823.5,
+      "end_time": 1824.9,
+      "text": "going to return the index itself"
+    },
+    {
+      "start_time": 1828.2,
+      "end_time": 1831.3,
+      "text": "The coin is a uniform random-- Okay, the coin is a random number."
+    },
+    {
+      "start_time": 1831.9,
+      "end_time": 1836.7,
+      "text": "If it lands in one point four percent slice belonging to original,"
+    },
+    {
+      "start_time": 1837.2,
+      "end_time": 1838.3,
+      "text": "I'm talking run the same prompt"
+    },
+    {
+      "start_time": 1841.5,
+      "end_time": 1842.6,
+      "text": "Likely be stored here."
+    },
+    {
+      "start_time": 1842.9,
+      "end_time": 1843.1,
+      "text": "Okay."
+    },
+    {
+      "start_time": 1843.6,
+      "end_time": 1847,
+      "text": "So if it lands… So this is a sampling."
+    },
+    {
+      "start_time": 1847,
+      "end_time": 1851.6,
+      "text": "I'm just trying to figure out the exact sampling code and what was"
+    },
+    {
+      "start_time": 1851.6,
+      "end_time": 1856.4,
+      "text": "the logic behind it, and we can even change this to another code."
+    },
+    {
+      "start_time": 1856.5,
+      "end_time": 1858.3,
+      "text": "Probably that should be part of our assignment."
+    },
+    {
+      "start_time": 1858.9,
+      "end_time": 1859.4,
+      "text": "Uh, if it-"
+    },
+    {
+      "start_time": 1863.2,
+      "end_time": 1865.6,
+      "text": "Who has chosen this 1.4% slice?"
+    },
+    {
+      "start_time": 1871.2,
+      "end_time": 1872.2,
+      "text": "Okay, so"
+    },
+    {
+      "start_time": 1875.9,
+      "end_time": 1878.4,
+      "text": "Let's go to our visualization file and see."
+    },
+    {
+      "start_time": 1878.7,
+      "end_time": 1879.1,
+      "text": "Here's"
+    },
+    {
+      "start_time": 1885.7,
+      "end_time": 1888.9,
+      "text": "Oh, the one point four is basically he's calculating the probability from,"
+    },
+    {
+      "start_time": 1889.8,
+      "end_time": 1892.1,
+      "text": "not from here, but basically it's just"
+    },
+    {
+      "start_time": 1895.7,
+      "end_time": 1897.4,
+      "text": "Oh, the one point four is this probability."
+    },
+    {
+      "start_time": 1897.9,
+      "end_time": 1898.2,
+      "text": "Okay."
+    },
+    {
+      "start_time": 1898.5,
+      "end_time": 1902.1,
+      "text": "So looking at this again"
+    },
+    {
+      "start_time": 1910.7,
+      "end_time": 1912.2,
+      "text": "So random number is fine"
+    },
+    {
+      "start_time": 1921.7,
+      "end_time": 1927.1,
+      "text": "Maybe we can enhance our sampling visualization with this number as well."
+    },
+    {
+      "start_time": 1927.1,
+      "end_time": 1929.9,
+      "text": "Like what, what was shown at this point."
+    },
+    {
+      "start_time": 1930.1,
+      "end_time": 1931.6,
+      "text": "So a lot of changes can be done here."
+    },
+    {
+      "start_time": 1931.8,
+      "end_time": 1932,
+      "text": "Right?"
+    },
+    {
+      "start_time": 1932.1,
+      "end_time": 1937.3,
+      "text": "Now let's try and run this in practice, and there are two like"
+    },
+    {
+      "start_time": 1937.3,
+      "end_time": 1938.5,
+      "text": "changes that we have thought of."
+    },
+    {
+      "start_time": 1940.2,
+      "end_time": 1942.3,
+      "text": "Let me like push this to Discord"
+    },
+    {
+      "start_time": 1944.3,
+      "end_time": 1948.1,
+      "text": "into first Break AI and step two."
+    },
+    {
+      "start_time": 1948.7,
+      "end_time": 1948.9,
+      "text": "Okay."
+    },
+    {
+      "start_time": 1948.9,
+      "end_time": 1952.4,
+      "text": "So like, uh, thoughts."
+    },
+    {
+      "start_time": 1952.6,
+      "end_time": 1953.8,
+      "text": "Thoughts are thoughts."
+    },
+    {
+      "start_time": 1954.2,
+      "end_time": 1955.1,
+      "text": "One has thoughts."
+    },
+    {
+      "start_time": 1956,
+      "end_time": 1956.7,
+      "text": "Do the first one"
+    },
+    {
+      "start_time": 1959,
+      "end_time": 1966.2,
+      "text": "Okay, what if halt and choose the model, the token"
+    },
+    {
+      "start_time": 1969.5,
+      "end_time": 1971.7,
+      "text": "But I can't pull the state behind, right?"
+    },
+    {
+      "start_time": 1971.9,
+      "end_time": 1976.9,
+      "text": "I can actually pull the token, halt and choose a token."
+    },
+    {
+      "start_time": 1977.9,
+      "end_time": 1979.4,
+      "text": "So in this"
+    },
+    {
+      "start_time": 1982.5,
+      "end_time": 1985.1,
+      "text": "Token in viz."
+    },
+    {
+      "start_time": 1985.3,
+      "end_time": 1988.2,
+      "text": "I'm basically trying to say halt and choose a token in viz"
+    },
+    {
+      "start_time": 1988.8,
+      "end_time": 1992.8,
+      "text": "and see how model changes path."
+    },
+    {
+      "start_time": 1994.2,
+      "end_time": 1996.4,
+      "text": "This is when you're thinking of only in sampling"
+    },
+    {
+      "start_time": 1999.1,
+      "end_time": 2004.4,
+      "text": "And we can also see the output of"
+    },
+    {
+      "start_time": 2006.4,
+      "end_time": 2007.8,
+      "text": "whatever was that code"
+    },
+    {
+      "start_time": 2010.3,
+      "end_time": 2013.6,
+      "text": "It's called sample from the truncated list"
+    },
+    {
+      "start_time": 2017.4,
+      "end_time": 2019,
+      "text": "The bitch"
+    },
+    {
+      "start_time": 2025.5,
+      "end_time": 2027.4,
+      "text": "It looked at cumulative probability"
+    },
+    {
+      "start_time": 2032.9,
+      "end_time": 2034.4,
+      "text": "Cumulative probability index."
+    },
+    {
+      "start_time": 2034.6,
+      "end_time": 2037.1,
+      "text": "Truncate the list where cumulative probability exceeds top."
+    },
+    {
+      "start_time": 2037.2,
+      "end_time": 2037.8,
+      "text": "That is fine."
+    },
+    {
+      "start_time": 2038.4,
+      "end_time": 2041.8,
+      "text": "Where the cumulative probability exceeds top."
+    },
+    {
+      "start_time": 2043,
+      "end_time": 2045.8,
+      "text": "So we'll look at this and maybe some changes here."
+    },
+    {
+      "start_time": 2046.9,
+      "end_time": 2047.4,
+      "text": "So"
+    },
+    {
+      "start_time": 2050.8,
+      "end_time": 2051.7,
+      "text": "Decent quotes"
+    },
+    {
+      "start_time": 2057.1,
+      "end_time": 2058.5,
+      "text": "Yeah, these are just thoughts, right?"
+    },
+    {
+      "start_time": 2058.5,
+      "end_time": 2059.9,
+      "text": "We'll just park this for now."
+    },
+    {
+      "start_time": 2060.6,
+      "end_time": 2064,
+      "text": "And let's, let's see this in action."
+    },
+    {
+      "start_time": 2064.2,
+      "end_time": 2070.3,
+      "text": "So once you are at your point and you have started app number one, app"
+    },
+    {
+      "start_time": 2070.3,
+      "end_time": 2072.2,
+      "text": "number two with our command, right?"
+    },
+    {
+      "start_time": 2072.6,
+      "end_time": 2074.6,
+      "text": "Let's hit this and you will see this in action."
+    },
+    {
+      "start_time": 2075.2,
+      "end_time": 2077,
+      "text": "So go here."
+    },
+    {
+      "start_time": 2077.3,
+      "end_time": 2078.9,
+      "text": "We'll wait for the first token to come."
+    },
+    {
+      "start_time": 2079.2,
+      "end_time": 2084.1,
+      "text": "The time taken for the first token, uh, is called TTFT, time to first token."
+    },
+    {
+      "start_time": 2084.4,
+      "end_time": 2090,
+      "text": "Another very critical criteria of inferencing is TTFT, time to first token"
+    },
+    {
+      "start_time": 2092.1,
+      "end_time": 2096.5,
+      "text": "A lot of factors determine TTFT, and we speak of that as well."
+    },
+    {
+      "start_time": 2096.5,
+      "end_time": 2098,
+      "text": "So our model has started."
+    },
+    {
+      "start_time": 2098.6,
+      "end_time": 2104.1,
+      "text": "So you can see we are live, and as the model spits, figure out who the king."
+    },
+    {
+      "start_time": 2104.8,
+      "end_time": 2105.2,
+      "text": "So"
+    },
+    {
+      "start_time": 2108.6,
+      "end_time": 2110,
+      "text": "You can click back to live"
+    },
+    {
+      "start_time": 2121.7,
+      "end_time": 2127.8,
+      "text": "The character is a young boy named M-- Mufasa."
+    },
+    {
+      "start_time": 2127.8,
+      "end_time": 2129.9,
+      "text": "So that's how it's splitting the token."
+    },
+    {
+      "start_time": 2129.9,
+      "end_time": 2131.2,
+      "text": "But wait, the story is said."
+    },
+    {
+      "start_time": 2131.4,
+      "end_time": 2134.8,
+      "text": "So you can see the live score, and you can actually go to"
+    },
+    {
+      "start_time": 2134.8,
+      "end_time": 2137.5,
+      "text": "any point, uh, at any token."
+    },
+    {
+      "start_time": 2148,
+      "end_time": 2149,
+      "text": "I had just had to reload."
+    },
+    {
+      "start_time": 2149,
+      "end_time": 2149.5,
+      "text": "That's it"
+    },
+    {
+      "start_time": 2151.8,
+      "end_time": 2152.9,
+      "text": "So this is how it works."
+    },
+    {
+      "start_time": 2152.9,
+      "end_time": 2160.2,
+      "text": "So this is how you can run this particular model in Windows, Linux, or on Mac, right?"
+    },
+    {
+      "start_time": 2160.4,
+      "end_time": 2161.4,
+      "text": "I'm running it on Mac."
+    },
+    {
+      "start_time": 2161.5,
+      "end_time": 2165.4,
+      "text": "If you are running it on Windows, just one thing, you should use WSL."
+    },
+    {
+      "start_time": 2165.4,
+      "end_time": 2166.4,
+      "text": "It's the easiest."
+    },
+    {
+      "start_time": 2167,
+      "end_time": 2173.2,
+      "text": "You make sure that WSL is installed, and once WSL is installed, you need to…"
+    },
+    {
+      "start_time": 2173.6,
+      "end_time": 2174.9,
+      "text": "So I'm using Bash here."
+    },
+    {
+      "start_time": 2175,
+      "end_time": 2184.1,
+      "text": "Uh, best is to start your terminal, then, uh, just do WSL install, right?"
+    },
+    {
+      "start_time": 2184.8,
+      "end_time": 2189.8,
+      "text": "Once WSL install is done, you can move ahead with your rest of the code."
+    },
+    {
+      "start_time": 2190.4,
+      "end_time": 2195,
+      "text": "So yeah, for Windows, highly recommend that you use WSL"
+    },
+    {
+      "start_time": 2199.3,
+      "end_time": 2199.3,
+      "text": "Correct."
+    },
+    {
+      "start_time": 2199.6,
+      "end_time": 2202.2,
+      "text": "We look at faster inferencing other, other aspects as well"
+    },
+    {
+      "start_time": 2204.9,
+      "end_time": 2205.9,
+      "text": "So this will continue."
+    },
+    {
+      "start_time": 2206.2,
+      "end_time": 2210.8,
+      "text": "So this is our first part where we actually see how to run this repo"
+    },
+    {
+      "start_time": 2210.8,
+      "end_time": 2217.9,
+      "text": "on your local, uh, and basically use this to understand visualization."
+    },
+    {
+      "start_time": 2218.2,
+      "end_time": 2224.2,
+      "text": "We have, uh, we have run this particular repo in two ways."
+    },
+    {
+      "start_time": 2225.4,
+      "end_time": 2231.5,
+      "text": "One is that we are running it, uh, just running the model, but with"
+    },
+    {
+      "start_time": 2231.5,
+      "end_time": 2235.7,
+      "text": "visualization, we need to open up another, uh, terminal and run the first"
+    },
+    {
+      "start_time": 2235.7,
+      "end_time": 2237.6,
+      "text": "app, which is visu-visualization app."
+    },
+    {
+      "start_time": 2238.1,
+      "end_time": 2241.9,
+      "text": "And once that is on up and running, we then run our Qwen"
+    },
+    {
+      "start_time": 2243.8,
+      "end_time": 2245.7,
+      "text": "three dot, qwen3.c repo as well."
+    },
+    {
+      "start_time": 2245.7,
+      "end_time": 2248.5,
+      "text": "So this is how you run the, both these apps together."
+    },
+    {
+      "start_time": 2248.8,
+      "end_time": 2250.8,
+      "text": "And we looked at sampling a bit."
+    },
+    {
+      "start_time": 2250.9,
+      "end_time": 2252.6,
+      "text": "We looked at other aspects a bit, right?"
+    },
+    {
+      "start_time": 2252.8,
+      "end_time": 2257.1,
+      "text": "Hope, uh, it's easy for you to understand and execute this."
+    },
+    {
+      "start_time": 2257.4,
+      "end_time": 2262.1,
+      "text": "Uh, so then in the next part, we will look at other aspects of,"
+    },
+    {
+      "start_time": 2262.8,
+      "end_time": 2265.2,
+      "text": "uh, of, uh, this particular model."
+    },
+    {
+      "start_time": 2265.5,
+      "end_time": 2266.8,
+      "text": "The-- We'll look at the code."
+    },
+    {
+      "start_time": 2266.9,
+      "end_time": 2269.4,
+      "text": "We'll look-- understand other things in this lesson."
+    },
+    {
+      "start_time": 2269.7,
+      "end_time": 2271.5,
+      "text": "So, uh, see you in the next part."
+    }
+  ]
+}
