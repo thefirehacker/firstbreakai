@@ -1,13 +1,128 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Moved — First Break AI</title>
-  <link rel="canonical" href="https://cohort.bubblnet.com/office-hours/">
-  <meta http-equiv="refresh" content="0; url=https://cohort.bubblnet.com/office-hours/">
-  <script>location.replace("https://cohort.bubblnet.com/office-hours/" + location.search + location.hash);</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Office Hours — First Break AI</title>
+  <meta name="description" content="First Break AI Office Hours: live weekly sessions every Friday 9–10 PM IST. Ask questions, demo your work, and learn alongside AI agents. Recordings and AI-powered transcripts available for every session.">
+  <meta property="og:title" content="Office Hours — First Break AI">
+  <meta property="og:description" content="Weekly live sessions for the agentic AI cohort. Recordings and AI-powered transcripts for every session.">
+  <meta property="og:image" content="https://cohort.bubblnet.com/public/images/Fort-Journey-01.png">
+  <link rel="icon" href="https://cohort.bubblnet.com/public/images/favicon_io/favicon.ico">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://cohort.bubblnet.com/#organization",
+        "name": "First Break AI",
+        "alternateName": "FirstBreak AI",
+        "url": "https://cohort.bubblnet.com/",
+        "logo": "https://cohort.bubblnet.com/public/images/favicon_io/android-chrome-512x512.png",
+        "description": "The first fully agentic AI cohort — AI agents guide every learner from first commit to capstone. Powered by FetchLens.ai, MCP, and agentic AI tooling. Operated by AIEDX Private Limited.",
+        "parentOrganization": {
+          "@type": "Organization",
+          "@id": "https://www.bubblspace.com/#organization",
+          "name": "AIEDX Private Limited",
+          "alternateName": "BubblSpace",
+          "url": "https://www.bubblspace.com/"
+        },
+        "sameAs": [
+          "https://bubblnet.com/",
+          "https://www.bubblspace.com/",
+          "https://fetchlens.ai/",
+          "https://thefirehacker.github.io/firstbreakai/",
+          "https://github.com/thefirehacker/firstbreakai",
+          "https://discord.gg/hRPese4H3F",
+          "https://www.youtube.com/playlist?list=PLEzXCZNdmgBm-SbXuXHxn9_vXpvFbrKKL",
+          "https://twitter.com/thefirehacker"
+        ],
+        "founder": {
+          "@type": "Person",
+          "name": "TheFireHacker",
+          "url": "https://thefirehacker.github.io/"
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://cohort.bubblnet.com/#website",
+        "name": "First Break AI",
+        "url": "https://cohort.bubblnet.com/",
+        "description": "The first fully agentic AI cohort — AI agents guide your learning from first commit to capstone. Powered by FetchLens.ai, MCP server, and agentic AI tooling.",
+        "publisher": { "@id": "https://cohort.bubblnet.com/#organization" },
+        "inLanguage": "en"
+      }
+    ]
+  }
+  </script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, system-ui, 'Segoe UI', sans-serif; background: #faf6ee; color: #1a1510; line-height: 1.7; }
+    .header { background: #2c2417; color: #f0ebe1; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+    .header a { color: #f0ebe1; text-decoration: none; font-size: 0.85rem; }
+    .header a:hover { text-decoration: underline; }
+    .site-name { font-weight: 700; font-size: 1.1rem; }
+    nav { display: flex; gap: 1.25rem; flex-wrap: wrap; }
+    main { max-width: 760px; margin: 2rem auto; padding: 0 1.5rem; }
+    h1 { color: #2c2417; font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .subtitle { font-size: 1rem; color: #5a4a30; margin-bottom: 1.5rem; }
+    h2 { color: #2c2417; font-size: 1.3rem; margin: 1.75rem 0 0.5rem; border-bottom: 2px solid #8b6914; padding-bottom: 0.25rem; }
+    p, li { font-size: 0.95rem; }
+    ul { padding-left: 1.25rem; margin: 0.5rem 0 1rem; }
+    li { margin-bottom: 0.4rem; }
+    a { color: #6b4c14; }
+    .schedule { background: #fff; border: 1px solid #e8e0d0; border-radius: 0.5rem; padding: 1.25rem; margin: 1rem 0; }
+    .schedule strong { color: #2c2417; }
+    .cta { display: inline-block; background: #8b6914; color: #fff; padding: 0.65rem 1.25rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600; margin-top: 1.5rem; }
+    .cta:hover { background: #a07a1a; }
+    .footer { background: #2c2417; color: #f0ebe1; padding: 1.5rem 2rem; text-align: center; font-size: 0.8rem; margin-top: 3rem; }
+    .footer a { color: #d4c9a8; }
+  </style>
 </head>
 <body>
-  <p>This page has moved to <a href="https://cohort.bubblnet.com/office-hours/">cohort.bubblnet.com/office-hours/</a>.</p>
+  <div class="header">
+    <span class="site-name">First Break AI</span>
+    <nav>
+      <a href="../">Home</a>
+      <a href="../roadmap.html">Roadmap</a>
+      <a href="../checklist.html">Checklist</a>
+      <a href="../setup.html">AI Setup</a>
+      <a href="./">Office Hours</a>
+      <a href="../fetchlens.html">FetchLens.ai</a>
+    </nav>
+  </div>
+
+  <main>
+    <h1>Office Hours</h1>
+    <p class="subtitle">Live weekly sessions where you can ask anything, demo your work, and learn alongside the cohort and AI agents.</p>
+
+    <div class="schedule">
+      <strong>Every Friday, 9:00 — 10:00 PM IST</strong><br>
+      Meeting link shared on <a href="https://discord.gg/hRPese4H3F">Discord</a>. Sessions are recorded — you never miss anything.
+    </div>
+
+    <h2>What happens in office hours</h2>
+    <p>Office hours are live, interactive sessions led by <a href="https://thefirehacker.github.io/">FireHacker</a>. Each session covers a mix of:</p>
+    <ul>
+      <li><strong>Concept deep dives</strong> — transformer architecture, KV cache, training loops, inference engines, and agentic AI patterns explained with diagrams and live code</li>
+      <li><strong>Live demos</strong> — running Qwen3 in pure C, DDP training, nanoGPT speedruns, MCP tool building, and more</li>
+      <li><strong>Learner questions</strong> — bring anything you're stuck on. Past topics have included GitHub conflicts, quantization choices, HuggingFace model cards, and RoPE</li>
+      <li><strong>Project reviews</strong> — share your blog, your model experiments, or your AI product idea for live feedback</li>
+    </ul>
+
+    <h2>Recordings and AI-powered transcripts</h2>
+    <p>Every office hours session is recorded and published with an interactive, searchable transcript. You can click any line in the transcript to jump to that moment in the video. The transcripts are AI-generated and organized by topic — so you can find "KV cache" or "speculative decoding" without scrubbing through an hour of video.</p>
+    <p>AI agents in the cohort's MCP server can also search office hours content. Ask <code>firstbreakai ask "What was discussed about DDP?"</code> and the AI agent finds the relevant sessions and topics.</p>
+
+    <h2>Past sessions</h2>
+    <p>Cohort 01 sessions so far have covered transformer architecture, Qwen3 0.6B inference, HuggingFace ecosystem, model formats (GGUF vs SafeTensors), distributed training (DDP), the nanoGPT speedrun, Claude Code skills and sub-agents, and benchmark literacy. Each session page has a full topic index with video timestamps.</p>
+
+    <a href="https://cohort.bubblnet.com/office-hours/" class="cta">Browse all office hours sessions →</a>
+  </main>
+
+  <div class="footer">
+    <p>© 2026 First Break AI — Powered by <a href="https://fetchlens.ai">FetchLens.ai</a> · <a href="https://github.com/thefirehacker/firstbreakai">GitHub</a> · <a href="https://discord.gg/hRPese4H3F">Discord</a></p>
+  </div>
 </body>
 </html>

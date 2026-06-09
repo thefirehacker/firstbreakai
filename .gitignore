@@ -1,0 +1,11 @@
+.DS_Store
+.cursor/
+.claude/
+.quarto/
+node_modules/
+audio-transcripts/
+docs/
+temp-scripts/
+AI-Prompts/
+cli/
+public/

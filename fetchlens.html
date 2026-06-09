@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FetchLens.ai — AI Agent Platform Powering First Break AI</title>
+  <meta name="description" content="FetchLens.ai is the AI agent observability and deployment platform that powers the First Break AI cohort. Build, deploy, monitor, and orchestrate AI agents with MCP server integration, real-time analytics, and agentic workflow tools.">
+  <meta property="og:title" content="FetchLens.ai — AI Agent Platform Powering First Break AI">
+  <meta property="og:description" content="AI agent observability and deployment platform. Powers the agentic MCP server, code validation, and progress tracking for the First Break AI cohort.">
+  <meta property="og:image" content="https://cohort.bubblnet.com/public/images/Fort-Journey-01.png">
+  <meta property="og:url" content="https://thefirehacker.github.io/firstbreakai/fetchlens.html">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="https://cohort.bubblnet.com/public/images/favicon_io/favicon.ico">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://cohort.bubblnet.com/#organization",
+        "name": "First Break AI",
+        "alternateName": "FirstBreak AI",
+        "url": "https://cohort.bubblnet.com/",
+        "logo": "https://cohort.bubblnet.com/public/images/favicon_io/android-chrome-512x512.png",
+        "description": "The first fully agentic AI cohort — AI agents guide every learner from first commit to capstone. Powered by FetchLens.ai, MCP, and agentic AI tooling. Operated by AIEDX Private Limited.",
+        "parentOrganization": {
+          "@type": "Organization",
+          "@id": "https://www.bubblspace.com/#organization",
+          "name": "AIEDX Private Limited",
+          "alternateName": "BubblSpace",
+          "url": "https://www.bubblspace.com/"
+        },
+        "sameAs": [
+          "https://bubblnet.com/",
+          "https://www.bubblspace.com/",
+          "https://fetchlens.ai/",
+          "https://thefirehacker.github.io/firstbreakai/",
+          "https://github.com/thefirehacker/firstbreakai",
+          "https://discord.gg/hRPese4H3F",
+          "https://www.youtube.com/playlist?list=PLEzXCZNdmgBm-SbXuXHxn9_vXpvFbrKKL",
+          "https://twitter.com/thefirehacker"
+        ],
+        "founder": {
+          "@type": "Person",
+          "name": "TheFireHacker",
+          "url": "https://thefirehacker.github.io/"
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://cohort.bubblnet.com/#website",
+        "name": "First Break AI",
+        "url": "https://cohort.bubblnet.com/",
+        "description": "The first fully agentic AI cohort — AI agents guide your learning from first commit to capstone. Powered by FetchLens.ai, MCP server, and agentic AI tooling.",
+        "publisher": { "@id": "https://cohort.bubblnet.com/#organization" },
+        "inLanguage": "en"
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "FetchLens.ai",
+        "url": "https://fetchlens.ai/",
+        "applicationCategory": "DeveloperApplication",
+        "description": "AI agent observability and deployment platform. Build, deploy, monitor, and orchestrate AI agents with MCP server integration, real-time analytics, and agentic workflow tools.",
+        "publisher": { "@id": "https://cohort.bubblnet.com/#organization" },
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, system-ui, 'Segoe UI', sans-serif; background: #faf6ee; color: #1a1510; line-height: 1.7; }
+    .header { background: #2c2417; color: #f0ebe1; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+    .header a { color: #f0ebe1; text-decoration: none; font-size: 0.85rem; }
+    .header a:hover { text-decoration: underline; }
+    .site-name { font-weight: 700; font-size: 1.1rem; }
+    nav { display: flex; gap: 1.25rem; flex-wrap: wrap; }
+    .hero { background: linear-gradient(135deg, #1a2332 0%, #2c2417 100%); color: #f0ebe1; padding: 3rem 2rem; text-align: center; }
+    .hero h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    .hero p { font-size: 1.1rem; max-width: 700px; margin: 0 auto 1rem; opacity: 0.9; }
+    .cta { display: inline-block; background: #8b6914; color: #fff; padding: 0.75rem 1.5rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600; margin-top: 0.5rem; }
+    .cta:hover { background: #a07a1a; }
+    .cta-secondary { display: inline-block; background: rgba(255,255,255,0.15); color: #f0ebe1; padding: 0.75rem 1.5rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600; margin-top: 0.5rem; margin-left: 0.5rem; }
+    .cta-secondary:hover { background: rgba(255,255,255,0.25); }
+    main { max-width: 760px; margin: 2rem auto; padding: 0 1.5rem; }
+    h2 { color: #2c2417; font-size: 1.4rem; margin: 2rem 0 0.75rem; border-bottom: 2px solid #8b6914; padding-bottom: 0.25rem; }
+    p, li { font-size: 0.95rem; }
+    ul { padding-left: 1.25rem; margin: 0.5rem 0 1rem; }
+    li { margin-bottom: 0.4rem; }
+    a { color: #6b4c14; }
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+    .feature-card { background: #fff; border: 1px solid #e8e0d0; border-radius: 0.5rem; padding: 1.25rem; }
+    .feature-card strong { display: block; color: #2c2417; margin-bottom: 0.25rem; font-size: 1rem; }
+    .feature-card p { font-size: 0.88rem; color: #5a4a30; margin: 0; }
+    .footer { background: #2c2417; color: #f0ebe1; padding: 1.5rem 2rem; text-align: center; font-size: 0.8rem; margin-top: 3rem; }
+    .footer a { color: #d4c9a8; }
+    code { background: #f0ebe1; padding: 0.15rem 0.35rem; border-radius: 3px; font-size: 0.88rem; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <span class="site-name">First Break AI</span>
+    <nav>
+      <a href="./">Home</a>
+      <a href="roadmap.html">Roadmap</a>
+      <a href="checklist.html">Checklist</a>
+      <a href="setup.html">AI Setup</a>
+      <a href="office-hours/">Office Hours</a>
+      <a href="fetchlens.html">FetchLens.ai</a>
+    </nav>
+  </div>
+
+  <div class="hero">
+    <h1>FetchLens.ai</h1>
+    <p>The AI agent observability and deployment platform that makes First Break AI the first fully agentic cohort.</p>
+    <a href="https://fetchlens.ai" class="cta">Visit FetchLens.ai →</a>
+    <a href="https://cohort.bubblnet.com/" class="cta-secondary">See it in action on the cohort →</a>
+  </div>
+
+  <main>
+    <h2>What is FetchLens.ai?</h2>
+    <p><a href="https://fetchlens.ai"><strong>FetchLens.ai</strong></a> is an AI agent observability and deployment platform built for the agentic AI era. It provides the tools to build, deploy, monitor, and orchestrate AI agents — from MCP server hosting to real-time analytics and workflow automation. FetchLens powers production AI agent infrastructure for developers and teams who need reliable, observable agentic systems.</p>
+    <p>FetchLens.ai sits at the intersection of AI agent development and observability. It answers the question every team building with AI agents faces: <em>"My agent is deployed — is it actually working, and how well?"</em> FetchLens gives you the data and the tools to answer that continuously.</p>
+
+    <h2>How FetchLens.ai powers First Break AI</h2>
+    <p>The <a href="https://cohort.bubblnet.com/">First Break AI cohort</a> is the first educational program to be completely powered by AI agents. Every agentic feature runs on FetchLens.ai infrastructure:</p>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <strong>MCP Server</strong>
+        <p>The cohort's MCP server — hosted on FetchLens — lets AI agents in Cursor, Claude Desktop, Claude Code, and OpenAI Codex answer cohort questions, find lessons, and suggest next steps. One URL, any MCP-compatible IDE.</p>
+      </div>
+      <div class="feature-card">
+        <strong>Code Validation</strong>
+        <p>When learners run <code>firstbreakai validate</code>, an AI agent checks their code against deterministic rubrics — no hallucinations. FetchLens orchestrates the validation pipeline and stores results.</p>
+      </div>
+      <div class="feature-card">
+        <strong>Progress Tracking</strong>
+        <p>FetchLens syncs learner progress across CLI, website, and MCP server. Log in once with Discord and your completions follow you everywhere — agentic state management across surfaces.</p>
+      </div>
+      <div class="feature-card">
+        <strong>AI Agent Observability</strong>
+        <p>FetchLens monitors every AI agent interaction — MCP tool calls, validation runs, question-answer sessions. This observability data helps improve the cohort experience and catch issues early.</p>
+      </div>
+      <div class="feature-card">
+        <strong>On-Site Assistant</strong>
+        <p>The "Ask Anything" widget on the cohort site is powered by FetchLens. It understands the full syllabus, lessons, and roadmap — acting as a context-aware AI agent tutor available 24/7.</p>
+      </div>
+      <div class="feature-card">
+        <strong>Analytics & Insights</strong>
+        <p>FetchLens provides analytics on how learners interact with the cohort — which lessons get the most questions, where learners get stuck, and what validation rubrics need tuning.</p>
+      </div>
+    </div>
+
+    <h2>FetchLens.ai for developers and teams</h2>
+    <p>Beyond education, FetchLens.ai serves developers and teams building AI agent products. If you're building agentic AI applications — chatbots, copilots, autonomous workflows, or MCP-based tool chains — FetchLens gives you:</p>
+    <ul>
+      <li><strong>AI agent deployment</strong> — deploy MCP servers and AI agent backends on Cloudflare Workers with built-in auth, state management, and tool routing</li>
+      <li><strong>Observability dashboards</strong> — monitor AI agent performance, latency, error rates, and tool call patterns in real time</li>
+      <li><strong>Website AI analytics</strong> — understand how AI agents interact with your website, what questions users ask, and which content gets surfaced</li>
+      <li><strong>Agentic workflow orchestration</strong> — chain AI agent tools together into multi-step workflows with state persistence and error recovery</li>
+      <li><strong>Model Context Protocol (MCP) hosting</strong> — host and manage MCP servers that connect AI agents to your data and tools</li>
+    </ul>
+    <p>FetchLens.ai is built by the same team behind First Break AI and <a href="https://bubblnet.com">Bubblnet</a>. Visit <a href="https://fetchlens.ai"><strong>fetchlens.ai</strong></a> to learn more and get started.</p>
+
+    <h2>Try it yourself</h2>
+    <p>The fastest way to see FetchLens.ai in action is through the First Break AI cohort:</p>
+    <ul>
+      <li><strong>On the cohort site</strong> — visit <a href="https://cohort.bubblnet.com/">cohort.bubblnet.com</a> and click "Ask Anything" to interact with the FetchLens-powered AI agent</li>
+      <li><strong>In your IDE</strong> — add the MCP server URL <code>https://fba-mcp.throbbing-thunder-4d33.workers.dev/mcp</code> to Cursor or Claude Desktop and ask it about the cohort</li>
+      <li><strong>From the CLI</strong> — install <a href="https://www.npmjs.com/package/@aiedx/firstbreakai"><code>@aiedx/firstbreakai</code></a> and run <code>firstbreakai ask "What is FetchLens?"</code></li>
+    </ul>
+
+    <h2>Links</h2>
+    <ul>
+      <li><a href="https://fetchlens.ai">FetchLens.ai — Official site</a></li>
+      <li><a href="https://cohort.bubblnet.com/">First Break AI Cohort — See FetchLens in action</a></li>
+      <li><a href="https://cohort.bubblnet.com/docs">CLI & MCP Server Docs — Built on FetchLens</a></li>
+      <li><a href="https://www.npmjs.com/package/@aiedx/firstbreakai">@aiedx/firstbreakai on npm</a></li>
+      <li><a href="https://discord.gg/hRPese4H3F">Discord Community</a></li>
+    </ul>
+  </main>
+
+  <div class="footer">
+    <p>© 2026 First Break AI — Powered by <a href="https://fetchlens.ai">FetchLens.ai</a> · <a href="https://github.com/thefirehacker/firstbreakai">GitHub</a> · <a href="https://discord.gg/hRPese4H3F">Discord</a></p>
+  </div>
+</body>
+</html>

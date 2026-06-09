@@ -1,13 +1,131 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Moved — First Break AI</title>
-  <link rel="canonical" href="https://cohort.bubblnet.com/checklist">
-  <meta http-equiv="refresh" content="0; url=https://cohort.bubblnet.com/checklist">
-  <script>location.replace("https://cohort.bubblnet.com/checklist" + location.search + location.hash);</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Checklist — Get Ready for First Break AI</title>
+  <meta name="description" content="Get ready for the First Break AI cohort: create accounts on Hugging Face, GitHub, and Discord, install the CLI and AI IDE tools, and verify your environment with AI agents. Free checklist, no prerequisites.">
+  <meta property="og:title" content="Checklist — Get Ready for First Break AI">
+  <meta property="og:description" content="Accounts, tools, and setup to complete before starting the agentic AI cohort.">
+  <meta property="og:image" content="https://cohort.bubblnet.com/public/images/Fort-Journey-01.png">
+  <link rel="icon" href="https://cohort.bubblnet.com/public/images/favicon_io/favicon.ico">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://cohort.bubblnet.com/#organization",
+        "name": "First Break AI",
+        "alternateName": "FirstBreak AI",
+        "url": "https://cohort.bubblnet.com/",
+        "logo": "https://cohort.bubblnet.com/public/images/favicon_io/android-chrome-512x512.png",
+        "description": "The first fully agentic AI cohort — AI agents guide every learner from first commit to capstone. Powered by FetchLens.ai, MCP, and agentic AI tooling. Operated by AIEDX Private Limited.",
+        "parentOrganization": {
+          "@type": "Organization",
+          "@id": "https://www.bubblspace.com/#organization",
+          "name": "AIEDX Private Limited",
+          "alternateName": "BubblSpace",
+          "url": "https://www.bubblspace.com/"
+        },
+        "sameAs": [
+          "https://bubblnet.com/",
+          "https://www.bubblspace.com/",
+          "https://fetchlens.ai/",
+          "https://thefirehacker.github.io/firstbreakai/",
+          "https://github.com/thefirehacker/firstbreakai",
+          "https://discord.gg/hRPese4H3F",
+          "https://www.youtube.com/playlist?list=PLEzXCZNdmgBm-SbXuXHxn9_vXpvFbrKKL",
+          "https://twitter.com/thefirehacker"
+        ],
+        "founder": {
+          "@type": "Person",
+          "name": "TheFireHacker",
+          "url": "https://thefirehacker.github.io/"
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://cohort.bubblnet.com/#website",
+        "name": "First Break AI",
+        "url": "https://cohort.bubblnet.com/",
+        "description": "The first fully agentic AI cohort — AI agents guide your learning from first commit to capstone. Powered by FetchLens.ai, MCP server, and agentic AI tooling.",
+        "publisher": { "@id": "https://cohort.bubblnet.com/#organization" },
+        "inLanguage": "en"
+      }
+    ]
+  }
+  </script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, system-ui, 'Segoe UI', sans-serif; background: #faf6ee; color: #1a1510; line-height: 1.7; }
+    .header { background: #2c2417; color: #f0ebe1; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+    .header a { color: #f0ebe1; text-decoration: none; font-size: 0.85rem; }
+    .header a:hover { text-decoration: underline; }
+    .site-name { font-weight: 700; font-size: 1.1rem; }
+    nav { display: flex; gap: 1.25rem; flex-wrap: wrap; }
+    main { max-width: 760px; margin: 2rem auto; padding: 0 1.5rem; }
+    h1 { color: #2c2417; font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .subtitle { font-size: 1rem; color: #5a4a30; margin-bottom: 1.5rem; }
+    h2 { color: #2c2417; font-size: 1.3rem; margin: 1.75rem 0 0.5rem; border-bottom: 2px solid #8b6914; padding-bottom: 0.25rem; }
+    p, li { font-size: 0.95rem; }
+    ul { padding-left: 1.25rem; margin: 0.5rem 0 1rem; }
+    li { margin-bottom: 0.4rem; }
+    a { color: #6b4c14; }
+    .cta { display: inline-block; background: #8b6914; color: #fff; padding: 0.65rem 1.25rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600; margin-top: 1.5rem; }
+    .cta:hover { background: #a07a1a; }
+    .footer { background: #2c2417; color: #f0ebe1; padding: 1.5rem 2rem; text-align: center; font-size: 0.8rem; margin-top: 3rem; }
+    .footer a { color: #d4c9a8; }
+    code { background: #f0ebe1; padding: 0.15rem 0.35rem; border-radius: 3px; font-size: 0.88rem; }
+  </style>
 </head>
 <body>
-  <p>This page has moved to <a href="https://cohort.bubblnet.com/checklist">cohort.bubblnet.com/checklist</a>.</p>
+  <div class="header">
+    <span class="site-name">First Break AI</span>
+    <nav>
+      <a href="./">Home</a>
+      <a href="roadmap.html">Roadmap</a>
+      <a href="checklist.html">Checklist</a>
+      <a href="setup.html">AI Setup</a>
+      <a href="office-hours/">Office Hours</a>
+      <a href="fetchlens.html">FetchLens.ai</a>
+    </nav>
+  </div>
+
+  <main>
+    <h1>Checklist</h1>
+    <p class="subtitle">Everything you need to set up before starting the First Break AI cohort — accounts, tools, and environment verification.</p>
+
+    <p>The First Break AI cohort is free and has no formal prerequisites, but you'll move faster if you set up your tools before the first session. This checklist covers accounts to create, software to install, and how to verify everything is working using the AI agent-powered CLI.</p>
+
+    <h2>Accounts to create</h2>
+    <ul>
+      <li><strong><a href="https://github.com">GitHub</a></strong> — you'll host your Quarto blog and all code here. Create a repo for the cohort.</li>
+      <li><strong><a href="https://huggingface.co">Hugging Face</a></strong> — the hub for downloading models, datasets, and running inference. You'll download Qwen3 0.6B from here.</li>
+      <li><strong><a href="https://discord.gg/hRPese4H3F">FBA Discord</a></strong> — where the cohort lives. Office hours, Q&A, peer support, and progress sharing all happen here.</li>
+      <li><strong><a href="https://fetchlens.ai">FetchLens.ai</a></strong> — optional but recommended. See how AI agents interact with your site once you deploy it.</li>
+    </ul>
+
+    <h2>Tools to install</h2>
+    <ul>
+      <li><strong>Git</strong> — version control. Install from <a href="https://git-scm.com/downloads">git-scm.com</a>.</li>
+      <li><strong>Python 3</strong> — needed for Hugging Face CLI and training steps. Install from <a href="https://python.org/downloads">python.org</a>.</li>
+      <li><strong>Quarto</strong> — static site generator for your blog. Install from <a href="https://quarto.org/docs/get-started/">quarto.org</a>.</li>
+      <li><strong>HuggingFace CLI</strong> — download models from the terminal: <code>pip install huggingface_hub[cli]</code></li>
+      <li><strong>Node.js 18+</strong> — needed for the FBA CLI. Install from <a href="https://nodejs.org">nodejs.org</a>.</li>
+    </ul>
+
+    <h2>Verify with AI agents</h2>
+    <p>The fastest way to check everything is working: install the <a href="https://www.npmjs.com/package/@aiedx/firstbreakai">First Break AI CLI</a> and run the AI agent-powered environment check:</p>
+    <p><code>npm install -g @aiedx/firstbreakai</code></p>
+    <p><code>firstbreakai doctor</code></p>
+    <p>The AI agent checks Git, Python, Quarto, HuggingFace CLI, Node.js, and your IDE — and tells you exactly what's missing. Then run <code>firstbreakai validate 0</code> to verify your Discord login and guild membership.</p>
+
+    <a href="https://cohort.bubblnet.com/checklist" class="cta">Open the full checklist on the cohort site →</a>
+  </main>
+
+  <div class="footer">
+    <p>© 2026 First Break AI — Powered by <a href="https://fetchlens.ai">FetchLens.ai</a> · <a href="https://github.com/thefirehacker/firstbreakai">GitHub</a> · <a href="https://discord.gg/hRPese4H3F">Discord</a></p>
+  </div>
 </body>
 </html>

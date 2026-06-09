@@ -1,13 +1,151 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Moved — First Break AI</title>
-  <link rel="canonical" href="https://cohort.bubblnet.com/roadmap">
-  <meta http-equiv="refresh" content="0; url=https://cohort.bubblnet.com/roadmap">
-  <script>location.replace("https://cohort.bubblnet.com/roadmap" + location.search + location.hash);</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Roadmap — First Break AI</title>
+  <meta name="description" content="The First Break AI roadmap: six steps from first commit to capstone. Set up a Quarto blog, run models locally, learn inference and training, build an AI product, and ship. AI agents validate your progress at every step.">
+  <meta property="og:title" content="Roadmap — First Break AI">
+  <meta property="og:description" content="Six-step learning path for AI — from Quarto blog to capstone. AI agents validate your work and guide your progress.">
+  <meta property="og:image" content="https://cohort.bubblnet.com/public/images/Fort-Journey-01.png">
+  <link rel="icon" href="https://cohort.bubblnet.com/public/images/favicon_io/favicon.ico">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://cohort.bubblnet.com/#organization",
+        "name": "First Break AI",
+        "alternateName": "FirstBreak AI",
+        "url": "https://cohort.bubblnet.com/",
+        "logo": "https://cohort.bubblnet.com/public/images/favicon_io/android-chrome-512x512.png",
+        "description": "The first fully agentic AI cohort — AI agents guide every learner from first commit to capstone. Powered by FetchLens.ai, MCP, and agentic AI tooling. Operated by AIEDX Private Limited.",
+        "parentOrganization": {
+          "@type": "Organization",
+          "@id": "https://www.bubblspace.com/#organization",
+          "name": "AIEDX Private Limited",
+          "alternateName": "BubblSpace",
+          "url": "https://www.bubblspace.com/"
+        },
+        "sameAs": [
+          "https://bubblnet.com/",
+          "https://www.bubblspace.com/",
+          "https://fetchlens.ai/",
+          "https://thefirehacker.github.io/firstbreakai/",
+          "https://github.com/thefirehacker/firstbreakai",
+          "https://discord.gg/hRPese4H3F",
+          "https://www.youtube.com/playlist?list=PLEzXCZNdmgBm-SbXuXHxn9_vXpvFbrKKL",
+          "https://twitter.com/thefirehacker"
+        ],
+        "founder": {
+          "@type": "Person",
+          "name": "TheFireHacker",
+          "url": "https://thefirehacker.github.io/"
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://cohort.bubblnet.com/#website",
+        "name": "First Break AI",
+        "url": "https://cohort.bubblnet.com/",
+        "description": "The first fully agentic AI cohort — AI agents guide your learning from first commit to capstone. Powered by FetchLens.ai, MCP server, and agentic AI tooling.",
+        "publisher": { "@id": "https://cohort.bubblnet.com/#organization" },
+        "inLanguage": "en"
+      }
+    ]
+  }
+  </script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, system-ui, 'Segoe UI', sans-serif; background: #faf6ee; color: #1a1510; line-height: 1.7; }
+    .header { background: #2c2417; color: #f0ebe1; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+    .header a { color: #f0ebe1; text-decoration: none; font-size: 0.85rem; }
+    .header a:hover { text-decoration: underline; }
+    .site-name { font-weight: 700; font-size: 1.1rem; }
+    nav { display: flex; gap: 1.25rem; flex-wrap: wrap; }
+    main { max-width: 760px; margin: 2rem auto; padding: 0 1.5rem; }
+    h1 { color: #2c2417; font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .subtitle { font-size: 1rem; color: #5a4a30; margin-bottom: 1.5rem; }
+    h2 { color: #2c2417; font-size: 1.3rem; margin: 1.75rem 0 0.5rem; border-bottom: 2px solid #8b6914; padding-bottom: 0.25rem; }
+    p, li { font-size: 0.95rem; }
+    a { color: #6b4c14; }
+    .step { background: #fff; border-left: 4px solid #8b6914; border-radius: 0 0.5rem 0.5rem 0; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    .step-num { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #8b6914; }
+    .step h3 { font-size: 1.05rem; margin: 0.15rem 0 0.35rem; color: #1a1510; }
+    .step p { font-size: 0.9rem; color: #3a3020; margin: 0; }
+    .cta { display: inline-block; background: #8b6914; color: #fff; padding: 0.65rem 1.25rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600; margin-top: 1.5rem; }
+    .cta:hover { background: #a07a1a; }
+    .footer { background: #2c2417; color: #f0ebe1; padding: 1.5rem 2rem; text-align: center; font-size: 0.8rem; margin-top: 3rem; }
+    .footer a { color: #d4c9a8; }
+    code { background: #f0ebe1; padding: 0.15rem 0.35rem; border-radius: 3px; font-size: 0.88rem; }
+  </style>
 </head>
 <body>
-  <p>This page has moved to <a href="https://cohort.bubblnet.com/roadmap">cohort.bubblnet.com/roadmap</a>.</p>
+  <div class="header">
+    <span class="site-name">First Break AI</span>
+    <nav>
+      <a href="./">Home</a>
+      <a href="roadmap.html">Roadmap</a>
+      <a href="checklist.html">Checklist</a>
+      <a href="setup.html">AI Setup</a>
+      <a href="office-hours/">Office Hours</a>
+      <a href="fetchlens.html">FetchLens.ai</a>
+    </nav>
+  </div>
+
+  <main>
+    <h1>Roadmap</h1>
+    <p class="subtitle">Your journey to a first break in AI — six steps from first commit to capstone, with AI agents guiding you at every step.</p>
+
+    <p>The First Break AI roadmap is a step-by-step learning path designed for anyone starting in AI. Each step builds on the last. AI agents validate your work using <code>firstbreakai validate</code> — so you know exactly when you're ready to move on. The cohort runs May–July 2026, but all materials stay online permanently.</p>
+
+    <h2>The six steps</h2>
+
+    <div class="step">
+      <span class="step-num">Step 1</span>
+      <h3>First use of AI for coding</h3>
+      <p>Set up a Quarto blog and host it on GitHub Pages. Use your AI-based IDE (Cursor, Claude Code) to complete the setup. Learn GitHub basics, website building, and how AI coding tools work in practice.</p>
+    </div>
+
+    <div class="step">
+      <span class="step-num">Step 2</span>
+      <h3>Run a model locally</h3>
+      <p>Run Qwen3 0.6B in pure C — trace every operation from tokenization to token output. Learn inference basics, chat templates, tokenization, temperature, GGUF vs SafeTensors, and transformer architecture.</p>
+    </div>
+
+    <div class="step">
+      <span class="step-num">Step 3</span>
+      <h3>Inference deep dive</h3>
+      <p>Go beyond running a model — understand inference engines (vLLM, TGI, llama.cpp), batching, quantization, speculative decoding, structured output, and API design for serving models at scale.</p>
+    </div>
+
+    <div class="step">
+      <span class="step-num">Step 4</span>
+      <h3>Training fundamentals</h3>
+      <p>Build the foundations to train and fine-tune models. PyTorch, LoRA, QLoRA, distributed training (DDP, FSDP), experiment tracking, and parallelism strategies from a single GPU to multi-node setups.</p>
+    </div>
+
+    <div class="step">
+      <span class="step-num">Step 5</span>
+      <h3>Build an AI product</h3>
+      <p>Ship an AI-powered product end to end — from idea to deployed, monitored application. Product thinking, APIs, RAG, agents, tool use, and keeping it running after launch.</p>
+    </div>
+
+    <div class="step">
+      <span class="step-num">Step 6</span>
+      <h3>Capstone or open-source contribution</h3>
+      <p>Prove what you've learned. Ship a capstone project or make a meaningful contribution to an open-source AI project. Present your work to the cohort for peer feedback.</p>
+    </div>
+
+    <h2>AI agents validate every step</h2>
+    <p>When you complete a step, run <code>firstbreakai validate N</code> in your terminal. An AI agent checks your code, repo, and environment against the rubric — deterministically, no hallucinations. Your progress syncs across the CLI, the <a href="https://cohort.bubblnet.com/roadmap">interactive roadmap</a>, and the MCP server. Install <a href="https://www.npmjs.com/package/@aiedx/firstbreakai"><code>@aiedx/firstbreakai</code></a> from npm to get started.</p>
+
+    <a href="https://cohort.bubblnet.com/roadmap" class="cta">Open the full interactive roadmap →</a>
+  </main>
+
+  <div class="footer">
+    <p>© 2026 First Break AI — Powered by <a href="https://fetchlens.ai">FetchLens.ai</a> · <a href="https://github.com/thefirehacker/firstbreakai">GitHub</a> · <a href="https://discord.gg/hRPese4H3F">Discord</a></p>
+  </div>
 </body>
 </html>

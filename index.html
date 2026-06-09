@@ -1,13 +1,164 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Moved — First Break AI</title>
-  <link rel="canonical" href="https://cohort.bubblnet.com/">
-  <meta http-equiv="refresh" content="0; url=https://cohort.bubblnet.com/">
-  <script>location.replace("https://cohort.bubblnet.com/" + location.search + location.hash);</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>First Break AI — The First Fully Agentic AI Cohort</title>
+  <meta name="description" content="First Break AI is the first fully agentic AI cohort. AI agents guide your learning — answering questions, validating code, and tracking progress. Free, open, no prerequisites. Powered by FetchLens.ai and the Model Context Protocol.">
+  <meta property="og:title" content="First Break AI — The First Fully Agentic AI Cohort">
+  <meta property="og:description" content="AI agents guide your learning from first commit to capstone. Free, open cohort for inference, training, and agentic AI product building.">
+  <meta property="og:image" content="https://cohort.bubblnet.com/public/images/Fort-Journey-01.png">
+  <meta property="og:url" content="https://thefirehacker.github.io/firstbreakai/">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="https://cohort.bubblnet.com/public/images/favicon_io/favicon.ico">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://cohort.bubblnet.com/#organization",
+        "name": "First Break AI",
+        "alternateName": "FirstBreak AI",
+        "url": "https://cohort.bubblnet.com/",
+        "logo": "https://cohort.bubblnet.com/public/images/favicon_io/android-chrome-512x512.png",
+        "description": "The first fully agentic AI cohort — AI agents guide every learner from first commit to capstone. Powered by FetchLens.ai, MCP, and agentic AI tooling. Operated by AIEDX Private Limited.",
+        "parentOrganization": {
+          "@type": "Organization",
+          "@id": "https://www.bubblspace.com/#organization",
+          "name": "AIEDX Private Limited",
+          "alternateName": "BubblSpace",
+          "url": "https://www.bubblspace.com/"
+        },
+        "sameAs": [
+          "https://bubblnet.com/",
+          "https://www.bubblspace.com/",
+          "https://fetchlens.ai/",
+          "https://thefirehacker.github.io/firstbreakai/",
+          "https://github.com/thefirehacker/firstbreakai",
+          "https://discord.gg/hRPese4H3F",
+          "https://www.youtube.com/playlist?list=PLEzXCZNdmgBm-SbXuXHxn9_vXpvFbrKKL",
+          "https://twitter.com/thefirehacker"
+        ],
+        "founder": {
+          "@type": "Person",
+          "name": "TheFireHacker",
+          "url": "https://thefirehacker.github.io/"
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://cohort.bubblnet.com/#website",
+        "name": "First Break AI",
+        "url": "https://cohort.bubblnet.com/",
+        "description": "The first fully agentic AI cohort — AI agents guide your learning from first commit to capstone. Powered by FetchLens.ai, MCP server, and agentic AI tooling.",
+        "publisher": { "@id": "https://cohort.bubblnet.com/#organization" },
+        "inLanguage": "en"
+      }
+    ]
+  }
+  </script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, system-ui, 'Segoe UI', sans-serif; background: #faf6ee; color: #1a1510; line-height: 1.7; }
+    .header { background: #2c2417; color: #f0ebe1; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+    .header a { color: #f0ebe1; text-decoration: none; font-size: 0.85rem; }
+    .header a:hover { text-decoration: underline; }
+    .site-name { font-weight: 700; font-size: 1.1rem; }
+    nav { display: flex; gap: 1.25rem; flex-wrap: wrap; }
+    .hero { background: #2c2417; color: #f0ebe1; padding: 3rem 2rem; text-align: center; }
+    .hero h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    .hero p { font-size: 1.1rem; max-width: 700px; margin: 0 auto 1rem; opacity: 0.9; }
+    .cta { display: inline-block; background: #8b6914; color: #fff; padding: 0.75rem 1.5rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600; margin-top: 0.5rem; }
+    .cta:hover { background: #a07a1a; }
+    main { max-width: 760px; margin: 2rem auto; padding: 0 1.5rem; }
+    h2 { color: #2c2417; font-size: 1.4rem; margin: 2rem 0 0.75rem; border-bottom: 2px solid #8b6914; padding-bottom: 0.25rem; }
+    p, li { font-size: 0.95rem; }
+    ul { padding-left: 1.25rem; margin: 0.5rem 0 1rem; }
+    li { margin-bottom: 0.4rem; }
+    a { color: #6b4c14; }
+    .link-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+    .link-card { background: #fff; border: 1px solid #e8e0d0; border-radius: 0.5rem; padding: 1.25rem; text-decoration: none; color: #1a1510; transition: box-shadow 0.2s; }
+    .link-card:hover { box-shadow: 0 4px 12px rgba(44,36,23,0.1); }
+    .link-card strong { display: block; color: #2c2417; margin-bottom: 0.25rem; }
+    .link-card span { font-size: 0.85rem; color: #5a4a30; }
+    .footer { background: #2c2417; color: #f0ebe1; padding: 1.5rem 2rem; text-align: center; font-size: 0.8rem; margin-top: 3rem; }
+    .footer a { color: #d4c9a8; }
+    code { background: #f0ebe1; padding: 0.15rem 0.35rem; border-radius: 3px; font-size: 0.88rem; }
+  </style>
 </head>
 <body>
-  <p>This page has moved to <a href="https://cohort.bubblnet.com/">cohort.bubblnet.com</a>.</p>
+  <div class="header">
+    <span class="site-name">First Break AI</span>
+    <nav>
+      <a href="./">Home</a>
+      <a href="roadmap.html">Roadmap</a>
+      <a href="checklist.html">Checklist</a>
+      <a href="setup.html">AI Setup</a>
+      <a href="office-hours/">Office Hours</a>
+      <a href="fetchlens.html">FetchLens.ai</a>
+    </nav>
+  </div>
+
+  <div class="hero">
+    <h1>First Break AI</h1>
+    <p>The first fully agentic AI cohort — AI agents guide your journey from first commit to capstone.</p>
+    <p>Free, open cohort to upskill in inference, training, and agentic AI product building. Powered by AI agents built on <a href="https://fetchlens.ai" style="color:#d4c9a8">FetchLens.ai</a>.</p>
+    <a href="https://cohort.bubblnet.com/" class="cta">Start your journey on the cohort site →</a>
+  </div>
+
+  <main>
+    <h2>What is First Break AI?</h2>
+    <p>First Break AI is a free, community-driven cohort for anyone who wants their first break in AI. The cohort is <strong>completely agentic</strong> — AI agents are woven into every layer of the learning experience. An agentic MCP server answers your questions, AI agents validate your code against rubrics, track your progress across devices, and guide you through a six-step roadmap from your first commit to a capstone project.</p>
+    <p>Unlike traditional online courses that give you pre-recorded videos and quizzes, First Break AI uses real AI agents to close the feedback loop instantly. You write code, the AI agent checks it, tells you what passed, and suggests your next step. This is what makes agentic AI different from a chatbot — the AI agents take real actions, not just answer questions.</p>
+
+    <h2>Who is it for?</h2>
+    <p>Students, professionals, career switchers, or anyone curious about AI. No CS degree required — you need comfort reading code and running terminal commands. No applications, no prerequisites. The cohort runs <strong>May–July 2026</strong> with weekly Friday office hours, but all materials stay online permanently.</p>
+
+    <h2>How AI agents power the cohort</h2>
+    <ul>
+      <li><strong>AI agents answer questions in context</strong> — the on-site assistant and CLI agent know your syllabus and your current step</li>
+      <li><strong>AI agents validate your work</strong> — run <code>firstbreakai validate</code> and an AI agent checks your code against the rubric</li>
+      <li><strong>AI agents track your progress</strong> — log in with Discord and your progress syncs across CLI, website, and MCP server</li>
+      <li><strong>AI agents integrate with your IDE</strong> — install the <a href="https://cohort.bubblnet.com/docs">MCP server</a> in Cursor, Claude Desktop, Claude Code, or OpenAI Codex</li>
+    </ul>
+    <p>This agentic infrastructure is built on <a href="https://fetchlens.ai"><strong>FetchLens.ai</strong></a> — the same platform that powers AI agent observability for websites. Install the npm package <a href="https://www.npmjs.com/package/@aiedx/firstbreakai"><code>@aiedx/firstbreakai</code></a> to get a CLI and local MCP server in one command.</p>
+
+    <h2>Powered by FetchLens.ai</h2>
+    <p>Everything agentic about First Break AI runs on <a href="https://fetchlens.ai"><strong>FetchLens.ai</strong></a> — an AI agent observability and deployment platform. FetchLens powers the MCP server that answers cohort questions, the validation engine that checks your code, and the progress tracking that syncs across CLI, website, and IDE. It's the same technology used for AI agent monitoring, website analytics, and agentic workflow orchestration.</p>
+    <p>FetchLens.ai provides the infrastructure to build, deploy, and observe AI agents at scale. For the First Break AI cohort, it delivers a fully agentic learning experience — something no other AI course has done. <a href="fetchlens.html">Learn more about FetchLens.ai and how it powers the cohort →</a></p>
+
+    <h2>Continue on the cohort site</h2>
+    <div class="link-grid">
+      <a href="https://cohort.bubblnet.com/" class="link-card">
+        <strong>Home</strong>
+        <span>Full cohort homepage with FAQ, MCP install, and agentic AI overview</span>
+      </a>
+      <a href="https://cohort.bubblnet.com/roadmap" class="link-card">
+        <strong>Roadmap</strong>
+        <span>Six steps from first commit to capstone — your learning path</span>
+      </a>
+      <a href="https://cohort.bubblnet.com/lessons/" class="link-card">
+        <strong>Lessons</strong>
+        <span>Hands-on deep dives — HuggingFace, Qwen3, inference, training</span>
+      </a>
+      <a href="https://cohort.bubblnet.com/docs" class="link-card">
+        <strong>Docs</strong>
+        <span>CLI reference, MCP server setup, AI agent tools</span>
+      </a>
+      <a href="https://cohort.bubblnet.com/checklist" class="link-card">
+        <strong>Checklist</strong>
+        <span>Accounts and tools to set up before day one</span>
+      </a>
+      <a href="https://discord.gg/hRPese4H3F" class="link-card">
+        <strong>Discord</strong>
+        <span>Join the community — where the cohort lives</span>
+      </a>
+    </div>
+  </main>
+
+  <div class="footer">
+    <p>© 2026 First Break AI — Powered by <a href="https://fetchlens.ai">FetchLens.ai</a> · <a href="https://github.com/thefirehacker/firstbreakai">GitHub</a> · <a href="https://discord.gg/hRPese4H3F">Discord</a></p>
+  </div>
 </body>
 </html>
