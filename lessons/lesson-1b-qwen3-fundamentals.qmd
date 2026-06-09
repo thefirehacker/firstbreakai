@@ -12,7 +12,7 @@ css:
 ::: {.lesson-hero}
 ::: {.lesson-hero-tags}
 [Lesson 1b · First Break AI]{.lesson-hero-eyebrow}
-[● Draft]{.lesson-hero-status .lesson-hero-status-draft}
+[● Part A published]{.lesson-hero-status .lesson-hero-status-published}
 :::
 
 # Qwen3 Fundamentals {.lesson-hero-title}
@@ -20,11 +20,11 @@ css:
 ##### How a language model lives on disk and loads into memory — byte by byte. {.lesson-hero-subtitle}
 
 ::: {.lesson-hero-meta}
-[~120 min read]{.lesson-hero-chip} [Cohort 01](../office-hours/2026-05-08.qmd){.lesson-hero-chip} [Run a model locally](../roadmap.qmd){.lesson-hero-chip}
+[~37 min video · Part A]{.lesson-hero-chip} [3 parts total]{.lesson-hero-chip} [Cohort 01](../office-hours/2026-05-08.qmd){.lesson-hero-chip} [Run a model locally](../roadmap.qmd){.lesson-hero-chip}
 :::
 :::
 
-This is the **full lesson** — everything you need is on this page. The video mirrors what's written here; the transcript is interactive, so you can click any line to jump the video to that point. Read it, watch it, do the exercises, bring it to office hours.
+This lesson ships in **three video parts**. **Part A** is live — run Qwen3 locally in pure C on your laptop or desktop. Parts B and C are on the way. The full written lesson below covers the file and memory layer in depth; the video mirrors it part by part. Click any transcript line to jump the video to that moment.
 
 ## Navigate by roadmap
 
@@ -39,19 +39,38 @@ This is the **full lesson** — everything you need is on this page. The video m
 
 
 ```{=html}
+<div class="lesson-parts" role="tablist" aria-label="Lesson 1b video parts">
+  <button type="button" class="lesson-part-tab active" role="tab" aria-selected="true" data-part="a" id="lessonPartTabA">
+    <span class="lesson-part-label">Part A</span>
+    <span class="lesson-part-title">Run Qwen3 locally</span>
+    <span class="lesson-part-badge lesson-part-badge-live">Live</span>
+  </button>
+  <button type="button" class="lesson-part-tab" role="tab" aria-selected="false" data-part="b" id="lessonPartTabB">
+    <span class="lesson-part-label">Part B</span>
+    <span class="lesson-part-title">GGUF &amp; memory mapping</span>
+    <span class="lesson-part-badge lesson-part-badge-soon">Coming soon</span>
+  </button>
+  <button type="button" class="lesson-part-tab" role="tab" aria-selected="false" data-part="c" id="lessonPartTabC">
+    <span class="lesson-part-label">Part C</span>
+    <span class="lesson-part-title">Conversion &amp; forward pass</span>
+    <span class="lesson-part-badge lesson-part-badge-soon">Coming soon</span>
+  </button>
+</div>
+
+<div class="lesson-part-panel active" data-part="a" id="lessonPartPanelA" role="tabpanel" aria-labelledby="lessonPartTabA">
 <div class="lesson-page lesson-page-theatre" data-size="wide">
 
   <div class="lesson-deck">
     <div class="lesson-video-wrap">
       <div id="ytPlayer"
-           data-video-id="MjZio-A9oUY"
-           data-transcript="lesson-1b-qwen3-fundamentals.json"></div>
+           data-video-id="YL-r5PMMtow"
+           data-transcript="lesson-1b-qwen3-fundamentals-part-a.json"></div>
     </div>
 
     <div class="lesson-meta">
       <div class="lesson-now-playing">
         <span class="lesson-now-label">Chapter</span>
-        <span class="lesson-chapter-title" id="lessonChapterTitle">Lesson 1b Overview: Qwen3 Fundamentals</span>
+        <span class="lesson-chapter-title" id="lessonChapterTitle">Introduction: Run Qwen3 Locally</span>
       </div>
       <div class="lesson-controls">
         <div class="lesson-size-group" role="group" aria-label="Video size">
@@ -64,7 +83,7 @@ This is the **full lesson** — everything you need is on this page. The video m
     </div>
 
     <div class="lesson-chapters">
-      <div class="lesson-chapters-label">Chapters</div>
+      <div class="lesson-chapters-label">Chapters · Part A</div>
       <div class="lesson-chapter-list" id="lessonChapterList"></div>
     </div>
   </div>
@@ -72,6 +91,48 @@ This is the **full lesson** — everything you need is on this page. The video m
   <div class="scene-transcript lesson-transcript" id="lessonTranscript"></div>
 
 </div>
+</div>
+
+<div class="lesson-part-panel" data-part="b" id="lessonPartPanelB" role="tabpanel" aria-labelledby="lessonPartTabB" hidden>
+  <div class="lesson-part-soon-card">
+    <div class="lesson-part-soon-icon" aria-hidden="true">B</div>
+    <h3 class="lesson-part-soon-heading">Part B — Coming soon</h3>
+    <p class="lesson-part-soon-desc">How a GGUF file is structured, memory mapping, and the pointer walk that wires weights into the forward pass. The written chapters below cover this material today — the video is being produced.</p>
+    <p class="lesson-part-soon-note">Part A is live above. Check back after the next cohort drop, or read ahead in the written lesson.</p>
+  </div>
+</div>
+
+<div class="lesson-part-panel" data-part="c" id="lessonPartPanelC" role="tabpanel" aria-labelledby="lessonPartTabC" hidden>
+  <div class="lesson-part-soon-card">
+    <div class="lesson-part-soon-icon" aria-hidden="true">C</div>
+    <h3 class="lesson-part-soon-heading">Part C — Coming soon</h3>
+    <p class="lesson-part-soon-desc">SafeTensors vs GGUF, the HuggingFace-to-GGUF conversion pipeline, and how logits become tokens — prefill, sampling, and the KV cache.</p>
+    <p class="lesson-part-soon-note">Complete Part A first, then work through the written lesson while you wait for Parts B and C.</p>
+  </div>
+</div>
+
+<script>
+(function() {
+  var tabs = document.querySelectorAll('.lesson-part-tab');
+  var panels = document.querySelectorAll('.lesson-part-panel');
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      var part = tab.getAttribute('data-part');
+      tabs.forEach(function(t) {
+        var active = t === tab;
+        t.classList.toggle('active', active);
+        t.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      panels.forEach(function(p) {
+        var show = p.getAttribute('data-part') === part;
+        p.classList.toggle('active', show);
+        if (show) p.removeAttribute('hidden');
+        else p.setAttribute('hidden', '');
+      });
+    });
+  });
+})();
+</script>
 ```
 
 ---
