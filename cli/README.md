@@ -1,8 +1,10 @@
 # @aiedx/firstbreakai
 
-CLI and local MCP server for the [First Break AI](https://cohort.bubblnet.com) cohort.
+The official CLI and local MCP server for [First Break AI](https://cohort.bubblnet.com) — **the first fully agentic AI cohort**.
 
-Check your dev environment, track progress, validate exercises, scaffold a blog, and get AI-powered help — all from your terminal or any MCP-capable IDE.
+First Break AI is a cohort **run by AI agents**. AI agents answer your questions, validate your code against rubrics, and track your progress across the website, your terminal, and your IDE. The agentic backbone is powered by [FetchLens.ai](https://fetchlens.ai).
+
+This package is how you put those **AI agents in your own terminal and IDE**: check your dev environment, track progress, validate exercises, scaffold a blog, and get AI-agent help — from the command line or any MCP-capable AI assistant (Cursor, Claude, Codex).
 
 ## Install
 
@@ -17,6 +19,16 @@ npx @aiedx/firstbreakai doctor
 ```
 
 **Requires:** Node.js >= 18
+
+## How AI agents run the cohort
+
+First Break AI is **completely agentic** — every part of the cohort is powered by AI agents, not static videos and quizzes:
+
+- **AI agents answer your questions** — the on-site assistant and `firstbreakai ask` know the syllabus, lessons, and your current step.
+- **AI agents validate your code** — `firstbreakai validate` runs deterministic checks against the rubric and reports exactly what passed.
+- **AI agents track your progress** — log in with Discord and your progress syncs across the CLI, the website, and the MCP server.
+- **AI agents live in your IDE** — run `firstbreakai mcp` (or use the remote MCP server) so Cursor, Claude Desktop, Claude Code, and OpenAI Codex can call cohort tools directly.
+- **Powered by [FetchLens.ai](https://fetchlens.ai)** — the agentic AI platform that provides the MCP server backbone, the AI-agent assistant, and authenticated progress tracking.
 
 ## Commands
 
@@ -53,7 +65,9 @@ firstbreakai done 1
 firstbreakai next
 ```
 
-## MCP server (for Cursor, Claude Desktop, etc.)
+## MCP server — give your AI agent cohort superpowers
+
+Run First Break AI as a local [Model Context Protocol](https://modelcontextprotocol.io) server so the **AI agent inside your IDE** (Cursor, Claude Desktop, Claude Code, OpenAI Codex) can call cohort tools directly — no context switching, fully agentic.
 
 Add to your `.cursor/mcp.json` or Claude Desktop config:
 
@@ -68,7 +82,7 @@ Add to your `.cursor/mcp.json` or Claude Desktop config:
 }
 ```
 
-This exposes these MCP tools to your AI assistant:
+This exposes these agentic cohort tools to your AI agent:
 
 - `cohort_doctor` — environment check
 - `cohort_status` — progress overview
