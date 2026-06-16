@@ -1,7 +1,7 @@
 {
   "name": "@aiedx/firstbreakai",
-  "version": "0.2.0",
-  "description": "CLI and local MCP server for the First Break AI cohort — check your environment, track progress, validate exercises, and get help.",
+  "version": "0.3.0",
+  "description": "CLI + local MCP server for First Break AI — the first fully agentic AI cohort, where AI agents check your environment, validate your code, track progress, and answer questions. Powered by FetchLens.ai.",
   "homepage": "https://cohort.bubblnet.com",
   "repository": {
     "type": "git",
@@ -20,7 +20,17 @@
     "first-break-ai",
     "mcp",
     "inference",
-    "training"
+    "training",
+    "agentic-ai",
+    "ai-agents",
+    "ai-agent",
+    "agentic",
+    "model-context-protocol",
+    "mcp-server",
+    "claude",
+    "cursor",
+    "codex",
+    "ai-tutor"
   ],
   "license": "MIT",
   "author": "First Break AI <contact@bubblspace.com> (https://cohort.bubblnet.com)",
