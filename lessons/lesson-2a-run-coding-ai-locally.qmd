@@ -1,0 +1,349 @@
+---
+title: "Lesson 2a: Run a Coding AI on Your Laptop"
+subtitle: "Serve Qwen2.5 Coder with llama.cpp server and wire Cline to a local OpenAI-compatible endpoint."
+description: "The full Lesson 2a: install llama.cpp, serve a Qwen2.5 Coder Q4_K_M GGUF model via llama-server, connect Cline in VS Code or Cursor through an OpenAI-compatible API — free, private, no API key. Bridges Step 2 pure-C inference to Step 3 inference engines."
+title-block-style: none
+page-layout: full
+css:
+  - ../styles/journey.css
+  - ../styles/lessons.css
+---
+
+::: {.lesson-hero}
+::: {.lesson-hero-tags}
+[Lesson 2a · Step 3]{.lesson-hero-eyebrow}
+[● Published]{.lesson-hero-status .lesson-hero-status-published}
+:::
+
+# Run a Coding AI on Your Laptop {.lesson-hero-title}
+
+##### Serve Qwen2.5 Coder with llama.cpp server and wire Cline to a local OpenAI-compatible endpoint — free, private, no API key. {.lesson-hero-subtitle}
+
+::: {.lesson-hero-meta}
+[~8 min video]{.lesson-hero-chip} [Cohort 01](../office-hours/2026-05-08.qmd){.lesson-hero-chip} [Step 3 — Inference deep dive](../roadmap.qmd){.lesson-hero-chip}
+:::
+:::
+
+This is the **first Step 3 lesson** — everything you need is on this page. The video walks through a ten-minute setup; the transcript is interactive, so you can click any line to jump the video to that point. Read it, watch it, run the commands, bring questions to office hours.
+
+## Navigate by roadmap
+
+| Step | Topic | This lesson |
+|------|-------|-------------|
+| [Lesson 0](lesson-0-welcome.qmd) | Welcome to First Break AI | Prerequisite |
+| [Lesson 1](lesson-1-huggingface-beyond-upload.qmd) | HuggingFace Beyond Upload | Prerequisite |
+| [Lesson 1b](lesson-1b-qwen3-fundamentals.qmd) | Qwen3 Fundamentals | Prerequisite |
+| **Lesson 2a** | **Run a coding AI locally** | **You are here** |
+| [Step 3](../roadmap.qmd) | Inference deep dive | This lesson is the first Step 3 video |
+
+[← Back to Lessons](index.qmd) · [← Back to Roadmap](../roadmap.qmd)
+
+
+```{=html}
+<div class="lesson-page lesson-page-theatre" data-size="wide">
+
+  <div class="lesson-deck">
+    <div class="lesson-video-wrap">
+      <div id="ytPlayer"
+           data-video-id="S-XveF9GDDc"
+           data-transcript="lesson-2a-run-coding-ai-locally.json"></div>
+    </div>
+
+    <div class="lesson-meta">
+      <div class="lesson-now-playing">
+        <span class="lesson-now-label">Chapter</span>
+        <span class="lesson-chapter-title" id="lessonChapterTitle">Intro — three things you'll have working</span>
+      </div>
+      <div class="lesson-controls">
+        <div class="lesson-size-group" role="group" aria-label="Video size">
+          <button type="button" class="lesson-size-btn" data-size="compact">Compact</button>
+          <button type="button" class="lesson-size-btn" data-size="theatre">Theatre</button>
+          <button type="button" class="lesson-size-btn" data-size="wide">Wide</button>
+        </div>
+        <button type="button" class="transcript-toggle" id="lessonTranscriptToggle">Show Transcript</button>
+      </div>
+    </div>
+
+    <div class="lesson-chapters">
+      <div class="lesson-chapters-label">Chapters</div>
+      <div class="lesson-chapter-list" id="lessonChapterList"></div>
+    </div>
+  </div>
+
+  <div class="scene-transcript lesson-transcript" id="lessonTranscript"></div>
+
+</div>
+```
+
+---
+
+## The promise
+
+What if the coding assistant you are about to set up costs nothing, runs entirely on your laptop, and never sends a single line of your code to anyone? No cloud, no subscription, not even an API key. That is a real language model running on your machine — and by the end of this lesson you will wire it straight to your code editor so it can actually help you build.
+
+By the end, you will have **three things working together**:
+
+1. A **coding model** running locally (Qwen2.5 Coder, 4-bit quantized)
+2. A **server** that speaks the same protocol as the OpenAI API (`llama-server` from llama.cpp)
+3. Your **code editor** — VS Code or Cursor with **Cline** — talking to the model like any other AI assistant, except it is free and it is yours
+
+---
+
+## Why this matters for Step 3
+
+In Step 2 you ran inference in pure C — a single process, stdin/stdout, one request at a time. You traced every operation: tokenization, attention, KV cache, sampling. That was the right way to learn *what* inference computes.
+
+Step 3 is about **how inference is served** — the systems that sit between your application and the model weights. Production tools do not embed the model inside the editor. They call an **inference server** over HTTP. That server loads the weights, manages the KV cache across requests, and exposes a stable API.
+
+This lesson is your first taste of that architecture. You will run **llama.cpp server** (`llama-server`) — one of the three inference engines the cohort covers in Step 3 alongside **vLLM** and **TGI** (Text Generation Inference). llama.cpp is the C/C++ stack: ideal for laptops, GGUF-native, and the same runtime you met in [Lesson 1b](lesson-1b-qwen3-fundamentals.qmd) when we compared `run.c` to llama.cpp's name-based tensor loading.
+
+The mental shift from Step 2 to Step 3:
+
+| Step 2 (`run.c`) | Step 3 (this lesson) |
+|------------------|----------------------|
+| Model + runtime in one binary | Model weights separate from server process |
+| Chat via stdin | Chat via HTTP API |
+| You own every line of inference code | You configure a server; the engine owns optimization |
+| One user, one session | Same API shape used for multi-user serving later |
+
+---
+
+## The three-piece stack
+
+```
+  ┌─────────────────┐     HTTP (OpenAI-compatible)     ┌──────────────────┐
+  │  VS Code/Cursor │  ──────────────────────────────► │  llama-server    │
+  │  + Cline        │     POST /v1/chat/completions    │  (llama.cpp)     │
+  └─────────────────┘                                  │  localhost:8080  │
+                                                       └────────┬─────────┘
+                                                                │
+                                                       mmap + infer
+                                                                │
+                                                       ┌────────▼─────────┐
+                                                       │  Qwen2.5 Coder   │
+                                                       │  Q4_K_M GGUF     │
+                                                       │  (~4 GB on disk) │
+                                                       └──────────────────┘
+```
+
+**GGUF weights** live on disk (you learned the format in Lesson 1b). **llama-server** memory-maps them, runs the forward pass, and exposes an OpenAI-compatible REST API. **Cline** is the client — it does not know or care that the "OpenAI" endpoint is your own laptop.
+
+---
+
+## Part 1 — llama.cpp and llama-server
+
+### What is llama.cpp?
+
+[llama.cpp](https://github.com/ggerganov/llama.cpp) is a C/C++ inference engine for large language models. It pioneered practical **GGUF** loading, CPU/GPU backends (Metal on Mac, CUDA on NVIDIA), and aggressive quantization support. For local development on a laptop, it is often the fastest path from "I have a GGUF file" to "I have a working API."
+
+The binary you care about for this lesson is **`llama-server`** (sometimes invoked as `llama-server` after install). It:
+
+- Loads a GGUF model (from a local path or HuggingFace shorthand)
+- Listens on a TCP port (default **8080**)
+- Implements the **OpenAI Chat Completions API** — same JSON request/response shape that Cline, Cursor, and hundreds of other tools already speak
+
+Contrast with Step 2: in `run.c`, the model and the chat loop lived in one program. Here, the **server** is a long-running process; the **client** (Cline) is separate. That separation is exactly how vLLM and TGI work in production — different engines, same API contract.
+
+### Install llama.cpp
+
+**macOS (Homebrew):**
+
+```bash
+brew install llama.cpp
+```
+
+**Windows:** download prebuilt binaries from the [llama.cpp releases page](https://github.com/ggerganov/llama.cpp/releases) or build from source following the project README.
+
+**Verify the install:**
+
+```bash
+llama-server --version
+```
+
+You should see a version string. If the command is not found, ensure the install directory is on your `PATH`.
+
+---
+
+## Part 2 — The model: Qwen2.5 Coder Q4_K_M
+
+### Why this model?
+
+**Qwen2.5 Coder** is a strong open coding model — trained for code generation, explanation, and multi-file edits. For a laptop setup we use the **7B instruct** variant, **4-bit quantized** as **Q4_K_M**:
+
+| Property | Value |
+|----------|-------|
+| Parameters | ~7 billion |
+| Quantization | Q4_K_M (4-bit, medium quality) |
+| On-disk size | ~4 GB |
+| Format | GGUF |
+| Default context | 8,192 tokens |
+| Max context (this model family) | up to ~128K (hardware-dependent) |
+
+Q4_K_M is the sweet spot for local coding: small enough to fit in laptop RAM, good enough quality for real assistant work. You already understand *why* quantization shrinks the file from [Lesson 1b's GGUF chapter](lesson-1b-qwen3-fundamentals.qmd) — here you use it in anger.
+
+### Start the server
+
+**Default command** (8K context — start here):
+
+```bash
+llama-server \
+  -hf Qwen/Qwen2.5-Coder-7B-Instruct-GGUF:Q4_K_M \
+  --port 8080
+```
+
+On first run, llama.cpp downloads the GGUF file from HuggingFace to your local cache. Subsequent starts are instant.
+
+**Extended context** (if you have enough RAM — try after the default works):
+
+```bash
+llama-server \
+  -hf Qwen/Qwen2.5-Coder-7B-Instruct-GGUF:Q4_K_M \
+  --port 8080 \
+  -c 32768
+```
+
+The `-c` flag sets the context window in tokens. The video walks through increasing from 8192 toward 32K, 40K, or higher. If the server fails to start with a large context, reduce `-c` until it stabilizes — context size directly costs RAM for the KV cache you traced in Step 2.
+
+**Confirm it is running:** open `http://127.0.0.1:8080/health` in a browser or:
+
+```bash
+curl http://127.0.0.1:8080/v1/models
+```
+
+You should see a JSON response listing the loaded model.
+
+---
+
+## Part 3 — Wire Cline to your local server
+
+### Install Cline
+
+In VS Code or Cursor, open Extensions and search for **Cline** (formerly Claude Dev). Install it and restart the editor if the Cline panel does not appear.
+
+Open Cline from the sidebar icon, or press `Cmd+Shift+P` (Mac) / `Ctrl+Shift+P` (Windows) and run **Cline: Open In New Tab**.
+
+### API configuration
+
+In Cline → **Settings** → **API Configuration**:
+
+| Field | Value |
+|-------|-------|
+| API Provider | **OpenAI Compatible** |
+| Base URL | `http://127.0.0.1:8080/v1` |
+| API Key | any placeholder (e.g. `local`) — the server does not validate keys locally |
+| Model ID | match what `llama-server` reports (e.g. the HuggingFace repo name or alias shown in `/v1/models`) |
+
+### Model configuration
+
+Under **Model Configuration**, set the **context window** to match what you passed to `llama-server` with `-c`. If you started with the default 8192 command, use 8192 here. If you used `-c 32768`, set 32768.
+
+**Tip from the video:** start with the default 8192 command and server settings, confirm everything works, then increase context incrementally.
+
+### Feature settings
+
+In **Feature Settings**, enable **Auto Compact**. This trims older conversation context as the chat grows — important when working with local models that have finite context windows. Without it, long sessions can exceed the KV cache and fail silently or produce errors.
+
+---
+
+## Part 4 — Demo: a local coding agent in action
+
+With `llama-server` running and Cline configured, try a real task:
+
+1. Open a project folder in VS Code/Cursor
+2. In Cline, start a new task — e.g. *"Create a Markdown blog post explaining self-attention"*
+3. Cline will **plan first**, then ask you to approve the plan
+4. On approval, it reads and writes files locally — all inference goes to `127.0.0.1:8080`, not to any cloud API
+
+At the bottom of the Cline panel you should see your configured model name (e.g. the local Qwen Coder alias). That confirms Cline is hitting your llama.cpp server, not OpenAI.
+
+Cline will also ask about auto-approve settings (file reads, MCP servers, etc.). Configure these to your comfort level — for learning, manual approval is safer.
+
+---
+
+## What "OpenAI-compatible" means
+
+The OpenAI Chat Completions API is a **de facto standard**. Request shape:
+
+```json
+POST /v1/chat/completions
+{
+  "model": "qwen2.5-coder",
+  "messages": [
+    {"role": "user", "content": "Write a hello world in Rust"}
+  ]
+}
+```
+
+Response shape: `choices[0].message.content` with the generated text.
+
+**Every major inference engine exposes this same surface:**
+
+| Engine | Language | Typical deployment | This lesson |
+|--------|----------|-------------------|-------------|
+| **llama.cpp server** | C/C++ | Laptop, edge, single GPU | **You are here** |
+| **vLLM** | Python | Multi-GPU datacenter, high throughput | Step 3 (coming) |
+| **TGI** | Python/Rust | HuggingFace ecosystem, managed serving | Step 3 (coming) |
+
+When you switch from llama.cpp on your Mac to vLLM on a cloud GPU, **Cline does not change** — only the Base URL changes. That is why learning the API contract now pays off immediately.
+
+---
+
+## Step 3 context — what comes next
+
+You have completed the first Step 3 lesson. Here is how it fits the full inference deep dive:
+
+| What this lesson covers | What the rest of Step 3 adds |
+|-------------------------|------------------------------|
+| One model (Qwen2.5 Coder 7B) | Many models via shared inference servers |
+| llama.cpp on one machine | vLLM, TGI, llama.cpp server at scale |
+| Q4_K_M quantization (GGUF) | GPTQ, AWQ, and when to use each format |
+| Single user, single request | Batching and **continuous batching** |
+| Local OpenAI-compatible API | Serving design, throughput vs. latency |
+| Synchronous generation | **Speculative decoding** with draft models |
+
+The [Step 3 roadmap](../roadmap.qmd) covers all of this. Relevant office hours:
+
+- [Unsloth and LLM efficiency](../office-hours/2026-03-13.qmd#topic-4-unsloth-and-llm-efficiency) — GPU kernel fusion (the optimization layer above raw math)
+- [Benchmarking in AI](../office-hours/2026-03-27.qmd#topic-5-benchmarking-in-ai) — how to measure inference speed honestly
+- [The three pillars of model development](../office-hours/2026-03-27.qmd#topic-6-the-three-pillars-of-model-development) — inference as one pillar alongside data and training
+
+Everything you understood in Step 2 — tokens, attention, KV cache, GGUF, mmap — is the foundation for understanding *why* these serving systems are designed the way they are.
+
+---
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| `llama-server: command not found` | Not on PATH after install | Reopen terminal; check `brew --prefix llama.cpp` |
+| Server starts then OOM / crashes | Context too large for RAM | Reduce `-c` to 8192 |
+| Cline shows connection error | Server not running or wrong port | Confirm `curl http://127.0.0.1:8080/v1/models` |
+| Slow first response | Model loading + compilation | Wait for "model loaded" in server logs |
+| Garbled or empty output | Model ID mismatch | Copy exact name from `/v1/models` into Cline |
+
+---
+
+## Progress tracker
+
+```
+## My First Break AI Lesson 2a Progress
+
+### Setup
+- [ ] llama.cpp installed (`llama-server --version` works)
+- [ ] Qwen2.5 Coder Q4_K_M server running on port 8080
+- [ ] Cline installed in VS Code or Cursor
+- [ ] API configured: OpenAI Compatible, base URL http://127.0.0.1:8080/v1
+- [ ] Auto Compact enabled
+
+### Verify
+- [ ] `curl http://127.0.0.1:8080/v1/models` returns JSON
+- [ ] Cline panel shows local model name at bottom
+- [ ] Completed one coding task end-to-end (plan → approve → files written)
+
+### Reflect
+- [ ] Can explain the three-piece stack (GGUF → llama-server → Cline)
+- [ ] Can explain why OpenAI-compatible APIs matter for Step 3
+- [ ] Ready for deeper Step 3 topics: batching, vLLM, TGI
+```
+
+Bring checked items and blockers to [office hours](../office-hours/).

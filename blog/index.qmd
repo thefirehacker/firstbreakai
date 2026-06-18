@@ -66,21 +66,21 @@ Model weight formats compared. GGUF, SafeTensors, pickle security, quantization,
 ## [Step 3]{.section-tag .step-3} Inference deep dive {.section-heading}
 
 ::: {.section-blurb}
-Beyond running a model — inference engines, batching, quantization formats, and serving. Posts in progress.
+Beyond running a model — inference engines, batching, quantization formats, and serving. Start with the Lesson 2a video: llama.cpp server + Cline.
 :::
 
 ::: {.blog-cards}
 
-:::: {.blog-card .blog-card-step-3 .blog-card-no-post}
-[Step 3]{.blog-card-label}
+:::: {.blog-card .blog-card-step-3}
+[Lesson 2a · Step 3]{.blog-card-label}
 
-### Inference deep dive
+### Run a Coding AI on Your Laptop
 
 ::: {.blog-card-desc}
-vLLM, quantization, batching, APIs.
+Serve Qwen2.5 Coder with llama.cpp server and wire Cline to a local OpenAI-compatible endpoint — free, private, no API key.
 :::
 
-[See Roadmap](../roadmap.qmd){.blog-card-link}
+[Watch lesson](../lessons/lesson-2a-run-coding-ai-locally.qmd){.blog-card-link}
 ::::
 
 :::

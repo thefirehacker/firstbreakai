@@ -12,16 +12,18 @@ Each lesson pairs a video with a clickable transcript and chapter markers. Click
 Use the chapter list to skim what's covered. Use the transcript to find the exact sentence you want to revisit — clicking a line seeks the video. The active line highlights as the video plays.
 :::
 
-## [Cohort 01]{.section-tag .cohort} Available lessons {.section-heading}
+Lessons follow the [Roadmap](../roadmap.qmd) — grouped by step below.
+
+## [Step 1]{.section-tag .step-1} First use of AI for coding {.section-heading}
 
 ::: {.section-blurb}
-Video lessons published as Cohort 01 progresses. Each one pairs the recording with a clickable transcript so you can jump straight to the moment you care about.
+Set up your cohort tooling and get oriented. Start with the welcome video before diving into model inference.
 :::
 
-::: {.blog-cards}
+::: {.blog-cards .lesson-cards-row}
 
-:::: {.blog-card .blog-card-oh}
-[Lesson 0 · Cohort intro]{.blog-card-label}
+:::: {.blog-card .blog-card-step-1 .blog-card-lesson}
+[Lesson 0 · Step 1]{.blog-card-label}
 
 ### Welcome to First Break AI
 
@@ -32,7 +34,17 @@ A guided tour of the cohort — the six stages from commit to capstone, who this
 [Watch lesson](lesson-0-welcome.qmd){.blog-card-link}
 ::::
 
-:::: {.blog-card .blog-card-oh}
+:::
+
+## [Step 2]{.section-tag .step-2} Run a model locally {.section-heading}
+
+::: {.section-blurb}
+Run Qwen3 0.6B on your laptop and trace every operation from tokenization to token output — HuggingFace as a supply chain, then GGUF, memory mapping, and pure C inference.
+:::
+
+::: {.blog-cards .lesson-cards-row}
+
+:::: {.blog-card .blog-card-step-2 .blog-card-lesson}
 [Lesson 1 · Step 2]{.blog-card-label}
 
 ### HuggingFace Beyond Upload
@@ -44,7 +56,7 @@ Why an open model is not a file — it's a supply chain you can inspect. The men
 [Watch lesson](lesson-1-huggingface-beyond-upload.qmd){.blog-card-link}
 ::::
 
-:::: {.blog-card .blog-card-oh}
+:::: {.blog-card .blog-card-step-2 .blog-card-lesson}
 [Lesson 1b · Step 2]{.blog-card-label}
 
 ### Qwen3 Fundamentals
@@ -54,6 +66,28 @@ How a language model lives on disk and loads into memory — byte by byte. **Par
 :::
 
 [Watch lesson](lesson-1b-qwen3-fundamentals.qmd){.blog-card-link}
+::::
+
+:::
+
+## [Step 3]{.section-tag .step-3} Inference deep dive {.section-heading}
+
+::: {.section-blurb}
+Beyond running a model — inference engines, OpenAI-compatible serving, and wiring a local coding agent. First lesson: llama.cpp server with Qwen2.5 Coder and Cline.
+:::
+
+::: {.blog-cards .lesson-cards-row}
+
+:::: {.blog-card .blog-card-step-3 .blog-card-lesson}
+[Lesson 2a · Step 3]{.blog-card-label}
+
+### Run a Coding AI on Your Laptop
+
+::: {.blog-card-desc}
+Serve **Qwen2.5 Coder** with **llama.cpp server**, connect **Cline** via OpenAI-compatible API — free, private, no API key. First Step 3 lesson.
+:::
+
+[Watch lesson](lesson-2a-run-coding-ai-locally.qmd){.blog-card-link}
 ::::
 
 :::

@@ -1,0 +1,651 @@
+{
+  "video_id": "S-XveF9GDDc",
+  "title": "Lesson 2a: Run a Coding AI on Your Laptop",
+  "duration": 498,
+  "chapters": [
+    {
+      "t": 0,
+      "title": "Intro — three things you'll have working"
+    },
+    {
+      "t": 56,
+      "title": "Why local? Privacy, cost, demystify the stack"
+    },
+    {
+      "t": 105,
+      "title": "The stack: llama.cpp server + OpenAI API + Cline"
+    },
+    {
+      "t": 174,
+      "title": "Install llama.cpp (brew / Windows)"
+    },
+    {
+      "t": 210,
+      "title": "Start the model server (Qwen2.5 Coder Q4_KM)"
+    },
+    {
+      "t": 350,
+      "title": "Configure Cline in VS Code / Cursor"
+    },
+    {
+      "t": 490,
+      "title": "Live demo — local coding agent in action"
+    },
+    {
+      "t": 530,
+      "title": "Wrap-up"
+    }
+  ],
+  "segments": [
+    {
+      "start_time": 1.24,
+      "end_time": 6.24,
+      "text": "What if I told you the coding assistant you are about to set up costs nothing,"
+    },
+    {
+      "start_time": 6.65,
+      "end_time": 12.44,
+      "text": "runs entirely on your laptop, never sends a single line of your code to anyone?"
+    },
+    {
+      "start_time": 12.92,
+      "end_time": 16.549,
+      "text": "No cloud, no subscription, not even an API key."
+    },
+    {
+      "start_time": 17.19,
+      "end_time": 20.769,
+      "text": "That's a real language model running on this machine right now."
+    },
+    {
+      "start_time": 21.21,
+      "end_time": 25.739,
+      "text": "In the next ten minutes, I'm going to wire it straight to your code editor"
+    },
+    {
+      "start_time": 25.949,
+      "end_time": 27.769,
+      "text": "so it can actually help you build."
+    },
+    {
+      "start_time": 28.079,
+      "end_time": 32.182,
+      "text": "Let's go Quick promise, it is worth your 10 minutes."
+    },
+    {
+      "start_time": 32.402,
+      "end_time": 36.682,
+      "text": "By the end of the video, you'll have three things working together: a coding"
+    },
+    {
+      "start_time": 36.692,
+      "end_time": 41.782,
+      "text": "model running locally, a little server that speaks the same language as OpenAI"
+    },
+    {
+      "start_time": 41.782,
+      "end_time": 47.412,
+      "text": "API, and your code editor, which is VS Code or Cursor with Cline talking"
+    },
+    {
+      "start_time": 47.412,
+      "end_time": 52.872,
+      "text": "to the model like it's any other AI assistant, except it's free and it's yours"
+    },
+    {
+      "start_time": 56.398,
+      "end_time": 58.918,
+      "text": "So why do we do this at all?"
+    },
+    {
+      "start_time": 59.208,
+      "end_time": 62.718,
+      "text": "Why should we not pay for another hosted model?"
+    },
+    {
+      "start_time": 62.888,
+      "end_time": 63.958,
+      "text": "There are three reasons."
+    },
+    {
+      "start_time": 64.208,
+      "end_time": 65.598,
+      "text": "One, privacy."
+    },
+    {
+      "start_time": 66.287,
+      "end_time": 67.288,
+      "text": "Two, cost."
+    },
+    {
+      "start_time": 67.478,
+      "end_time": 70.897,
+      "text": "And three, it demystifies the magic"
+    },
+    {
+      "start_time": 73.902,
+      "end_time": 76.842,
+      "text": "So, uh, running a coding LLM on your machine."
+    },
+    {
+      "start_time": 78.852,
+      "end_time": 84.952,
+      "text": "This is a no-fuss walkthrough that serves a quantized model with llama.cpp"
+    },
+    {
+      "start_time": 85.262,
+      "end_time": 87.467,
+      "text": "and wires into client inside VS Code."
+    },
+    {
+      "start_time": 87.467,
+      "end_time": 92.351,
+      "text": "It is fully local, fully private, and you don't need any API cost."
+    },
+    {
+      "start_time": 92.711,
+      "end_time": 97.842,
+      "text": "Part of-- This is part of First Break AI cohort and is step two, which is"
+    },
+    {
+      "start_time": 97.842,
+      "end_time": 101.511,
+      "text": "running a model locally, as well as step three, learning inference, right?"
+    },
+    {
+      "start_time": 101.781,
+      "end_time": 105.982,
+      "text": "So we will start this ten-minute setup with Llama server."
+    },
+    {
+      "start_time": 106.641,
+      "end_time": 110.771,
+      "text": "For this, you need llama.cpp installed on your machine."
+    },
+    {
+      "start_time": 111.242,
+      "end_time": 116.361,
+      "text": "Once it is installed, it requires this one single command, and you will have a model"
+    },
+    {
+      "start_time": 116.371,
+      "end_time": 121.731,
+      "text": "running locally on localhost, uh, eight zero eight zero port or one two seven"
+    },
+    {
+      "start_time": 121.882,
+      "end_time": 123.791,
+      "text": "zero zero one eight zero eight zero port."
+    },
+    {
+      "start_time": 124.902,
+      "end_time": 126.531,
+      "text": "There are three steps to this."
+    },
+    {
+      "start_time": 126.621,
+      "end_time": 129.161,
+      "text": "One is to download a four-bit quantized model."
+    },
+    {
+      "start_time": 129.461,
+      "end_time": 133.681,
+      "text": "We will choose a very st-stable and a very good coding model, which is Qwen"
+    },
+    {
+      "start_time": 133.691,
+      "end_time": 139.341,
+      "text": "two point five Coder, and we'll use the four-bit quantized model for this, Q4_KM."
+    },
+    {
+      "start_time": 140.232,
+      "end_time": 146.211,
+      "text": "Uh, we will run this on llama.cpp and use client as our code reader,"
+    },
+    {
+      "start_time": 146.631,
+      "end_time": 152.042,
+      "text": "which ba-- is bas-- which is basically a, uh, which is basically a"
+    },
+    {
+      "start_time": 159.114,
+      "end_time": 161.434,
+      "text": "Extension on VS Code itself, as you can see"
+    },
+    {
+      "start_time": 166.462,
+      "end_time": 166.632,
+      "text": "Right."
+    },
+    {
+      "start_time": 166.832,
+      "end_time": 168.202,
+      "text": "So the steps are as follows."
+    },
+    {
+      "start_time": 168.562,
+      "end_time": 171.852,
+      "text": "We will first hook up or install L-llama.cpp."
+    },
+    {
+      "start_time": 172.162,
+      "end_time": 175.572,
+      "text": "If you are on Mac, you will need to use Brew, and you can"
+    },
+    {
+      "start_time": 175.572,
+      "end_time": 177.412,
+      "text": "do brew install llama.cpp."
+    },
+    {
+      "start_time": 177.691,
+      "end_time": 181.032,
+      "text": "If you are on Windows, you can, uh, use this link to"
+    },
+    {
+      "start_time": 182.712,
+      "end_time": 184.832,
+      "text": "install the, uh, install Llama."
+    },
+    {
+      "start_time": 185.032,
+      "end_time": 188.911,
+      "text": "Once it is done, you can run this command to check if Llama is properly installed."
+    },
+    {
+      "start_time": 189.552,
+      "end_time": 193.821,
+      "text": "Uh, once, once this step is done, we'll move on to step three, which"
+    },
+    {
+      "start_time": 193.821,
+      "end_time": 194.962,
+      "text": "is starting the model server."
+    },
+    {
+      "start_time": 195.062,
+      "end_time": 198.741,
+      "text": "We will use this command to fire up Llama locally."
+    },
+    {
+      "start_time": 199.321,
+      "end_time": 202.381,
+      "text": "The-- If the model is not installed and it is the first time"
+    },
+    {
+      "start_time": 204.63,
+      "end_time": 208.31,
+      "text": "The model will actually be lo- uh, installed or downloaded from"
+    },
+    {
+      "start_time": 208.33,
+      "end_time": 209.93,
+      "text": "Hugging Face onto your laptop."
+    },
+    {
+      "start_time": 210.7,
+      "end_time": 213.66,
+      "text": "So let's look at the model demo."
+    },
+    {
+      "start_time": 214.86,
+      "end_time": 217.48,
+      "text": "So we'll use this co-code to run the model."
+    },
+    {
+      "start_time": 218.47,
+      "end_time": 219.69,
+      "text": "I'll use another code"
+    },
+    {
+      "start_time": 224.606,
+      "end_time": 226.326,
+      "text": "Yeah, I'll use this code instead"
+    },
+    {
+      "start_time": 237.102,
+      "end_time": 238.852,
+      "text": "I'll just move this on top."
+    },
+    {
+      "start_time": 239.342,
+      "end_time": 239.522,
+      "text": "Yeah."
+    },
+    {
+      "start_time": 239.652,
+      "end_time": 241.882,
+      "text": "So I'll use this code to fire up the model."
+    },
+    {
+      "start_time": 242.042,
+      "end_time": 247.341,
+      "text": "Only difference is I am, I l-- I am running the model with a slightly"
+    },
+    {
+      "start_time": 247.602,
+      "end_time": 253.052,
+      "text": "larger context window rather than the default eight K context window on"
+    },
+    {
+      "start_time": 253.172,
+      "end_time": 254.882,
+      "text": "Quentin two point five Coder, right?"
+    },
+    {
+      "start_time": 255.071,
+      "end_time": 257.221,
+      "text": "So our model is basically an instruct version."
+    },
+    {
+      "start_time": 257.301,
+      "end_time": 260.801,
+      "text": "It is around four GB size of the model."
+    },
+    {
+      "start_time": 261.182,
+      "end_time": 265.391,
+      "text": "In terms of the parameter size, it is a seven billion parameter"
+    },
+    {
+      "start_time": 265.391,
+      "end_time": 269.001,
+      "text": "model, and the quantized version is around four GB in size, right?"
+    },
+    {
+      "start_time": 269.372,
+      "end_time": 275.431,
+      "text": "So once the server is connected, you need to install client on your VS code."
+    },
+    {
+      "start_time": 275.971,
+      "end_time": 278.831,
+      "text": "Uh, once client is installed, you need to do some configurations."
+    },
+    {
+      "start_time": 279.262,
+      "end_time": 281.701,
+      "text": "Mainly you need to go into, uh, settings"
+    },
+    {
+      "start_time": 283.876,
+      "end_time": 284.606,
+      "text": "Into client setting."
+    },
+    {
+      "start_time": 284.886,
+      "end_time": 286.895,
+      "text": "For that, you need to open client from here."
+    },
+    {
+      "start_time": 287.565,
+      "end_time": 291.795,
+      "text": "So on the left-hand side, if you are on Cursor, on-- next to Extension,"
+    },
+    {
+      "start_time": 291.795,
+      "end_time": 296.145,
+      "text": "you can use client, uh, the dropdown to open client, or you can do Control"
+    },
+    {
+      "start_time": 296.165,
+      "end_time": 303.985,
+      "text": "+ Shift + P. Control + Shift + P and open up, View open, and from here you"
+    },
+    {
+      "start_time": 303.985,
+      "end_time": 306.285,
+      "text": "can open client once it is installed."
+    },
+    {
+      "start_time": 306.595,
+      "end_time": 309.675,
+      "text": "You may need to restart your VS Code or Claude Code…"
+    },
+    {
+      "start_time": 310.065,
+      "end_time": 313.155,
+      "text": "Uh, sorry, VS Code or Cursor, uh, to see this option."
+    },
+    {
+      "start_time": 313.365,
+      "end_time": 315.345,
+      "text": "So once you click on this, you'll be able to see this client."
+    },
+    {
+      "start_time": 315.775,
+      "end_time": 320.746,
+      "text": "Uh, this is very similar to Cursor, uh, or even ChatGPT."
+    },
+    {
+      "start_time": 320.795,
+      "end_time": 324.016,
+      "text": "You can start a new task, you can view previous history, you can"
+    },
+    {
+      "start_time": 324.016,
+      "end_time": 329.635,
+      "text": "delete, uh, you can delete, uh, the previous, uh, chat as well."
+    },
+    {
+      "start_time": 330.225,
+      "end_time": 335.835,
+      "text": "At the bottom, you will be able to see this, uh, OpenAI compact local Qwen coder."
+    },
+    {
+      "start_time": 335.845,
+      "end_time": 339.686,
+      "text": "For this, you have to set the model, uh, go to Settings,"
+    },
+    {
+      "start_time": 339.795,
+      "end_time": 341.705,
+      "text": "uh, go to API configuration."
+    },
+    {
+      "start_time": 342.066,
+      "end_time": 345.905,
+      "text": "Under API provider, select OpenAI compatible."
+    },
+    {
+      "start_time": 346.425,
+      "end_time": 352.226,
+      "text": "Give one twenty-seven zero zero one eight zero eight zero slash v1 as your base URL."
+    },
+    {
+      "start_time": 352.615,
+      "end_time": 354.935,
+      "text": "Give anything in OpenAI compatible key."
+    },
+    {
+      "start_time": 355.775,
+      "end_time": 358.465,
+      "text": "Uh, put local Qwen coder as your model ID."
+    },
+    {
+      "start_time": 358.995,
+      "end_time": 362.095,
+      "text": "Then in model configurations, depending on how you started the model."
+    },
+    {
+      "start_time": 362.545,
+      "end_time": 365.445,
+      "text": "I have started the model with a larger context window, so make"
+    },
+    {
+      "start_time": 365.446,
+      "end_time": 366.905,
+      "text": "sure that your window is larger."
+    },
+    {
+      "start_time": 367.385,
+      "end_time": 373.725,
+      "text": "Uh, if you have errors in starting Qwen coder with such a large context window,"
+    },
+    {
+      "start_time": 373.725,
+      "end_time": 375.395,
+      "text": "you can reduce the context window also."
+    },
+    {
+      "start_time": 375.605,
+      "end_time": 380.505,
+      "text": "So it's better to start with the default command that I have given here, the"
+    },
+    {
+      "start_time": 380.505,
+      "end_time": 385.015,
+      "text": "default command, and then, uh, keep on increasing the context window."
+    },
+    {
+      "start_time": 385.016,
+      "end_time": 386.055,
+      "text": "So it's eight one nine two."
+    },
+    {
+      "start_time": 386.055,
+      "end_time": 390.185,
+      "text": "You can put thirty thousand, uh, go to forty thousand, sixty thousand."
+    },
+    {
+      "start_time": 390.685,
+      "end_time": 394.555,
+      "text": "There is a maximum size, uh, for, uh, Qwen coder, which I think is hundred"
+    },
+    {
+      "start_time": 394.555,
+      "end_time": 398.995,
+      "text": "K. So you can keep your context window as large as hundred K, right?"
+    },
+    {
+      "start_time": 399.455,
+      "end_time": 402.936,
+      "text": "So once you're done with this, uh, you can set this, uh,"
+    },
+    {
+      "start_time": 403.436,
+      "end_time": 406.105,
+      "text": "model configuration and save."
+    },
+    {
+      "start_time": 406.155,
+      "end_time": 406.545,
+      "text": "All done."
+    },
+    {
+      "start_time": 406.965,
+      "end_time": 409.545,
+      "text": "And now there is another setting actually which is important,"
+    },
+    {
+      "start_time": 409.555,
+      "end_time": 411.025,
+      "text": "which is in feature setting."
+    },
+    {
+      "start_time": 411.865,
+      "end_time": 414.306,
+      "text": "Ensure that, uh, auto compact is on."
+    },
+    {
+      "start_time": 414.545,
+      "end_time": 419.825,
+      "text": "This will reduce your context, uh, window or context window size as you"
+    },
+    {
+      "start_time": 419.825,
+      "end_time": 423.056,
+      "text": "progress through the, through the chat."
+    },
+    {
+      "start_time": 423.526,
+      "end_time": 428.246,
+      "text": "Once you are ready and your model is started, you can fire up commands"
+    },
+    {
+      "start_time": 428.255,
+      "end_time": 433.715,
+      "text": "like, you know, I have asked, I have asked Claude Code to-- uh, I have asked"
+    },
+    {
+      "start_time": 433.715,
+      "end_time": 440.996,
+      "text": "Qwen coder to, uh, give me a Markdown file and create a blog on Attention."
+    },
+    {
+      "start_time": 441.385,
+      "end_time": 443.205,
+      "text": "And that's what it has done."
+    },
+    {
+      "start_time": 443.215,
+      "end_time": 447.385,
+      "text": "It has created a blog here, and first it'll create a plan, and then it'll"
+    },
+    {
+      "start_time": 447.385,
+      "end_time": 451.565,
+      "text": "ask you to, uh, approve the plan, and it'll make the changes, as you can see."
+    },
+    {
+      "start_time": 452.025,
+      "end_time": 457.095,
+      "text": "Uh, there'll be some auto-approved, uh, configurations, whether by default"
+    },
+    {
+      "start_time": 457.345,
+      "end_time": 460.685,
+      "text": "you want client to read files, read NCP servers, you can set those."
+    },
+    {
+      "start_time": 461.395,
+      "end_time": 465.975,
+      "text": "And with this you will be able to run Quench Code quite easily"
+    },
+    {
+      "start_time": 468.138,
+      "end_time": 468.948,
+      "text": "Locally, right?"
+    },
+    {
+      "start_time": 469.078,
+      "end_time": 470.388,
+      "text": "So this is a clean setup."
+    },
+    {
+      "start_time": 470.467,
+      "end_time": 474.597,
+      "text": "Once this is on, you will see that the model will run seamlessly."
+    },
+    {
+      "start_time": 475.018,
+      "end_time": 482.128,
+      "text": "Uh, once you see at the bottom OpenAI, uh, compact local Q encoder, you are basically"
+    },
+    {
+      "start_time": 482.128,
+      "end_time": 488.157,
+      "text": "using, uh, your local model instead of an API, and this is how you can run the"
+    },
+    {
+      "start_time": 488.157,
+      "end_time": 490.877,
+      "text": "model locally via Cline and Q encoder."
+    },
+    {
+      "start_time": 491.998,
+      "end_time": 492.967,
+      "text": "Hope this was useful."
+    },
+    {
+      "start_time": 494.847,
+      "end_time": 497.488,
+      "text": "See you in the next lessons of First Break AI, FBA."
+    },
+    {
+      "start_time": 498.328,
+      "end_time": 498.618,
+      "text": "Bye."
+    }
+  ]
+}
