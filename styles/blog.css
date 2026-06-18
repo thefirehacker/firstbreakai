@@ -121,6 +121,54 @@
   border-radius: 1rem;
 }
 
+/* ── Lesson index cards — step pill + tinted gradient ── */
+.blog-card-lesson {
+  position: relative;
+  border-top-width: 5px;
+  padding-top: 1.65rem;
+}
+
+.blog-card-lesson:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(44, 36, 23, 0.14);
+}
+
+.blog-card-step-1.blog-card-lesson {
+  background: linear-gradient(180deg, #fdf9f0 0%, #faf6ee 65%);
+}
+.blog-card-step-2.blog-card-lesson {
+  background: linear-gradient(180deg, #f8f5f0 0%, #faf6ee 65%);
+}
+.blog-card-step-3.blog-card-lesson {
+  background: linear-gradient(180deg, #faf5ec 0%, #faf6ee 65%);
+}
+
+.blog-card-step-1.blog-card-lesson::before { content: "STEP 1"; color: #8b6914; background: rgba(139, 105, 20, 0.1); }
+.blog-card-step-2.blog-card-lesson::before { content: "STEP 2"; color: #6b5c4c; background: rgba(107, 92, 76, 0.12); }
+.blog-card-step-3.blog-card-lesson::before { content: "STEP 3"; color: #7a5518; background: rgba(122, 85, 24, 0.1); }
+
+.blog-card-lesson::before {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.95rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 0.15rem 0.55rem;
+  border-radius: 1rem;
+}
+
+/* Lesson grid: Step 1 single card doesn't stretch awkwardly at 3-col */
+.blog-cards.lesson-cards-row {
+  max-width: 100%;
+}
+@media (min-width: 900px) {
+  .blog-cards.lesson-cards-row:has(.blog-card:only-child) {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 720px;
+  }
+}
+
 /* Featured / first session — slightly larger, full-width on mobile */
 .blog-card-oh-featured {
   border-top-width: 6px;

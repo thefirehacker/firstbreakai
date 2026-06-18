@@ -154,6 +154,11 @@ Go beyond running a model — understand how inference works under the hood and 
 <li>Serving and API design for inference endpoints</li>
 </ul>
 
+<p><strong>Lessons:</strong></p>
+<ul>
+<li><a href="lessons/lesson-2a-run-coding-ai-locally.qmd">Lesson 2a — Run a Coding AI on Your Laptop</a>: serve Qwen2.5 Coder with llama.cpp server and wire Cline to a local OpenAI-compatible endpoint.</li>
+</ul>
+
 <p><strong>Office Hours sessions:</strong></p>
 <ul>
 <li><a href="office-hours/2026-03-13.qmd#topic-4-unsloth-and-llm-efficiency">Unsloth and LLM efficiency</a> (13 Mar)</li>
@@ -351,6 +356,10 @@ Prove what you've learned. Pick one: ship a capstone project or make a meaningfu
 
 **Topics:** Inference engines and runtimes (vLLM, TGI, llama.cpp server) · Batching and continuous batching · Quantization (GGUF, GPTQ, AWQ) · Structured output, function calling, and tool use · Serving and API design for inference endpoints
 
+**Lessons:**
+
+- [Lesson 2a — Run a Coding AI on Your Laptop](lessons/lesson-2a-run-coding-ai-locally.qmd) — serve Qwen2.5 Coder with llama.cpp server and wire Cline to a local OpenAI-compatible endpoint.
+
 **Office Hours sessions:**
 
 - [Unsloth and LLM efficiency](office-hours/2026-03-13.qmd#topic-4-unsloth-and-llm-efficiency) (13 Mar)
@@ -437,7 +446,8 @@ function toggleView(mode) {
   var LESSON_MAP = {
     'lesson-0-welcome': '0',
     'lesson-1-huggingface-beyond-upload': '1',
-    'lesson-1b-qwen3-fundamentals': '1b'
+    'lesson-1b-qwen3-fundamentals': '1b',
+    'lesson-2a-run-coding-ai-locally': '2a'
   };
 
   function getToken() {

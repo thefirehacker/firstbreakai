@@ -48,9 +48,11 @@ export const STEPS = [
   },
   {
     id: 3,
-    title: 'Inference deep dive (coming soon)',
+    title: 'Inference deep dive — llama.cpp server, vLLM, serving',
     url: `${COHORT_URL}/roadmap#step-3`,
-    lessons: [],
+    lessons: [
+      { id: '2a', title: 'Run a Coding AI on Your Laptop', url: `${COHORT_URL}/lessons/lesson-2a-run-coding-ai-locally` },
+    ],
   },
   {
     id: 4,
