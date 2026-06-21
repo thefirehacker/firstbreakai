@@ -913,6 +913,16 @@ header#title-block-header {
 @media (prefers-reduced-motion: reduce) {
   .cohort-live-dot { animation: none; }
 }
+.cohort-archived-badge {
+  background: rgba(120, 110, 100, 0.1);
+  color: #7a6e64;
+  border-color: rgba(120, 110, 100, 0.25);
+}
+.cohort-archived-badge .cohort-live-dot {
+  background: #999;
+  animation: none;
+  box-shadow: none;
+}
 
 /* ── Cohort poster (homepage feature) ── */
 .cohort-poster {
