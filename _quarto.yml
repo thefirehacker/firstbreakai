@@ -59,6 +59,8 @@ website:
       - href: office-hours/index.qmd
         text: Office Hours
     right:
+      - href: cohort.qmd
+        text: Cohort Archive
       - href: sponsors.qmd
         text: Sponsors
       - href: teams.qmd
