@@ -61,23 +61,12 @@ website:
     right:
       - href: cohort.qmd
         text: Cohort Archive
-      - href: sponsors.qmd
-        text: Sponsors
-      - href: teams.qmd
-        text: Teams
-      - icon: discord
-        href: "https://discord.gg/hRPese4H3F"
-        text: Discord
       - icon: github
         href: "https://github.com/thefirehacker/firstbreakai"
         text: Repo
   page-footer:
     left: "© 2026 First Break AI — Powered by [fetchlens.ai](https://fetchlens.ai)"
     center:
-      - text: "Sponsors"
-        href: sponsors.qmd
-      - text: "Teams"
-        href: teams.qmd
       - text: "Terms"
         href: terms.qmd
       - text: "Privacy"
@@ -94,17 +83,13 @@ format:
   html:
     css:
       - styles/global.css
-      - styles/fba-lens-widget.css
-      - styles/auth.css
     include-in-header:
       - includes/schema.html
     filters:
       - canonical.lua
     include-after-body:
-      - includes/fba-mcp-widget.html
       - includes/mermaid-zoom.html
       - includes/github-card.html
       - includes/lesson-player.html
-      - includes/auth-login.html
     mermaid:
       theme: neutral

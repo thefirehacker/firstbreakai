@@ -382,4 +382,4 @@ Everything else uses Node.js built-in modules (`fs`, `path`, `http`, `child_proc
 - [Roadmap](roadmap.qmd) — see all six steps of the cohort
 - [Checklist](checklist.qmd) — accounts and tools to set up
 - [Lessons](lessons/) — start learning
-- [Discord](https://discord.gg/hRPese4H3F) — join the community
+- [Office Hours](office-hours/) — join live sessions

@@ -38,9 +38,9 @@ Open the live site and work through these in order:
 | 2 | Read the path | [Roadmap](https://cohort.bubblnet.com/roadmap) |
 | 3 | Create accounts | [Checklist](https://cohort.bubblnet.com/checklist) — Hugging Face, GitHub, Cursor, Modal, W&B |
 | 4 | Set up your tools | [AI Setup](https://cohort.bubblnet.com/setup) — Cursor / Claude Code, ChatGPT, Open Router, Modal, E2E Networks |
-| 5 | Join the community | **[Discord](https://discord.gg/hRPese4H3F)** — where the cohort lives |
+| 5 | Start building | **[FBA Lab](https://bubblnet.com/)** — hands-on AI system work, no GPU required |
 
-**Office hours:** every Friday, **9:00 – 10:00 PM IST**. Meeting link is shared on Discord. Past sessions and notes live at [cohort.bubblnet.com/office-hours](https://cohort.bubblnet.com/office-hours/).
+**Office hours:** every Friday, **9:00 – 10:00 PM IST**. Past sessions and notes live at [cohort.bubblnet.com/office-hours](https://cohort.bubblnet.com/office-hours/).
 
 ## Cohort lead — FireHacker
 

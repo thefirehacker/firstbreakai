@@ -5,20 +5,16 @@ title-block-style: none
 page-layout: custom
 css: styles/fba-lab.css
 include-after-body:
-  - includes/fba-mcp-widget.html
   - includes/mermaid-zoom.html
 ---
 
 ```{=html}
-<!-- Hide the Discord login button on this page -->
-<style>.fba-auth-nav { display: none !important; }</style>
-
 <div class="fbalab-page">
 
   <!-- ── Top notice strip ── -->
   <div class="fbalab-notice">
     <span class="fbalab-notice-label">Update</span>
-    First Break AI — Cohort 01 is now archived. The journey continues at FBA Lab.
+    First Break AI — Cohort 01 is now archived. The journey continues at <a href="https://bubblnet.com/" target="_blank" rel="noopener">FBA Lab</a>.
   </div>
 
   <!-- ── Hero ── -->
@@ -82,7 +78,7 @@ include-after-body:
         <li><a href="lessons/">Lessons</a> — HuggingFace, Qwen3, inference deep dives, training fundamentals</li>
         <li><a href="office-hours/">Office Hours archive</a> — every recorded session with interactive transcripts</li>
         <li><a href="blog/">Blog</a> — guides on GGUF, training curves, model formats</li>
-        <li><a href="https://discord.gg/hRPese4H3F" target="_blank" rel="noopener">Discord</a> — community stays active; focused sessions run when there is real work to review</li>
+        <li><a href="office-hours/">Office Hours</a> — focused sessions run when there is real work to review</li>
       </ul>
     </div>
   </section>

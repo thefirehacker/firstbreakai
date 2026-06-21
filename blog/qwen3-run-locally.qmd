@@ -1801,4 +1801,4 @@ In one post, starting from zero:
 
 All of this in a single C file, 1130 lines, no external dependencies. The best way to learn how inference works is to read code like this — and now you have.
 
-Join the [First Break AI Discord](https://discord.gg/hRPese4H3F) to share what you built and get help on the exercises.
+Head to [FBA Lab](https://bubblnet.com/) to continue building and share what you've made.

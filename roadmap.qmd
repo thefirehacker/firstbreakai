@@ -9,7 +9,7 @@ Your learning path — one journey, step by step. Cohort 01 ran **1 May 2026 —
 
 ::: {.callout-important}
 ## Before you begin
-Make sure you've completed the [Checklist](checklist.qmd) — set up your accounts and [join the Discord](https://discord.gg/hRPese4H3F) so you can ask questions and share progress as you go.
+Make sure you've completed the [Checklist](checklist.qmd) — set up your accounts so you can ask questions and share progress as you go.
 :::
 
 ::: {.view-toggle}
@@ -458,7 +458,6 @@ function toggleView(mode) {
 // ── Progress overlay ──
 (function() {
   var MCP_URL = 'https://fba-mcp.throbbing-thunder-4d33.workers.dev';
-  var DISCORD_INVITE = 'https://discord.gg/hRPese4H3F';
   var LESSON_MAP = {
     'lesson-0-welcome': '0',
     'lesson-1-huggingface-beyond-upload': '1',
@@ -569,18 +568,6 @@ function toggleView(mode) {
 
   function renderProgress(profile) {
     if (!profile) {
-      // Not logged in — show login banner
-      if (document.querySelector('.roadmap-login-banner')) return;
-      var banner = injectBanner('roadmap-login-banner',
-        '<span class="banner-text">Log in with Discord to track your progress across devices.</span>' +
-        '<button class="banner-login-btn">Log in with Discord</button>'
-      );
-      if (banner) {
-        banner.querySelector('.banner-login-btn').addEventListener('click', function() {
-          var redirect = encodeURIComponent(window.location.href.split('?')[0]);
-          window.location.href = MCP_URL + '/auth/discord?redirect_url=' + redirect;
-        });
-      }
       return;
     }
 
@@ -609,30 +596,8 @@ function toggleView(mode) {
     // Lesson checkboxes
     var completedLessons = profile.lesson_completions || [];
     addLessonCheckboxes(completedLessons);
-
-    // Guild banner
-    if (profile.in_guild === false && !document.querySelector('.roadmap-guild-banner')) {
-      injectBanner('roadmap-guild-banner',
-        '<span class="banner-text">Join the FBA Discord for community support and office hours.</span>' +
-        '<a class="banner-discord-btn" href="' + DISCORD_INVITE + '" target="_blank">Join Discord</a>'
-      );
-    }
   }
 
-  // Listen for auth profile
-  if (window.__fba_profile) {
-    renderProgress(window.__fba_profile);
-  } else {
-    window.addEventListener('fba:profile', function(e) {
-      renderProgress(e.detail);
-    });
-    // If no login after a short delay, show login banner
-    setTimeout(function() {
-      if (!window.__fba_profile && !document.querySelector('.roadmap-login-banner')) {
-        renderProgress(null);
-      }
-    }, 1500);
-  }
 })();
 </script>
 ```
