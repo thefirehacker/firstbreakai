@@ -1,6 +1,6 @@
 ---
 title: "First Break AI"
-description: "First Break AI is the first fully agentic AI cohort — AI agents guide your learning from first commit to capstone. Learn inference, training, and agentic AI product building with AI agents that answer questions, validate code, and track progress. Powered by FetchLens.ai. Free, no prerequisites."
+description: "First Break AI is the first fully agentic AI cohort — AI agents guide your learning from first commit to capstone. Learn inference, training, and agentic AI product building with AI agents that answer questions, validate code, and track progress. Powered by FetchLens.ai. Now evolving to FBA Lab."
 title-block-style: none
 css: styles/home.css
 ---
@@ -12,7 +12,7 @@ css: styles/home.css
     <div class="hero-text">
       <h1 class="hero-title">First Break AI</h1>
       <p class="hero-tagline">The first fully agentic AI cohort — AI agents guide your journey from first commit to capstone</p>
-      <p class="hero-sub">Free, open cohort to upskill in training, inference, and agentic AI — powered by AI agents built on <a href="https://fetchlens.ai" target="_blank" rel="noopener" style="color:#f0ebe1;text-decoration:underline">FetchLens.ai</a></p>
+      <p class="hero-sub">Community cohort for training, inference, and agentic AI — now evolving to <a href="https://bubblnet.com/" target="_blank" rel="noopener" style="color:#f0ebe1;text-decoration:underline">FBA Lab</a>. Powered by AI agents built on <a href="https://fetchlens.ai" target="_blank" rel="noopener" style="color:#f0ebe1;text-decoration:underline">FetchLens.ai</a></p>
       <a href="https://discord.gg/hRPese4H3F" class="hero-journey-btn" target="_blank" rel="noopener noreferrer">Start Journey, Join Discord &#9654;</a>
     </div>
   </div>
@@ -228,9 +228,15 @@ css: styles/home.css
 
 ::: {.content-section}
 
-**Cohort: 1 May 2026 — 31 July 2026 (3 months)** [<span class="cohort-live-badge"><span class="cohort-live-dot" aria-hidden="true"></span>Live</span>]{.cohort-live-wrap}
+**Cohort: 1 May 2026 — 30 June 2026** [<span class="cohort-live-badge cohort-archived-badge"><span class="cohort-live-dot" aria-hidden="true"></span>Archived</span>]{.cohort-live-wrap}
 
-First Break AI is a free, community-driven cohort for anyone who wants their first break in AI — and the first cohort that is **completely agentic**. It doesn't matter what you studied or where you work — what matters is that you're ready to learn by doing. We focus on what matters: running and training models, understanding inference, building with AI agents, and shipping agentic AI products. AI agents are woven into every layer of the cohort: an agentic MCP server answers your questions, AI agents validate your code against rubrics, track your progress across devices, and guide you through the roadmap step by step. The agentic backbone is built on [FetchLens.ai](https://fetchlens.ai) — the same platform that makes AI agent traffic visible to websites. Most learning is self-directed and peer-supported; the roadmap, checklist, and resources live in the open so you can contribute and others can follow. The goal is simple: **upskill, build, showcase** — and get that first role or first break in AI.
+First Break AI is evolving. Cohort 01 started as a live + async cohort — and the first cohort that is **completely agentic**. But the clearest signal is that serious learners do not need more passive sessions — they need a better way to touch real AI systems directly.
+
+So the focus is moving to **[FBA Lab](https://bubblnet.com/)**. FBA Lab is the new hands-on front door: real model code, synced architecture diagrams, terminal logs, and explanations that move together. No GPU, no setup, no account required to start.
+
+Because of this, weekly office hours will pause. The cohort will stay open and async. Focused sessions will run only when there is real work to review: demos, project submissions, debugging, training runs, or walkthrough requests.
+
+This keeps the community focused on builders, not passive attendance. AI agents are woven into every layer of the cohort: an agentic MCP server answers your questions, AI agents validate your code against rubrics, track your progress across devices, and guide you through the roadmap step by step. The agentic backbone is built on [FetchLens.ai](https://fetchlens.ai). The goal is simple: **upskill, build, showcase** — and get that first role or first break in AI.
 
 ## Who it's for
 
@@ -258,14 +264,15 @@ This agentic infrastructure is built on **[FetchLens.ai](https://fetchlens.ai)**
 The result: **AI agents don't replace the instructor — they multiply the instructor.** Every learner gets a personal AI agent that knows the curriculum and their progress. That's the difference between a static course and an agentic AI cohort.
 
 ::: {.cta-banner}
-### Ready to start your journey?
+### Ready to build?
 
-This is a free, community-driven cohort. To join, sign up on Discord — that's where the cohort lives, where you get help, and where you connect with fellow learners.
+The cohort is archived and fully async. Start with FBA Lab — hands-on AI system work, no GPU or setup required. Join Discord for community support.
 
-[Join Discord and start learning](https://discord.gg/hRPese4H3F){.cta-button}
+[Start with FBA Lab](https://bubblnet.com/){.cta-button}
 
-**Office Hours:** Every Friday, 9:00 — 10:00 PM IST. Meeting link shared on Discord.
-<span class="office-hours-local"></span>
+[Join Discord](https://discord.gg/hRPese4H3F){.cta-button}
+
+**Focused sessions** run when there is real work to review: demos, project submissions, debugging, training runs, or walkthrough requests. Announcements on Discord.
 
 ::: {.cta-fineprint}
 Recommended for learners aged **16+**. If you are under 18, please join only with parent or guardian permission. By joining you agree to our [Community Guidelines](community-guidelines.qmd), [Terms](terms.qmd), and [Privacy Policy](privacy.qmd).
@@ -326,29 +333,10 @@ Recommended for learners aged **16+**. If you are under 18, please join only wit
   </details>
 
   <details class="faq-item">
-    <summary>Is this really free? What's the catch?</summary>
-    <div class="faq-body">
-      <p>Yes, free. No paywall, no upsell, no certificate-for-a-fee. For comparison, three current AI-engineering cohorts that audience-overlapping learners are already paying for:</p>
-      <table class="faq-compare">
-        <thead>
-          <tr><th></th><th>Length</th><th>Time / wk</th><th>Price</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>Paid cohort A</td><td>4 weeks</td><td>~6 hrs</td><td><strong>$2,000</strong></td></tr>
-          <tr><td>Paid cohort B</td><td>8 weeks</td><td>10–12 hrs</td><td><strong>$2,000</strong></td></tr>
-          <tr><td>Paid cohort C</td><td>6 weeks</td><td>5+ hrs</td><td>(sold out)</td></tr>
-          <tr class="faq-compare-self"><td><strong>First Break AI</strong></td><td><strong>8 weeks</strong></td><td>5–8 hrs</td><td><strong>$0</strong></td></tr>
-        </tbody>
-      </table>
-      <p>Same scope, free, longer cohort window. The catch is you have to show up — the cohort works because <em>you</em> build in public, not because we chase you.</p>
-    </div>
-  </details>
-
-  <details class="faq-item">
     <summary>How much time per week do I need to commit?</summary>
     <div class="faq-body">
-      <p>Plan for <strong>5–8 hours a week</strong> to comfortably keep up — one lesson, Friday office hours, and the homework. Comparable paid cohorts ask for 5–12 hours per week, so this is in the same range.</p>
-      <p>Many learners spend more by choice; the roadmap goes deeper than the weekly minimum and the code is open. Cohort 01 runs <strong>1 May 2026 – 31 July 2026</strong>, but everything stays online afterward, so you can also move at your own pace.</p>
+      <p>Plan for <strong>5–8 hours a week</strong> to comfortably work through the lessons and roadmap. The async materials are self-paced — there is no required weekly commitment.</p>
+      <p>Cohort 01 ran <strong>1 May 2026 – 30 June 2026</strong> and is now archived. Everything stays online, so you can move at your own pace.</p>
     </div>
   </details>
 
@@ -371,8 +359,8 @@ Recommended for learners aged **16+**. If you are under 18, please join only wit
   <details class="faq-item">
     <summary>What if I miss a session, or join mid-cohort?</summary>
     <div class="faq-body">
-      <p>Everything is asynchronous-friendly. Office hours are recorded; lesson recaps and transcripts are interactive and searchable.</p>
-      <p>You can join Cohort 01 today, in three weeks, or after Cohort 01 ends — the materials stay online and the Discord stays active. Nobody is gated.</p>
+      <p>Everything is asynchronous. Cohort 01 is archived — all lessons, recaps, and transcripts stay online and are searchable.</p>
+      <p>The Discord stays active and the materials are available to anyone. Focused sessions run when there is real work to review.</p>
     </div>
   </details>
 
@@ -382,7 +370,7 @@ Recommended for learners aged **16+**. If you are under 18, please join only wit
       <p>First Break AI is <strong>openly inspired by Andrej Karpathy's <a href="https://www.youtube.com/watch?v=l8pRSuU81PU"><em>Let's reproduce GPT-2 (124M)</em></a> and <a href="https://github.com/karpathy/llm.c"><code>llm.c</code></a></strong> — the from-scratch, no-magic, run-it-in-pure-C approach to teaching how LLMs actually work. Those are still the gold standard for a single lecturer building a model in front of you, and they are the philosophical foundation under this entire cohort. The pure-C Qwen3 demo in <a href="lessons/lesson-1-huggingface-beyond-upload.qmd">Lesson 1</a> (<a href="https://github.com/thefirehacker/QWEN3-RunLocally">code</a> by William Song) is the direct intellectual descendant of <code>llm.c</code>.</p>
       <p>We sit on top of that work and extend it in four directions:</p>
       <ul>
-        <li><strong>Cohort-based.</strong> Live Friday office hours, 9–10 PM IST, where you can ask anything. Karpathy's lectures are one-way; this is two-way.</li>
+        <li><strong>Cohort-based.</strong> Office hours run when there is real work to review — demos, project submissions, debugging, and walkthroughs. Karpathy's lectures are one-way; this is two-way.</li>
         <li><strong>2026-current stack with AI agents.</strong> Qwen3 instead of GPT-2, <code>transformers</code> v5, vLLM, AI agents, agentic AI tooling, MCP, and the HuggingFace supply-chain lens — but the teaching philosophy (run the model first, study the math after) is Karpathy's, applied to today's models and agentic workflows.</li>
         <li><strong>Shipping a product is in scope.</strong> Step 5 of the roadmap is building a deployed AI product, not just training a model in a notebook.</li>
         <li><strong>Completely agentic, by design.</strong> First Break AI is built around AI agents from day one. The cohort ships a public MCP server, a CLI with built-in AI agent tools, an on-site AI assistant widget, and structured data (<code>Course</code>, <code>FAQPage</code>) for AI answer engines. Your AI agent can enroll you, validate your homework, track your progress, and guide you through the roadmap — all via standard agentic protocols (MCP). <a href="lessons/lesson-1-huggingface-beyond-upload.qmd">Lesson 1</a> walks you through <a href="https://huggingface.co/docs/dataset-viewer/croissant">Croissant</a> — the same machine-readable lens, applied to model and dataset releases.</li>
@@ -446,18 +434,10 @@ Recommended for learners aged **16+**. If you are under 18, please join only wit
     },
     {
       "@type": "Question",
-      "name": "Is this really free? What's the catch?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Yes, free. No paywall, no upsell, no certificate-for-a-fee. For comparison, three current AI-engineering cohorts that audience-overlapping learners are already paying for charge between $1,000 and $2,000 USD for 4 to 8 weeks, with 5 to 12 hours per week. First Break AI is 8 weeks, 5 to 8 hours per week, $0. Same scope, free, longer cohort window. The catch is you have to show up — the cohort works because you build in public, not because we chase you."
-      }
-    },
-    {
-      "@type": "Question",
       "name": "How much time per week do I need to commit?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Plan for 5 to 8 hours a week to comfortably keep up — one lesson, Friday office hours, and the homework. Comparable paid cohorts ask for 5 to 12 hours per week, so this is in the same range. Many learners spend more by choice; the roadmap goes deeper than the weekly minimum and the code is open. Cohort 01 runs 1 May 2026 to 31 July 2026, but everything stays online afterward, so you can also move at your own pace."
+        "text": "Plan for 5 to 8 hours a week to comfortably work through the lessons and roadmap. The async materials are self-paced — there is no required weekly commitment. Cohort 01 ran 1 May 2026 to 30 June 2026 and is now archived. Everything stays online, so you can move at your own pace."
       }
     },
     {
@@ -481,7 +461,7 @@ Recommended for learners aged **16+**. If you are under 18, please join only wit
       "name": "What if I miss a session, or join mid-cohort?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Everything is asynchronous-friendly. Office hours are recorded; lesson recaps and transcripts are interactive and searchable. You can join Cohort 01 today, in three weeks, or after Cohort 01 ends — the materials stay online and the Discord stays active. Nobody is gated."
+        "text": "Everything is asynchronous. Cohort 01 is archived — all lessons, recaps, and transcripts stay online and are searchable. The Discord stays active and materials are available to anyone. Focused sessions run when there is real work to review."
       }
     },
     {
@@ -489,7 +469,7 @@ Recommended for learners aged **16+**. If you are under 18, please join only wit
       "name": "How is this different from fast.ai, Karpathy's lectures, or HuggingFace's free course?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "First Break AI is openly inspired by Andrej Karpathy's Let's reproduce GPT-2 (124M) and llm.c — the from-scratch, no-magic, run-it-in-pure-C approach to teaching how LLMs actually work. Those are still the gold standard for a single lecturer building a model in front of you, and they are the philosophical foundation under this entire cohort. The pure-C Qwen3 demo in Lesson 1 (code by William Song) is the direct intellectual descendant of llm.c. We sit on top of that work and extend it in four directions. First, cohort-based: live Friday office hours where you can ask anything. Second, a 2026-current stack: Qwen3 instead of GPT-2, transformers v5, vLLM, AI agents, agentic AI tooling, the HuggingFace supply-chain lens. Third, shipping a product is in scope — Step 5 of the roadmap is building a deployed AI product, not just training a model in a notebook. Fourth, completely agentic by design: First Break AI is the first cohort built around AI agents from day one. AI agents answer questions, validate homework, track progress, and guide learners through the roadmap — all via the Model Context Protocol (MCP). The agentic infrastructure is powered by FetchLens.ai, which provides the MCP server backbone, the AI agent widget on every page, and authenticated progress tracking. You don't just learn about AI agents — you use them throughout the cohort. fast.ai and HuggingFace's free course are excellent complementary reads, and the roadmap links to them where they fit."
+        "text": "First Break AI is openly inspired by Andrej Karpathy's Let's reproduce GPT-2 (124M) and llm.c — the from-scratch, no-magic, run-it-in-pure-C approach to teaching how LLMs actually work. Those are still the gold standard for a single lecturer building a model in front of you, and they are the philosophical foundation under this entire cohort. The pure-C Qwen3 demo in Lesson 1 (code by William Song) is the direct intellectual descendant of llm.c. We sit on top of that work and extend it in four directions. First, cohort-based: office hours run when there is real work to review — demos, project submissions, debugging, and walkthroughs. Second, a 2026-current stack: Qwen3 instead of GPT-2, transformers v5, vLLM, AI agents, agentic AI tooling, the HuggingFace supply-chain lens. Third, shipping a product is in scope — Step 5 of the roadmap is building a deployed AI product, not just training a model in a notebook. Fourth, completely agentic by design: First Break AI is the first cohort built around AI agents from day one. AI agents answer questions, validate homework, track progress, and guide learners through the roadmap — all via the Model Context Protocol (MCP). The agentic infrastructure is powered by FetchLens.ai, which provides the MCP server backbone, the AI agent widget on every page, and authenticated progress tracking. You don't just learn about AI agents — you use them throughout the cohort. fast.ai and HuggingFace's free course are excellent complementary reads, and the roadmap links to them where they fit."
       }
     },
     {

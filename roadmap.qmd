@@ -5,7 +5,7 @@ description: "Step-by-step learning path: set up a Quarto blog, run models local
 css: styles/roadmap.css
 ---
 
-Your learning path — one journey, step by step. The cohort runs **1 May 2026 — 31 July 2026 (3 months)**. Use your AI-based IDE and the community to complete each step. This roadmap is in progress; new steps get added as the cohort grows.
+Your learning path — one journey, step by step. Cohort 01 ran **1 May 2026 — 30 June 2026** and is now **archived**. Steps 1 and 2 are fully documented. Steps 3 onwards continue in **[FBA Lab](https://bubblnet.com/)** — hands-on, no GPU or setup required. Use your AI-based IDE and the community to complete each step.
 
 ::: {.callout-important}
 ## Before you begin
@@ -141,6 +141,8 @@ Run Qwen3 0.6B locally in pure C — trace every operation from tokenization to 
 
 Go beyond running a model — understand how inference works under the hood and how to serve models at scale.
 
+*This step continues in [FBA Lab](https://bubblnet.com/) — hands-on, no setup required.*
+
 <details>
 <summary><strong>Show details ↓</strong></summary>
 
@@ -177,6 +179,8 @@ Go beyond running a model — understand how inference works under the hood and 
 ### Training fundamentals
 
 Build the foundations to train and fine-tune models from scratch — from a single GPU to distributed multi-node setups.
+
+*This step continues in [FBA Lab](https://bubblnet.com/) — hands-on, no setup required.*
 
 <details>
 <summary><strong>Show details ↓</strong></summary>
@@ -227,6 +231,8 @@ Build the foundations to train and fine-tune models from scratch — from a sing
 
 Ship an AI-powered product end to end — from idea to deployed, monitored application.
 
+*This step continues in [FBA Lab](https://bubblnet.com/) — hands-on, no setup required.*
+
 <details>
 <summary><strong>Show details ↓</strong></summary>
 
@@ -254,6 +260,8 @@ Ship an AI-powered product end to end — from idea to deployed, monitored appli
 ### Capstone project or open-source contribution
 
 Prove what you've learned. Pick one: ship a capstone project or make a meaningful contribution to an open-source AI project.
+
+*This step continues in [FBA Lab](https://bubblnet.com/) — hands-on, no setup required.*
 
 <details>
 <summary><strong>Show details ↓</strong></summary>
@@ -352,6 +360,8 @@ Prove what you've learned. Pick one: ship a capstone project or make a meaningfu
 ::: {.step-normal}
 ### Step 3: Inference deep dive
 
+*This step continues in [FBA Lab](https://bubblnet.com/) — hands-on, no setup required.*
+
 **Goal:** Go beyond running a model — understand how inference works under the hood and how to serve models.
 
 **Topics:** Inference engines and runtimes (vLLM, TGI, llama.cpp server) · Batching and continuous batching · Quantization (GGUF, GPTQ, AWQ) · Structured output, function calling, and tool use · Serving and API design for inference endpoints
@@ -369,6 +379,8 @@ Prove what you've learned. Pick one: ship a capstone project or make a meaningfu
 
 ::: {.step-normal}
 ### Step 4: Training fundamentals
+
+*This step continues in [FBA Lab](https://bubblnet.com/) — hands-on, no setup required.*
 
 **Goal:** Build the foundations to train and fine-tune models from scratch.
 
@@ -393,6 +405,8 @@ Prove what you've learned. Pick one: ship a capstone project or make a meaningfu
 ::: {.step-normal}
 ### Step 5: Build an AI product (coming soon)
 
+*This step continues in [FBA Lab](https://bubblnet.com/) — hands-on, no setup required.*
+
 **Goal:** Ship an AI-powered product end to end.
 
 **Topics:** Product thinking · Building with APIs, RAG, agents, and tool use · Frontend/backend integration · Deployment, monitoring, and iteration
@@ -404,6 +418,8 @@ Prove what you've learned. Pick one: ship a capstone project or make a meaningfu
 
 ::: {.step-normal}
 ### Step 6: Capstone project or open-source contribution (coming soon)
+
+*This step continues in [FBA Lab](https://bubblnet.com/) — hands-on, no setup required.*
 
 **Goal:** Prove what you've learned. Pick one: build a capstone project or make a meaningful contribution to an open-source AI project.
 
