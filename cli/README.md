@@ -108,7 +108,6 @@ If you're logged in (`firstbreakai login`), results are also saved to your profi
 - [Roadmap](https://cohort.bubblnet.com/roadmap)
 - [Lessons](https://cohort.bubblnet.com/lessons/)
 - [Checklist](https://cohort.bubblnet.com/checklist)
-- [Discord](https://discord.gg/hRPese4H3F)
 - [GitHub](https://github.com/thefirehacker/firstbreakai)
 
 ## License

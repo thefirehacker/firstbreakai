@@ -4,7 +4,6 @@ description: "First Break AI is the first fully agentic AI cohort — AI agents 
 title-block-style: none
 css: styles/home.css
 include-after-body:
-  - includes/fba-mcp-widget.html
   - includes/mermaid-zoom.html
   - includes/github-card.html
   - includes/lesson-player.html
@@ -18,7 +17,7 @@ include-after-body:
       <h1 class="hero-title">First Break AI</h1>
       <p class="hero-tagline">The first fully agentic AI cohort — AI agents guide your journey from first commit to capstone</p>
       <p class="hero-sub">Community cohort for training, inference, and agentic AI — now evolving to <a href="https://bubblnet.com/" target="_blank" rel="noopener" style="color:#f0ebe1;text-decoration:underline">FBA Lab</a>. Powered by AI agents built on <a href="https://fetchlens.ai" target="_blank" rel="noopener" style="color:#f0ebe1;text-decoration:underline">FetchLens.ai</a></p>
-      <a href="https://discord.gg/hRPese4H3F" class="hero-journey-btn" target="_blank" rel="noopener noreferrer">Start Journey, Join Discord &#9654;</a>
+      <a href="https://bubblnet.com/" class="hero-journey-btn" target="_blank" rel="noopener noreferrer">Start the Journey &#9654;</a>
     </div>
   </div>
 </div>
@@ -281,13 +280,11 @@ The result: **AI agents don't replace the instructor — they multiply the instr
 ::: {.cta-banner}
 ### Ready to build?
 
-The cohort is archived and fully async. Start with FBA Lab — hands-on AI system work, no GPU or setup required. Join Discord for community support.
+The cohort is archived and fully async. Start with FBA Lab — hands-on AI system work, no GPU or setup required.
 
 [Start with FBA Lab](https://bubblnet.com/){.cta-button}
 
-[Join Discord](https://discord.gg/hRPese4H3F){.cta-button}
-
-**Focused sessions** run when there is real work to review: demos, project submissions, debugging, training runs, or walkthrough requests. Announcements on Discord.
+**Focused sessions** run when there is real work to review: demos, project submissions, debugging, training runs, or walkthrough requests.
 
 ::: {.cta-fineprint}
 Recommended for learners aged **16+**. If you are under 18, please join only with parent or guardian permission. By joining you agree to our [Community Guidelines](community-guidelines.qmd), [Terms](terms.qmd), and [Privacy Policy](privacy.qmd).

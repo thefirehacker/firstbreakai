@@ -458,9 +458,8 @@ Everything referenced today, in one place.
 
 ## Cohort tooling
 
-- **[First Break AI site](../index.qmd)** — log in via Discord (bottom-right widget) to unlock roadmap progress and lesson checkboxes.
+- **[First Break AI site](../index.qmd)** — log in to unlock roadmap progress and lesson checkboxes.
 - **`firstbreakai` CLI** — `npm install -g firstbreakai`, then `firstbreakai login`, `firstbreakai status`, `firstbreakai validate <step>`.
-- **[Discord](https://discord.gg/hRPese4H3F)** — auth + notifications + every cohort question.
 
 ## Lessons and chapters
 

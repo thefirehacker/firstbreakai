@@ -67,8 +67,7 @@ This is the cohort intro. It walks through the **six stages of the journey**, th
 
 ## Next steps
 
-1. Join the [First Break AI Discord](https://discord.gg/hRPese4H3F).
-2. Walk through the [Roadmap](../roadmap.qmd).
+1. Walk through the [Roadmap](../roadmap.qmd).
 3. Tick off the [Checklist](../checklist.qmd).
 4. Complete the [AI Setup](../setup.qmd).
 5. Begin the [Roadmap](../roadmap.qmd) — start with Step 1 and work your way through.

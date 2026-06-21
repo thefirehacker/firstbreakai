@@ -8,13 +8,13 @@ Complete these before you start the cohort.
 
 ::: {.checklist-highlight}
 
-### Step 0: Join the Discord
+### Step 0: Start with FBA Lab
 
-Everything starts here. Join the Discord to connect with the cohort, ask questions, share progress, and get help.
+Everything starts here. Head to FBA Lab to begin hands-on AI system work — no GPU or setup required.
 
-[Join Discord](https://discord.gg/hRPese4H3F){.cta-button-checklist}
+[Open FBA Lab](https://bubblnet.com/){.cta-button-checklist}
 
-**Office Hours:** Every Friday, 9:00 — 10:00 PM IST. Meeting link shared on Discord.
+**Office Hours:** Every Friday, 9:00 — 10:00 PM IST.
 <span class="office-hours-local"></span>
 
 :::

@@ -358,7 +358,7 @@ We mentioned [Scratch to Scale](https://www.scrachtoscale.com/) as an example of
 - Projects that build on each other
 - Public accountability (blogging, sharing work)
 
-First Break AI follows this pattern: the [Roadmap](../roadmap.qmd) is the learning path, office hours are the touchpoints, [Discord](https://discord.gg/hRPese4H3F) is the async channel, and each step builds on the previous one.
+First Break AI follows this pattern: the [Roadmap](../roadmap.qmd) is the learning path, office hours are the touchpoints, and each step builds on the previous one.
 
 ---
 

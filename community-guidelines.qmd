@@ -7,7 +7,7 @@ date-meta: "2026-05-15"
 
 *Last updated: 15 May 2026*
 
-These are the same rules pinned in our [Discord](https://discord.gg/hRPese4H3F) `#rules` channel. They apply to the website, the Discord server, office hours, and anywhere else First Break AI operates as a community.
+These rules apply to the website, office hours, and anywhere else First Break AI operates as a community.
 
 By joining, you agree to follow these rules. They sit alongside our [Terms of Use](terms.qmd) and [Privacy Policy](privacy.qmd).
 

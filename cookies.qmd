@@ -43,7 +43,6 @@ Some pages embed content from other services. When that content loads, those ser
 | Embed | Cookies set by | Where it appears |
 |---|---|---|
 | YouTube video player | `youtube.com`, `google.com` | Lesson pages, journey, blog |
-| Discord widgets / invite links | `discord.com` | Office hours page, CTAs |
 | GitHub gists / cards | `github.com` | Some blog and project posts |
 
 Each of those services has its own privacy and cookie policy.
@@ -65,7 +64,7 @@ Blocking strictly-necessary cookies may break parts of the site. Blocking analyt
 
 ## Changes to this policy
 
-We will update the "Last updated" date at the top of this page when this policy changes. If we ever add advertising or marketing cookies, we will announce it on the [Discord server](https://discord.gg/hRPese4H3F) and seek consent where required.
+We will update the "Last updated" date at the top of this page when this policy changes. If we ever add advertising or marketing cookies, we will seek consent where required.
 
 ## Contact
 

@@ -24,6 +24,21 @@
   padding: 0.1rem 0.45rem;
   border-radius: 0.2rem;
 }
+.fbalab-notice a {
+  color: #fff;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1.5px;
+  background: rgba(255,255,255,0.15);
+  padding: 0.05rem 0.35rem;
+  border-radius: 0.2rem;
+  transition: background 0.15s;
+}
+.fbalab-notice a:hover {
+  background: rgba(255,255,255,0.28);
+  text-decoration: underline;
+}
 
 /* Hero */
 .fbalab-hero {

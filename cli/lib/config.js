@@ -4,7 +4,6 @@ import { join } from 'node:path';
 export const COHORT_NAME = 'First Break AI';
 export const COHORT_URL = 'https://cohort.bubblnet.com';
 export const MCP_WORKER_URL = 'https://fba-mcp.throbbing-thunder-4d33.workers.dev';
-export const DISCORD_INVITE = 'https://discord.gg/hRPese4H3F';
 export const REPO_URL = 'https://github.com/thefirehacker/firstbreakai';
 
 export const PROGRESS_FILE = join(homedir(), '.firstbreakai.json');
@@ -17,7 +16,6 @@ export const PAGES = {
   setup:      `${COHORT_URL}/setup`,
   docs:       `${COHORT_URL}/docs`,
   blog:       `${COHORT_URL}/blog/`,
-  discord:    DISCORD_INVITE,
   repo:       REPO_URL,
   office:     `${COHORT_URL}/office-hours/`,
 };
@@ -25,7 +23,7 @@ export const PAGES = {
 export const STEPS = [
   {
     id: 0,
-    title: 'Join Discord & create accounts',
+    title: 'Set up accounts',
     url: `${COHORT_URL}/checklist`,
     lessons: [],
   },

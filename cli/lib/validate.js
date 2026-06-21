@@ -32,14 +32,6 @@ const rubrics = {
       },
     },
     {
-      name: 'Member of FBA Discord server',
-      hint: 'Join the Discord: https://discord.gg/hRPese4H3F — then run "firstbreakai login"',
-      check: async () => {
-        const profile = await getServerProfile();
-        return profile?.in_guild === true || profile?.in_guild === 1;
-      },
-    },
-    {
       name: 'Git installed',
       hint: 'Install Git: https://git-scm.com/downloads',
       check: () => {
