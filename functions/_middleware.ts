@@ -1,5 +1,3 @@
-import { createPagesMiddleware } from '@aiedx/fetchlens-cloudflare'
-
 const CANONICAL_HOST = 'cohort.bubblnet.com'
 
 async function canonicalHostRedirect(context: {
@@ -14,12 +12,4 @@ async function canonicalHostRedirect(context: {
   return context.next()
 }
 
-const fetchlens = createPagesMiddleware({
-  siteId: CANONICAL_HOST,
-  apiEndpoint: 'https://fetchlens.ai',
-  siteTag: 'fl_pub_6f78bbfb4264f7b4b76c3b86272e1b49',
-  observeOnly: true,
-  blockVulnScans: false,
-})
-
-export const onRequest = [canonicalHostRedirect, fetchlens]
+export const onRequest = [canonicalHostRedirect]
