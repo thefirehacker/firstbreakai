@@ -91,6 +91,14 @@ include-after-body:
       <a href="https://bubblnet.com/" class="fbalab-cta" target="_blank" rel="noopener">
         Open FBA Lab &nbsp;→
       </a>
+      <a href="https://discord.gg/u8DJ2SFKpY" class="fbalab-discord-card" target="_blank" rel="noopener">
+        <span class="fbalab-card-icon">⬡</span>
+        <div class="fbalab-discord-card-body">
+          <h3>Join the Discord</h3>
+          <p>Ask questions, share builds, and stay in the loop with FBA Lab.</p>
+        </div>
+        <span class="fbalab-discord-cta">Join Discord &nbsp;→</span>
+      </a>
     </div>
   </section>
 
