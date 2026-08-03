@@ -33,6 +33,21 @@ include-after-body:
     </div>
   </section>
 
+  <!-- ── Community: Discord ── -->
+  <section class="fbalab-community" aria-labelledby="fbalab-community-title">
+    <div class="fbalab-community-inner">
+      <p class="fbalab-community-eyebrow">Community</p>
+      <h2 id="fbalab-community-title" class="fbalab-community-title">Join the room.</h2>
+      <p class="fbalab-community-sub">Discord is where questions, builds, and updates live.</p>
+      <a href="https://discord.gg/u8DJ2SFKpY" class="fbalab-community-action" target="_blank" rel="noopener">
+        <span class="fbalab-community-kicker">Discord</span>
+        <strong>Join the server</strong>
+        <span class="fbalab-community-desc">Ask questions, share builds, and stay in the loop.</span>
+        <span class="fbalab-community-link">Open Discord &nbsp;→</span>
+      </a>
+    </div>
+  </section>
+
   <!-- ── What is FBA Lab ── -->
   <section class="fbalab-what">
     <div class="fbalab-what-inner">
@@ -90,14 +105,6 @@ include-after-body:
       <p>FBA Lab is live.</p>
       <a href="https://bubblnet.com/" class="fbalab-cta" target="_blank" rel="noopener">
         Open FBA Lab &nbsp;→
-      </a>
-      <a href="https://discord.gg/u8DJ2SFKpY" class="fbalab-discord-card" target="_blank" rel="noopener">
-        <span class="fbalab-card-icon">⬡</span>
-        <div class="fbalab-discord-card-body">
-          <h3>Join the Discord</h3>
-          <p>Ask questions, share builds, and stay in the loop with FBA Lab.</p>
-        </div>
-        <span class="fbalab-discord-cta">Join Discord &nbsp;→</span>
       </a>
     </div>
   </section>

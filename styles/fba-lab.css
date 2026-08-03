@@ -90,11 +90,100 @@
   color: #111110;
   text-decoration: none;
 }
+/* Community — Discord join + Discord login, above What is FBA Lab */
+.fbalab-community {
+  background: #f7f4ef;
+  padding: 3rem 1.5rem 0.5rem;
+  text-align: center;
+  border-top: 1px solid rgba(201, 168, 76, 0.18);
+}
+.fbalab-community-inner {
+  max-width: 760px;
+  margin: 0 auto;
+}
+.fbalab-community-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8a6f2a;
+  margin: 0 0 0.65rem;
+}
+.fbalab-community-title {
+  font-size: clamp(1.35rem, 3vw, 1.7rem);
+  font-weight: 800;
+  color: #1a1a18;
+  margin: 0 0 0.55rem;
+  line-height: 1.2;
+}
+.fbalab-community-sub {
+  font-size: 0.95rem;
+  color: #555;
+  max-width: 480px;
+  margin: 0 auto 1.6rem;
+  line-height: 1.55;
+}
+.fbalab-community-action {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 1.35rem 1.3rem 1.25rem;
+  background: #fff;
+  border: 1px solid #e5e0d8;
+  border-radius: 0.55rem;
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, transform 0.12s ease, background 0.15s ease;
+}
+.fbalab-community-action:hover {
+  border-color: #c9a84c;
+  background: #fffdf8;
+  transform: translateY(-2px);
+  text-decoration: none;
+  color: inherit;
+}
+.fbalab-community-kicker {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8a6f2a;
+}
+.fbalab-community-action strong {
+  font-size: 1.05rem;
+  font-weight: 750;
+  color: #1a1a18;
+  line-height: 1.25;
+}
+.fbalab-community-desc {
+  font-size: 0.88rem;
+  color: #555;
+  line-height: 1.5;
+  margin-bottom: 0.45rem;
+}
+.fbalab-community-link {
+  margin-top: auto;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #8a6f2a;
+}
+.fbalab-community-action:hover .fbalab-community-link {
+  color: #6e5818;
+}
+@media (max-width: 640px) {
+  .fbalab-community {
+    padding: 2.25rem 1.15rem 0.25rem;
+  }
+}
 
 /* What is FBA Lab */
 .fbalab-what {
   background: #f7f4ef;
-  padding: 4rem 1.5rem;
+  padding: 2.75rem 1.5rem 4rem;
   text-align: center;
 }
 .fbalab-what-inner {
@@ -199,44 +288,4 @@
   color: #c8c0b0;
   margin-bottom: 1.8rem;
   font-size: 1rem;
-}
-.fbalab-discord-card {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.35rem;
-  margin: 1.75rem auto 0;
-  max-width: 420px;
-  text-align: left;
-  background: #fff;
-  border: 1px solid #e5e0d8;
-  border-radius: 0.6rem;
-  padding: 1.5rem 1.25rem;
-  text-decoration: none;
-  transition: border-color 0.15s ease, transform 0.1s ease;
-}
-.fbalab-discord-card:hover {
-  border-color: #c9a84c;
-  transform: translateY(-1px);
-  text-decoration: none;
-}
-.fbalab-discord-card .fbalab-card-icon {
-  margin-bottom: 0.35rem;
-}
-.fbalab-discord-card-body h3 {
-  font-size: 1rem;
-  font-weight: 700;
-  margin: 0 0 0.35rem;
-  color: #1a1a18;
-}
-.fbalab-discord-card-body p {
-  font-size: 0.88rem;
-  color: #555;
-  line-height: 1.55;
-  margin: 0 0 0.85rem;
-}
-.fbalab-discord-cta {
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: #c9a84c;
 }
