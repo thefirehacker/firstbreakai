@@ -1,6 +1,6 @@
 ---
 title: "First Break AI"
-description: "First Break AI is the first fully agentic AI cohort — AI agents guide your learning from first commit to capstone. Learn inference, training, and agentic AI product building with AI agents that answer questions, validate code, and track progress. Powered by FetchLens.ai. Now evolving to FBA Lab."
+description: "First Break AI is a free, fully agentic AI cohort — AI agents guide your learning from first commit to capstone. Learn inference, training, and agentic AI product building. First steps here; next steps continue hands-on in FBA Lab. Powered by FetchLens.ai."
 title-block-style: none
 css: styles/home.css
 include-after-body:
@@ -165,7 +165,7 @@ Recommended for learners aged **16+**. If you are under 18, please join only wit
      aria-label="Open the First Break AI anatomy poster full-size in a new tab">
     <img class="cohort-poster-img"
          src="public/images/firstbreakai-anatomy-poster-1500.webp"
-         alt="First Break AI cohort poster — Anatomy of a First Break in AI. Cohort 01, 1 May – 31 July 2026."
+         alt="First Break AI cohort poster — Anatomy of a First Break in AI. Cohort 01, 1 May – 30 June 2026."
          width="1332"
          height="1868"
          loading="lazy"
