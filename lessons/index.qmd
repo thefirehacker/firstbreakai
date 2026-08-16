@@ -92,4 +92,26 @@ Serve **Qwen2.5 Coder** with **llama.cpp server**, connect **Cline** via OpenAI-
 
 :::
 
+## [Step 4]{.section-tag .step-4} Training fundamentals {.section-heading}
+
+::: {.section-blurb}
+Training continues hands-on in FBA Lab — no GPU, no setup. Start with the LLM Training Speedrun baseline.
+:::
+
+::: {.blog-cards .lesson-cards-row}
+
+:::: {.blog-card .blog-card-lesson .blog-card-fbalab}
+[FBA Lab · Step 4]{.blog-card-label}
+
+### LLM Training Speedrun — #1 Baseline
+
+::: {.blog-card-desc}
+Walk a real 8× H100 GPT-2 run one diff at a time. Baseline GPT-2 depth-12, DDP on FineWeb, target val loss 3.28.
+:::
+
+[Open in FBA Lab](https://bubblnet.com/lab/speedrun/journey/tyler-01){.blog-card-link target="_blank"}
+::::
+
+:::
+
 More lessons will be published here as the cohort progresses.

@@ -182,6 +182,12 @@ Build the foundations to train and fine-tune models from scratch — from a sing
 
 *This step continues in [FBA Lab](https://bubblnet.com/) — hands-on, no setup required.*
 
+**Continue in FBA Lab — LLM Training Speedrun** (start here, in order):
+
+1. [Speedrun overview](https://bubblnet.com/lab/speedrun){target="_blank"} — The skill you build (LLM Training & Systems Engineering), the three acts (Act 1 Model Training Fundamentals, Act 2 AI Systems Optimization, Act 3 World-Record Training Optimization), and the baseline: GPT-2 small (124M) trained from scratch to val loss 3.28 in 23 min on 8× H100 (6.44B tokens).
+2. [Welcome to FBA Lab](https://bubblnet.com/lab/speedrun/journey/welcome){target="_blank"} — How the journey works (speedrun milestones, profiler deep-dive, teaching arc), the 8-GPU DDP setup (ranks 0–7, rank 0 primary), and the four ways to learn each step (Watch, Read, Go deeper with Rune, Play).
+3. [#1 Baseline](https://bubblnet.com/lab/speedrun/journey/tyler-01){target="_blank"} — The baseline training run: GPT-2 depth-12 (RMSNorm, GELU MLP, learned position embeddings), DDP on FineWeb shards, target val loss 3.28. Walk the four code blocks (GPT model, DistributedDataLoader, Training loop, DDP setup) against a live diagram (loss 10.99 → 3.28).
+
 <details>
 <summary><strong>Show details ↓</strong></summary>
 
@@ -381,6 +387,12 @@ Prove what you've learned. Pick one: ship a capstone project or make a meaningfu
 ### Step 4: Training fundamentals
 
 *This step continues in [FBA Lab](https://bubblnet.com/) — hands-on, no setup required.*
+
+**Continue in FBA Lab — LLM Training Speedrun** (start here, in order):
+
+1. [Speedrun overview](https://bubblnet.com/lab/speedrun){target="_blank"} — The skill you build (LLM Training & Systems Engineering), the three acts (Act 1 Model Training Fundamentals, Act 2 AI Systems Optimization, Act 3 World-Record Training Optimization), and the baseline: GPT-2 small (124M) trained from scratch to val loss 3.28 in 23 min on 8× H100 (6.44B tokens).
+2. [Welcome to FBA Lab](https://bubblnet.com/lab/speedrun/journey/welcome){target="_blank"} — How the journey works (speedrun milestones, profiler deep-dive, teaching arc), the 8-GPU DDP setup (ranks 0–7, rank 0 primary), and the four ways to learn each step (Watch, Read, Go deeper with Rune, Play).
+3. [#1 Baseline](https://bubblnet.com/lab/speedrun/journey/tyler-01){target="_blank"} — The baseline training run: GPT-2 depth-12 (RMSNorm, GELU MLP, learned position embeddings), DDP on FineWeb shards, target val loss 3.28. Walk the four code blocks (GPT model, DistributedDataLoader, Training loop, DDP setup) against a live diagram (loss 10.99 → 3.28).
 
 **Goal:** Build the foundations to train and fine-tune models from scratch.
 

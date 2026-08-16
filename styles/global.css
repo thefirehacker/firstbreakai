@@ -176,6 +176,77 @@ table a:hover {
   }
 }
 
+/* ── Navbar — FBA Lab (stronger gold pill + pulse) ── */
+.navbar-nav .nav-link[href*="bubblnet.com"] {
+  position: relative;
+  background: linear-gradient(135deg, #f0b53a 0%, #d4881a 100%);
+  border: 1px solid rgba(255, 235, 175, 0.85);
+  border-radius: 999px;
+  padding: 0.45rem 1.20rem !important;
+  margin: 0 0.25rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #fff7e0 !important;
+  text-shadow: 0 1px 2px rgba(60, 35, 0, 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 220, 0.55),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.22),
+    0 2px 6px rgba(0, 0, 0, 0.35),
+    0 0 6px rgba(232, 170, 53, 0.35);
+  animation: fbalab-nav-glow 2.4s ease-in-out infinite;
+  transition: background 0.2s ease,
+              color 0.2s ease,
+              box-shadow 0.25s ease,
+              transform 0.15s ease;
+}
+.navbar-nav .nav-link[href*="bubblnet.com"]:hover {
+  background: linear-gradient(135deg, #f6c24a 0%, #e09620 100%);
+  border-color: rgba(255, 245, 200, 0.95);
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
+@keyframes fbalab-nav-glow {
+  0%, 100% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 248, 220, 0.55),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.22),
+      0 2px 6px rgba(0, 0, 0, 0.35),
+      0 0 6px rgba(232, 170, 53, 0.35);
+  }
+  50% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 248, 220, 0.55),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.22),
+      0 2px 6px rgba(0, 0, 0, 0.35),
+      0 0 18px rgba(240, 181, 58, 0.75);
+  }
+}
+
+/* ── Navbar — Join Discord (blurple pill) ── */
+.navbar-nav .nav-link[href*="discord.gg"] {
+  background: #5865F2;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  padding: 0.4rem 1rem !important;
+  margin: 0 0.25rem;
+  font-weight: 600;
+  color: #fff !important;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+.navbar-nav .nav-link[href*="discord.gg"]:hover {
+  background: #4752c4;
+  color: #fff !important;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 991.98px) {
+  .navbar-collapse .navbar-nav .nav-link[href*="bubblnet.com"],
+  .navbar-collapse .navbar-nav .nav-link[href*="discord.gg"] {
+    margin: 0.35rem 0.75rem;
+    padding: 0.55rem 1.25rem !important;
+  }
+}
+
 /* ── Footer ── */
 .nav-footer {
   background: #2c2417;

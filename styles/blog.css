@@ -147,6 +147,17 @@
 .blog-card-step-2.blog-card-lesson::before { content: "STEP 2"; color: #6b5c4c; background: rgba(107, 92, 76, 0.12); }
 .blog-card-step-3.blog-card-lesson::before { content: "STEP 3"; color: #7a5518; background: rgba(122, 85, 24, 0.1); }
 
+.blog-card-fbalab {
+  border-top-color: #d4a74a;
+  background: linear-gradient(180deg, #fdf6e6 0%, #faf6ee 65%);
+}
+.blog-card-fbalab .blog-card-label { color: #b87515; }
+.blog-card-fbalab.blog-card-lesson::before {
+  content: "FBA LAB";
+  color: #b87515;
+  background: rgba(212, 167, 74, 0.16);
+}
+
 .blog-card-lesson::before {
   position: absolute;
   top: 0.85rem;

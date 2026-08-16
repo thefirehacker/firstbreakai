@@ -44,21 +44,29 @@ website:
         text: About
       - href: roadmap.qmd
         text: Roadmap
+      - text: "★ FBA Lab"
+        href: "https://bubblnet.com/"
+        target: _blank
       - href: lessons/index.qmd
         text: Lessons
       - href: checklist.qmd
         text: Checklist
-      - href: setup.qmd
-        text: AI Setup
-      - href: docs.qmd
-        text: Docs
-      - href: blog/index.qmd
-        text: Blog
-      - href: project-watch/index.qmd
-        text: Project Watch
-      - href: office-hours/index.qmd
-        text: Office Hours
+      - text: More
+        menu:
+          - href: setup.qmd
+            text: AI Setup
+          - href: docs.qmd
+            text: Docs
+          - href: blog/index.qmd
+            text: Blog
+          - href: project-watch/index.qmd
+            text: Project Watch
+          - href: office-hours/index.qmd
+            text: Office Hours
     right:
+      - text: "Join Discord"
+        href: "https://discord.gg/u8DJ2SFKpY"
+        target: _blank
       - href: cohort.qmd
         text: Cohort Archive
       - icon: github
