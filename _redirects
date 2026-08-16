@@ -12,4 +12,8 @@
 /journey/      /roadmap   301
 /journey/*     /roadmap   301
 
+# Cohort archive page folded into home
+/cohort        /          301
+/cohort.html   /          301
+
 # No catch-all SPA routing - unknown paths return 404

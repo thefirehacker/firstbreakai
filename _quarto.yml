@@ -67,10 +67,8 @@ website:
       - text: "Join Discord"
         href: "https://discord.gg/u8DJ2SFKpY"
         target: _blank
-      - href: cohort.qmd
-        text: Cohort Archive
       - icon: github
-        href: "https://github.com/thefirehacker/firstbreakai"
+        href: "https://github.com/thefirehacker/ddp-training"
         text: Repo
   page-footer:
     left: "© 2026 First Break AI — Powered by [fetchlens.ai](https://fetchlens.ai)"

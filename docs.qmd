@@ -174,7 +174,7 @@ firstbreakai next
 
 ### `firstbreakai ask "<question>"`
 
-Sends your question to the [FBA AI assistant](index.qmd#install-fba-mcp) and prints the answer in your terminal.
+Sends your question to the [FBA AI assistant](index.qmd) and prints the answer in your terminal.
 
 ```bash
 firstbreakai ask "How do I download a model from HuggingFace?"
