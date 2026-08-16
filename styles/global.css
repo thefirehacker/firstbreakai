@@ -176,49 +176,52 @@ table a:hover {
   }
 }
 
-/* ── Navbar — FBA Lab (stronger gold pill + pulse) ── */
-.navbar-nav .nav-link[href*="bubblnet.com"] {
+/* ── Navbar — FBA Lab (max-focus gold pill + pulse)
+   Match only the FBA Lab origin. href*="bubblnet.com" also hits
+   rewritten cohort.bubblnet.com links and paints the whole nav yellow. */
+.navbar-nav .nav-link[href^="https://bubblnet.com"] {
   position: relative;
-  background: linear-gradient(135deg, #f0b53a 0%, #d4881a 100%);
-  border: 1px solid rgba(255, 235, 175, 0.85);
+  background: linear-gradient(135deg, #ffcc4d 0%, #e89612 100%);
+  border: 1.5px solid rgba(255, 245, 200, 0.95);
   border-radius: 999px;
-  padding: 0.45rem 1.20rem !important;
-  margin: 0 0.25rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  color: #fff7e0 !important;
-  text-shadow: 0 1px 2px rgba(60, 35, 0, 0.55);
+  padding: 0.5rem 1.35rem !important;
+  margin: 0 0.3rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  font-size: 0.98rem;
+  color: #1e1406 !important;
+  text-shadow: 0 1px 0 rgba(255, 248, 220, 0.55);
   box-shadow:
-    inset 0 1px 0 rgba(255, 248, 220, 0.55),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.22),
-    0 2px 6px rgba(0, 0, 0, 0.35),
-    0 0 6px rgba(232, 170, 53, 0.35);
-  animation: fbalab-nav-glow 2.4s ease-in-out infinite;
+    inset 0 1px 0 rgba(255, 255, 240, 0.75),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.18),
+    0 3px 8px rgba(0, 0, 0, 0.4),
+    0 0 14px rgba(255, 196, 60, 0.7);
+  animation: fbalab-nav-glow 2s ease-in-out infinite;
   transition: background 0.2s ease,
               color 0.2s ease,
               box-shadow 0.25s ease,
               transform 0.15s ease;
 }
-.navbar-nav .nav-link[href*="bubblnet.com"]:hover {
-  background: linear-gradient(135deg, #f6c24a 0%, #e09620 100%);
-  border-color: rgba(255, 245, 200, 0.95);
-  color: #ffffff !important;
-  transform: translateY(-1px);
+.navbar-nav .nav-link[href^="https://bubblnet.com"]:hover {
+  background: linear-gradient(135deg, #ffe06a 0%, #f0a820 100%);
+  border-color: #fff6d0;
+  color: #1a1004 !important;
+  transform: translateY(-1px) scale(1.03);
 }
 @keyframes fbalab-nav-glow {
   0%, 100% {
     box-shadow:
-      inset 0 1px 0 rgba(255, 248, 220, 0.55),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.22),
-      0 2px 6px rgba(0, 0, 0, 0.35),
-      0 0 6px rgba(232, 170, 53, 0.35);
+      inset 0 1px 0 rgba(255, 255, 240, 0.75),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.18),
+      0 3px 8px rgba(0, 0, 0, 0.4),
+      0 0 10px rgba(255, 196, 60, 0.55);
   }
   50% {
     box-shadow:
-      inset 0 1px 0 rgba(255, 248, 220, 0.55),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.22),
-      0 2px 6px rgba(0, 0, 0, 0.35),
-      0 0 18px rgba(240, 181, 58, 0.75);
+      inset 0 1px 0 rgba(255, 255, 240, 0.75),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.18),
+      0 3px 10px rgba(0, 0, 0, 0.42),
+      0 0 26px rgba(255, 204, 77, 0.95);
   }
 }
 
@@ -240,7 +243,7 @@ table a:hover {
 }
 
 @media (max-width: 991.98px) {
-  .navbar-collapse .navbar-nav .nav-link[href*="bubblnet.com"],
+  .navbar-collapse .navbar-nav .nav-link[href^="https://bubblnet.com"],
   .navbar-collapse .navbar-nav .nav-link[href*="discord.gg"] {
     margin: 0.35rem 0.75rem;
     padding: 0.55rem 1.25rem !important;
